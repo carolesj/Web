@@ -1,6 +1,6 @@
 html, body{
-  margin: 0;
-  font-family: Georgia, serif;
+    margin: 0;
+    font-family: Georgia, serif;
 }
 
 *{
@@ -43,4 +43,3 @@ html, body{
     background-color: #918EFF;
     padding: 10px;
 }
-</style>
