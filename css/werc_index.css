@@ -43,8 +43,7 @@ a:hover { text-decoration: underline; }
 
 .midHeader {
     color: rgb(39,78,144);
-    background-color: rgb(140,170,230);
-    background-color: #ff6d06;
+    background-color: #ed99ff;
     border: solid 0 black;
     border-width: 2px 0;
 }
@@ -267,6 +266,7 @@ dd {
     background-color: transparent;
 }
 
+/* # Dropdowns # */
 
 /* GENERAL */
 
