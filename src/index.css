@@ -1,1 +1,6 @@
-/*  */
+/* Custom CSS */
+body {
+    /* background: url("images/pet_bg.jpg"); */
+    background-image: url("images/pet_bg.jpg");
+    background-size: cover;
+}
