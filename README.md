@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="favicon.png"/>
+  <img src="public/favicon.png"/>
   <h1 align="center">Petshop Application</h1>
   <h2 align="center">SCC0219 - Web Development</h2>
   <p align="center">College assignment for SCC0219 - Web Development @ ICMC - University of São Paulo.</p>
@@ -7,7 +7,7 @@
 
 ---
 
-## create-react-app
+## create-react-app README
 
 This project was bootstrapped with [Create React App](https://github.com/facebookincubator/create-react-app).
 

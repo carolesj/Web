@@ -5,16 +5,27 @@ import ActionBar from './ActionBar';
 import { UserContext } from './UserContext';
 
 let siteData = {
-    serices: [],
-    products: [],
-    shoppingCart: {},
+    products: [
+        // {id: "exampleString", name:"exampleString", description: "exampleString"}, {...}, ...
+    ],
+    services: [
+        // {service: "exampleString", description: "exampleString", media: "./service1.jpg"}, {...}, ...
+    ],
+    shoppingCart: {
+        user: "",
+        items: [],
+    },
 }
 
 let userData = {
     1: {
         user: "",
-        animals: [],
-        appointments: [],
+        animals: [
+            // {name: "exampleString", race: "exampleString", media: "./dog1.jpg"}, {...}, ...
+        ],
+        appointments: [
+            // {service: "exampleString", animal: "exampleString", dateUTC:"DD-MM-AAAAZ"}, {...}, ...
+        ],
     }
 }
 
