@@ -83,6 +83,12 @@ class Application extends React.Component {
               or if children deeply nested has to use the state, then use
               react context provider. (And operate on it downwards
               with react context consumer.)
+
+            Regarding contexts and manipulation in deeply nested components:
+            https://reactjs.org/docs/context.html#updating-context-from-a-nested-component
+
+            Regarding some gotchas when using react context:
+            https://css-tricks.com/putting-things-in-context-with-react/
          */
         return (
             <React.Fragment>

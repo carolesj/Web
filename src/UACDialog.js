@@ -17,16 +17,22 @@ import { UserContext } from './UserContext';
     Ideally, this state would be kept in a database in a remote server.
  */
 const users = [
-    { username: "user", email: "user@example.com", password: "user", rights: "customer" },
-    { username: "admin", email: "admin@example.com", password: "admin", rights: "admin" }
+    { email: "user@example.com", password: "user", rights: "customer" },
+    { email: "admin@example.com", password: "admin", rights: "admin" }
 ]
+
+const validateEmail = email => {
+    const pattern =  /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+    return pattern.test(String(email).toLowerCase)
+}
 
 class UACDialog extends React.Component {
     constructor(props) {
         super(props)
 
         this.state = {
-            signinFailed: false,
+            errorText: "",
+            errorStatus: false,
             userEmailFieldValue: "",
             userPasswordFieldValue: "",
             userPasswordConfFieldValue: "",
@@ -66,7 +72,7 @@ class UACDialog extends React.Component {
      */
     handleSwitchToSignin() {
         this.setState({
-            signinFailed: false,
+            errorStatus: false,
         })
         // Just change mode to "signin"
         this.props.toggleDialog(this.props.open, "signin")
@@ -74,7 +80,7 @@ class UACDialog extends React.Component {
 
     handleSwitchToSignup() {
         this.setState({
-            signinFailed: false,
+            errorStatus: false,
         })
         // Just change mode to "signup"
         this.props.toggleDialog(this.props.open, "signup")
@@ -82,7 +88,7 @@ class UACDialog extends React.Component {
 
     handleCloseDialog() {
         this.setState({
-            signinFailed: false,
+            errorStatus: false,
             userEmailFieldValue: "",
             userPasswordFieldValue: "",
             userPasswordConfFieldValue: "",
@@ -123,7 +129,8 @@ class UACDialog extends React.Component {
             this.handleCloseDialog()
         } else {
             this.setState({
-                signinFailed: true,
+                errorStatus: true,
+                errorText: "Endereço de e-mail não cadastrado"
             })
         }
     }
@@ -132,6 +139,34 @@ class UACDialog extends React.Component {
         // TODO Check if passwords match
         // TODO Check if user already exists
         // TODO If the above passes, add info to users
+
+        let stageEmail = this.state.userEmailFieldValue
+        let stagePassword = this.state.userPasswordFieldValue
+        let stagePasswordConf = this.state.userPasswordConfFieldValue
+
+        if (stagePassword !== stagePasswordConf) {
+            this.setState({
+                errorStatus: true,
+                errorText: "A senha de confirmação difere"
+            })
+        } else if (!validateEmail(stageEmail)) {
+            this.setState({
+                errorStatus: true,
+                errorText: "Por favor forneça um e-mail válido"
+            })
+        } else {
+            // If both above pass, add new user
+            let stageRights = this.state.userWantsAdminChecked ? "admin" : "customer"
+            let newUser = {
+                email: stageEmail,
+                rights: stageRights,
+                password: stagePassword,
+            }
+            users.concat(newUser)
+
+            // Pass control and log user in
+            this.handleSigninRequest(state)
+        }
     }
 
     handleLogoutRequest(state) {
@@ -142,6 +177,8 @@ class UACDialog extends React.Component {
             userRights: "visitor",
         }
         state.updateUserContext(newState)
+
+        console.log(users)
 
         // Close dialog on success
         this.handleCloseDialog()
@@ -281,6 +318,33 @@ class UACDialog extends React.Component {
             )
         }
 
+        /*
+            TODO: ORGANIZING DATA FOR THE RENDER METHOD
+
+            I still haven't found the best way to set up conditional rendering.
+            What I'm thinkg is: if rendering the element depends only on a boolean
+            condition, then use something like a short-circuiting operator (&&),
+            a ternary condition or an IIFE. Then, if the logic is a little bit
+            more involved, define the items conditionally on the body of the
+            "render" function, and plug them in the return statement.
+
+            If the conditional logic is too elaborate or if the components to be
+            returned differ too much or are separate things entirely, we should
+            consider using Higher Order Components. (A little trickier, the
+            only use of it we have so far is material-ui's "withStyles".)
+
+            About the options available:
+            https://blog.logrocket.com/conditional-rendering-in-react-c6b0e5af381e
+
+            About using special props for conditions:
+            https://github.com/facebook/jsx/issues/65#issuecomment-255484351
+
+            An introduction to use of higher order components:
+            https://www.robinwieruch.de/gentle-introduction-higher-order-components/
+
+            About performance regarding conditional rendering in react:
+            https://medium.com/@cowi4030/optimizing-conditional-rendering-in-react-3fee6b197a20
+         */
         return (
             <div>
                 <Dialog open={this.props.open} aria-labelledby="form-dialog-title"
@@ -293,10 +357,10 @@ class UACDialog extends React.Component {
 
                     {dialogContent}
 
-                    {/* Depends only on signinFailed */}
-                    {this.state.signinFailed && <DialogContent>
+                    {/* Depends only on errorStatus */}
+                    {this.state.errorStatus && <DialogContent>
                         <DialogContentText align="center" color="secondary">
-                            LOGIN FAILED
+                            {this.state.errorText}
                         </DialogContentText>
                     </DialogContent>}
 
