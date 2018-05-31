@@ -2,7 +2,21 @@ import CssBaseline from '@material-ui/core/CssBaseline';
 import Typography from '@material-ui/core/Typography';
 import React from 'react';
 import ActionBar from './ActionBar';
-import {UserContext} from './UserContext';
+import { UserContext } from './UserContext';
+
+let siteData = {
+    serices: [],
+    products: [],
+    shoppingCart: {},
+}
+
+let userData = {
+    1: {
+        user: "",
+        animals: [],
+        appointments: [],
+    }
+}
 
 // TODO move this out of here
 function MainContent(props) {
@@ -52,6 +66,12 @@ class Application extends React.Component {
             }))
         }
 
+        this.handleUpdateViewContext = (newState) => {
+            this.setState(state => ({
+                currentView: newState.currentView,
+            }))
+        }
+
         /*
             GLOBAL CONTEXT
 
@@ -61,12 +81,19 @@ class Application extends React.Component {
             and modified deep down via context consumers.
          */
         this.state = {
+            // User context
             loggedIn: false,
             userEmail: "user@example.com",
             userRights: "visitor",
 
             // Use this to update user context
             updateUserContext: this.handleUpdateUserContext,
+
+            // View context
+            currentView: "",
+
+            // Use this to update view context
+            updateViewContext: this.handleUpdateViewContext,
         }
     }
 

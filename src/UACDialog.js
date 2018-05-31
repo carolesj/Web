@@ -16,14 +16,14 @@ import { UserContext } from './UserContext';
     This obivously should not be here.
     Ideally, this state would be kept in a database in a remote server.
  */
-const users = [
+let users = [
     { email: "user@example.com", password: "user", rights: "customer" },
     { email: "admin@example.com", password: "admin", rights: "admin" }
 ]
 
-const validateEmail = email => {
-    const pattern =  /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-    return pattern.test(String(email).toLowerCase)
+const validateEmail = (email) => {
+    const pattern = /^([A-Za-z0-9_\-\.])+\@([A-Za-z0-9_\-\.])+\.([A-Za-z]{2,4})$/
+    return pattern.test(email)
 }
 
 class UACDialog extends React.Component {
@@ -144,12 +144,17 @@ class UACDialog extends React.Component {
         let stagePassword = this.state.userPasswordFieldValue
         let stagePasswordConf = this.state.userPasswordConfFieldValue
 
-        if (stagePassword !== stagePasswordConf) {
+        if (stagePassword.length < 6) {
             this.setState({
                 errorStatus: true,
-                errorText: "A senha de confirmação difere"
+                errorText: "A senha deve ter no minimo 6 caracteres!"
             })
-        } else if (!validateEmail(stageEmail)) {
+        } else if (stagePassword !== stagePasswordConf) {
+            this.setState({
+                errorStatus: true,
+                errorText: "A senha de confirmação difere da original"
+            })
+        } else if (validateEmail(stageEmail) === false) {
             this.setState({
                 errorStatus: true,
                 errorText: "Por favor forneça um e-mail válido"
@@ -159,10 +164,10 @@ class UACDialog extends React.Component {
             let stageRights = this.state.userWantsAdminChecked ? "admin" : "customer"
             let newUser = {
                 email: stageEmail,
-                rights: stageRights,
                 password: stagePassword,
+                rights: stageRights,
             }
-            users.concat(newUser)
+            users = users.concat(newUser)
 
             // Pass control and log user in
             this.handleSigninRequest(state)
@@ -177,8 +182,6 @@ class UACDialog extends React.Component {
             userRights: "visitor",
         }
         state.updateUserContext(newState)
-
-        console.log(users)
 
         // Close dialog on success
         this.handleCloseDialog()
