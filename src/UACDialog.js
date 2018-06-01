@@ -182,6 +182,7 @@ class UACDialog extends React.Component {
             userRights: "visitor",
         }
         state.updateUserContext(newState)
+        state.updateViewContext({currentView: "home"}) // DON'T FORGET TO RESET THE VIEW
 
         // Close dialog on success
         this.handleCloseDialog()

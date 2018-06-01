@@ -22,6 +22,10 @@ const styles = {
         flex: 1,
     },
 
+    UACButton: {
+        marginRight: -16,
+    },
+
     menuButton: {
         marginLeft: -12,
         marginRight: 20,
@@ -60,8 +64,10 @@ class ActionBar extends React.Component {
         const { classes } = this.props
 
         const UACButton = this.props.loggedIn ?
-            (<Button color="inherit" onClick={() => this.handleToggleDialog(true, "logout")}>Sair</Button>) :
-            (<Button color="inherit" onClick={() => this.handleToggleDialog(true, "signin")}>Login</Button>)
+            (<Button className={classes.UACButton} color="inherit"
+                onClick={() => this.handleToggleDialog(true, "logout")}>Sair</Button>) :
+            (<Button className={classes.UACButton} color="inherit"
+                onClick={() => this.handleToggleDialog(true, "signin")}>Login</Button>)
 
 
         return (

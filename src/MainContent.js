@@ -1,17 +1,31 @@
+import Avatar from '@material-ui/core/Avatar';
 import Button from '@material-ui/core/Button';
 import Card from '@material-ui/core/Card';
 import CardActions from '@material-ui/core/CardActions';
 import CardContent from '@material-ui/core/CardContent';
 import CardMedia from '@material-ui/core/CardMedia';
+import Chip from '@material-ui/core/Chip';
+import Divider from '@material-ui/core/Divider';
+import ExpansionPanel from '@material-ui/core/ExpansionPanel';
+import ExpansionPanelActions from '@material-ui/core/ExpansionPanelActions';
+import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
+import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
 import Grid from '@material-ui/core/Grid';
 import Typography from '@material-ui/core/Typography';
 import { withStyles } from '@material-ui/core/styles';
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import classNames from 'classnames';
 import React from 'react';
 import { UserContext } from './UserContext';
 
 const styles = theme => ({
     root: {
         flexGrow: 1,
+        margin: 2 * theme.spacing.unit,
+    },
+
+    expRoot: {
+        width: '100%',
         margin: 2 * theme.spacing.unit,
     },
 
@@ -22,27 +36,72 @@ const styles = theme => ({
 
     media: {
         height: 0,
-        paddingTop: '86.25%',  // Originally, 56.25%, for 16:9 media
+        paddingTop: '76.25%',  // Originally, 56.25%, meaning 16:9 media
+    },
+
+    expRoot: {
+        width: '100%',
+    },
+
+    heading: {
+        fontSize: theme.typography.pxToRem(15),
+    },
+
+    secondaryHeading: {
+        fontSize: theme.typography.pxToRem(15),
+        color: theme.palette.text.secondary,
+    },
+
+    icon: {
+        verticalAlign: 'bottom',
+        height: 20,
+        width: 20,
+    },
+
+    details: {
+        alignItems: 'center',
+    },
+
+    column: {
+        flexBasis: '33.33%',
+    },
+
+    helper: {
+        borderLeft: `2px solid ${theme.palette.divider}`,
+        padding: `${theme.spacing.unit}px ${theme.spacing.unit * 2}px`,
+    },
+
+    link: {
+        color: theme.palette.primary.main,
+        textDecoration: 'none',
+        '&:hover': {
+            textDecoration: 'underline',
+        },
     },
 })
 
+/*
+    STATIC DATA
+
+    Declares initial static data for profiles and such.
+ */
 let siteData = {
     products: [
         // {id: "exampleString", name:"exampleString", description: "exampleString", media: "./product1.jpg"}, {...}, ...
-        { id: 1, name: "Biscoitos Caninos", description: "Deliciosos agrados de qualidade para cachorros", media: "./product1.jpg", amount: 1000 },
-        { id: 2, name: "Bola de Tênis", description: "Bola verde que quica", media: "./product2.jpg", amount: 1000 },
-        { id: 3, name: "Coleira", description: "Coleira de couro sintético", media: "./product3.jpg", amount: 1000 },
-        { id: 4, name: "Erva de Gato", description: "Erva recreativa ressequida para gatos", media: "./product4.jpg", amount: 1000 },
-        { id: 5, name: "Guia", description: "Guia para coleiras padrão", media: "./product5.JPG", amount: 1000 },
-        { id: 6, name: "Petisco de Gato", description: "Deliciosos agrados de qualidade para gatos", media: "./product6.jpg", amount: 1000 },
-        { id: 7, name: "Ração", description: "Ração de primeira qualidade", media: "./product7.jpg", amount: 1000 }
+        { id: 0, name: "Biscoitos Caninos", description: "Deliciosos agrados de qualidade para cachorros", media: "product1.jpg", amount: 1000 },
+        { id: 1, name: "Bola de Tênis", description: "Bola verde que quica", media: "product2.jpg", amount: 1000 },
+        { id: 2, name: "Coleira", description: "Coleira de couro sintético", media: "product3.jpg", amount: 1000 },
+        { id: 3, name: "Erva de Gato", description: "Erva recreativa ressequida para gatos", media: "product4.jpg", amount: 0 },
+        { id: 4, name: "Guia", description: "Guia para coleiras padrão", media: "product5.JPG", amount: 1000 },
+        { id: 5, name: "Petisco de Gato", description: "Deliciosos agrados de qualidade para gatos", media: "product6.jpg", amount: 1000 },
+        { id: 6, name: "Ração", description: "Ração de primeira qualidade", media: "product7.jpg", amount: 1000 }
     ],
     services: [
         // {service: "exampleString", description: "exampleString", media: "./service1.jpg"}, {...}, ...
-        { id: 1, name: "Banho", description: "Banho com xampu hipoalergênico para gatos e cães", media: "./service1.jpg", available: true },
-        { id: 2, name: "Cortar Unha", description: "Cuidados com a unha de seu gato com segurança e sem machucá-lo", media: "./service2.jpg", available: true },
-        { id: 3, name: "Massagem", description: "Massagem relaxante para seu cão", media: "./service3.jpg", available: true },
-        { id: 4, name: "Tosa", description: "Corte dos pêlos do seu animal", media: "./service4.jpg", available: true }
+        { id: 0, name: "Banho", description: "Banho com xampu hipoalergênico para gatos e cães", media: "service1.jpg", available: true },
+        { id: 1, name: "Cortar Unha", description: "Cuidados com a unha de seu gato com segurança e sem machucá-lo", media: "service2.jpg", available: false },
+        { id: 2, name: "Massagem", description: "Massagem relaxante para seu cão", media: "service3.jpg", available: true },
+        { id: 3, name: "Tosa", description: "Corte dos pêlos do seu animal", media: "service4.jpg", available: true }
     ],
     shoppingCart: {
         user: "",
@@ -56,27 +115,30 @@ let userData = [
         email: "user@example.com",
         animals: [
             // {name: "exampleString", race: "exampleString", media: "./dog1.jpg"}, {...}, ...
-            { id: 1, name: "Felicloper", race: "Bernese", media: "dog1.jpg" },
-            { id: 2, name: "Glauber", race: "McNab", media: "dog2.jpg" },
-            { id: 3, name: "Gustavo", race: "Buldogue", media: "dog3.jpg" },
-            { id: 4, name: "Caramelo", race: "Harrier", media: "dog4.jpg" },
-            { id: 5, name: "Carolhos", race: "SRD", media: "dog5.jpg" },
-            { id: 6, name: "Nerso", race: "Labrador", media: "dog6.jpg" },
-            { id: 7, name: "Sabrino", race: "Pharaoh Hound", media: "dog7.jpg" },
-            { id: 8, name: "Kik", race: "Chihuahua", media: "dog8.jpg" },
-            { id: 9, name: "Frederico", race: "Siamês", media: "cat1.jpg" },
-            { id: 10, name: "Fofinho", race: "Maine Coon", media: "cat2.jpg" }
+            { id: 0, name: "Felicloper", race: "Bernese", media: "dog1.jpg" },
+            { id: 1, name: "Glauber", race: "McNab", media: "dog2.jpg" },
+            { id: 2, name: "Gustavo", race: "Buldogue", media: "dog3.jpg" },
+            { id: 3, name: "Caramelo", race: "Harrier", media: "dog4.jpg" },
+            { id: 4, name: "Carolhos", race: "SRD", media: "dog5.jpg" },
+            { id: 5, name: "Nerso", race: "Labrador", media: "dog6.jpg" },
+            { id: 6, name: "Sabrino", race: "Pharaoh Hound", media: "dog7.jpg" },
+            { id: 7, name: "Kik", race: "Chihuahua", media: "dog8.jpg" },
+            { id: 8, name: "Frederico", race: "Siamês", media: "cat1.jpg" },
+            { id: 9, name: "Fofinho", race: "Maine Coon", media: "cat2.jpg" }
         ],
         appointments: [
-            // {service: "exampleString", animal: "exampleString", dateUTC:"DD-MM-AAAAZ"}, {...}, ...
-            { id: 1, serviceName: "Banho", animalName: "Sabrino", dateUTC: "06-06-2018Z" },
-            { id: 2, serviceName: "Massagem", animalName: "Nerso", dateUTC: "24-06-2019Z" },
-            { id: 3, serviceName: "Cortar Unha", animalName: "Fofinho", dateUTC: "06-08-2018Z" },
-            { id: 4, serviceName: "Tosa", animalName: "Felicloper", dateUTC: "04-06-2018Z" }
+            // {service: "exampleString", animal: "exampleString", dateUTC:"MM/DD/AAAA XX:YY:ZZ GMT-3"}, {...}, ...
+            { serviceId: 0, serviceName: "Banho", animalId: 6, animalName: "Sabrino", date: "06/06/2018 14:00:00 GMT-3" },
+            { serviceId: 2, serviceName: "Massagem", animalId: 5, animalName: "Nerso", date: "06/24/2019 14:00:00 GMT-3" },
+            { serviceId: 1, serviceName: "Cortar Unha", animalId: 9, animalName: "Fofinho", date: "08/06/2018 14:00:00 GMT-3" },
+            { serviceId: 3, serviceName: "Tosa", animalId: 0, animalName: "Felicloper", date: "06/04/2018 14:00:00 GMT-3" }
         ],
     },
 ]
 
+/*
+    DATA VIEW BUILDERS
+ */
 const makePresenterView = (userRights, loggedIn) => {
     let headtext = null
     let subtext = null
@@ -103,22 +165,112 @@ const makePresenterView = (userRights, loggedIn) => {
     )
 }
 
-const makeProductsList = () => {
-    return null
+const makeProductsList = (classes) => {
+    return (
+        <div className={classes.root}>
+            <Grid container spacing={24} justify="flex-start">
+                {siteData.products.map((item, index) => (
+                    <Grid key={index} item xs={12} sm={6} md={4}>
+                        <Card>
+                            <CardMedia
+                                className={classes.media}
+                                image={require("./media/" + item.media)}
+                                title={"Serviço de " + item.name}
+                            />
+                            <CardContent>
+                                <Typography gutterBottom variant="headline" component="h2">
+                                    {item.name}
+                                </Typography>
+                                <Typography component="p">
+                                    {item.description}
+                                </Typography>
+                                {item.amount > 0 ?
+                                    <Typography variant="caption" gutterBottom align="left">
+                                        <br />
+                                        {`Disponibilidade: ${item.amount} unidades`}
+                                    </Typography>
+                                    :
+                                    <Typography variant="body1" color="error" gutterBottom align="left">
+                                        <br />
+                                        Produto esgotado
+                                    </Typography>
+                                }
+                            </CardContent>
+                            <CardActions>
+                                {item.amount > 0 ?
+                                    <Button size="small" color="primary">
+                                        Comprar
+                                    </Button>
+                                    :
+                                    <Button disabled size="small" color="primary">
+                                        Comprar
+                                    </Button>
+                                }
+                            </CardActions>
+                        </Card>
+                    </Grid>
+                ))}
+            </Grid>
+        </div>
+    )
 }
 
-const makeServicesList = () => {
-    return null
+const makeServicesList = (classes) => {
+    return (
+        <div className={classes.root}>
+            <Grid container spacing={24} justify="flex-start">
+                {siteData.services.map((item, index) => (
+                    <Grid key={index} item xs={12} sm={6} md={4}>
+                        <Card>
+                            <CardMedia
+                                className={classes.media}
+                                image={require("./media/" + item.media)}
+                                title={"Serviço de " + item.name}
+                            />
+                            <CardContent>
+                                <Typography gutterBottom variant="headline" component="h2">
+                                    {item.name}
+                                </Typography>
+                                <Typography component="p">
+                                    {item.description}
+                                </Typography>
+                                {item.available ?
+                                    <Typography variant="caption" gutterBottom align="left">
+                                        <br />
+                                        Disponível para agendamento
+                                    </Typography>
+                                    :
+                                    <Typography variant="body1" color="error" gutterBottom align="left">
+                                        <br />
+                                        Serviço indisponível
+                                    </Typography>
+                                }
+                            </CardContent>
+                            <CardActions>
+                                {item.available ?
+                                    <Button size="small" color="primary">
+                                        Contratar
+                                    </Button>
+                                    :
+                                    <Button disabled size="small" color="primary">
+                                        Contratar
+                                    </Button>
+                                }
+                            </CardActions>
+                        </Card>
+                    </Grid>
+                ))}
+            </Grid>
+        </div>
+    )
 }
 
 const makePetList = (classes, userEmail) => {
     let data = null
-    let id = 0
 
     for (const user of userData) {
         if (user.email === userEmail) {
             data = user
-            id = user.id
         }
     }
 
@@ -138,17 +290,17 @@ const makePetList = (classes, userEmail) => {
             Media container. (TODO include pet register control in the cards.)
 
      */
-    return (id === 0) ? null :
+    return (data === null) ? null :  // Don't worry, this comparison is safe
         (
             <div className={classes.root}>
-                <Grid container spacing={24} justify="space-around">
+                <Grid container spacing={24} justify="flex-start">
                     {data.animals.map((item, index) => (
                         <Grid key={index} item xs={12} sm={6} md={4}>
                             <Card>
                                 <CardMedia
                                     className={classes.media}
-                                    image={require("./" + item.media)}
-                                    title={"My pet number " + index}
+                                    image={require("./media/" + item.media)}
+                                    title={"Meu pet " + item.name}
                                 />
                                 <CardContent>
                                     <Typography gutterBottom variant="headline" component="h2">
@@ -160,10 +312,7 @@ const makePetList = (classes, userEmail) => {
                                 </CardContent>
                                 <CardActions>
                                     <Button size="small" color="primary">
-                                        Share
-                                    </Button>
-                                    <Button size="small" color="primary">
-                                        Learn More
+                                        Editar
                                     </Button>
                                 </CardActions>
                             </Card>
@@ -174,8 +323,61 @@ const makePetList = (classes, userEmail) => {
         )
 }
 
-const makeAppointmentList = (userEmail) => {
-    return null
+const makeAppointmentList = (classes, userEmail) => {
+    let data = null
+
+    for (const user of userData) {
+        if (user.email === userEmail) {
+            data = user
+        }
+    }
+
+    // For generating text out of date info
+    let dateOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+
+    return (data === null) ? null :
+        (
+            <div className={classes.expRoot}>
+                {data.appointments.map((item, index) => (
+                    <ExpansionPanel key={index}>
+                        <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
+                            <div className={classes.column}>
+                                <Typography className={classes.heading}>
+                                    {(new Date(item.date)).toLocaleDateString("pt-BR", dateOptions)}
+                                </Typography>
+                            </div>
+                            <div className={classes.column}>
+                            </div>
+                        </ExpansionPanelSummary>
+                        <ExpansionPanelDetails className={classes.details}>
+                            <div className={classes.column}>
+                                <Typography className={classes.secondaryHeading}>
+                                    {`Serviço: ${item.serviceName}`}
+                                </Typography>
+                            </div>
+                            <div className={classes.column}>
+                                <Chip label={item.animalName} className={classes.chip}
+                                    avatar={<Avatar src={require("./media/" + data.animals[item.animalId].media)} />}
+                                    onClick={() => {console.log(data.animals[item.animalId].media)}} />
+                            </div>
+                            <div className={classNames(classes.column, classes.helper)}>
+                                <Typography variant="caption">
+                                    Seu pet a ser tratado no serviço<br />
+                                    <a href="./" className={classes.link}>
+                                        Deseja tratar outro pet?
+                                        </a>
+                                </Typography>
+                            </div>
+                        </ExpansionPanelDetails>
+                        <Divider />
+                        <ExpansionPanelActions>
+                            <Button size="small" color="secondary">Cancelar</Button>
+                            <Button size="small" color="primary">Trocar data</Button>
+                        </ExpansionPanelActions>
+                    </ExpansionPanel>
+                ))}
+            </div>
+        )
 }
 
 const makeShoppingCartView = () => {
@@ -186,7 +388,15 @@ const makeStockDashboard = () => {
     return null
 }
 
-// TODO move this out of here
+/*
+    DATA VIEW MODIFIERS
+ */
+
+// TODO stuff here
+
+/*
+    MAIN COMPONENT CLASS
+ */
 class MainContent extends React.Component {
 
     buildMainView(state) {
@@ -197,13 +407,13 @@ class MainContent extends React.Component {
                 return makePresenterView(state.userRights, state.loggedIn)
 
             case "products":
-                return makeProductsList()
+                return makeProductsList(this.props.classes)
 
             case "services":
-                return makeServicesList()
+                return makeServicesList(this.props.classes)
 
             case "appointments":
-                return makeAppointmentList(state.userEmail)
+                return makeAppointmentList(this.props.classes, state.userEmail)
 
             case "pets":
                 return makePetList(this.props.classes, state.userEmail)
