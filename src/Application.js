@@ -6,10 +6,21 @@ import { UserContext } from './UserContext';
 
 let siteData = {
     products: [
-        // {id: "exampleString", name:"exampleString", description: "exampleString"}, {...}, ...
+        // {id: "exampleString", name:"exampleString", description: "exampleString", media: "./product1.jpg"}, {...}, ...
+        {id: "biscoitoscaninos", name:"Biscoitos Caninos", description: "Deliciosos agrados de qualidade para cachorros", media: "./product1.jpg"},
+        {id: "boladetenis", name:"Bola de Tênis", description: "Bola verde que quica", media: "./product2.jpg"},
+        {id: "coleira", name:"Coleira", description: "Coleira de couro sintético", media: "./product3.jpg"},
+        {id: "ervadegato", name:"Erva de Gato", description: "Erva recreativa ressequida para gatos", media: "./product4.jpg"},
+        {id: "guia", name:"Guia", description: "Guia para coleiras padrão", media: "./product5.JPG"},
+        {id: "petiscodegato", name:"Petisco de Gato", description: "Deliciosos agrados de qualidade para gatos", media: "./product6.jpg"},
+        {id: "racao", name:"Ração", description: "Ração de primeira qualidade", media: "./product7.jpg"}
     ],
     services: [
         // {service: "exampleString", description: "exampleString", media: "./service1.jpg"}, {...}, ...
+        {service: "Banho", description: "Banho com xampu hipoalergênico para gatos e cães", media: "./service1.jpg"},
+        {service: "Cortar Unha", description: "Cuidados com a unha de seu gato com segurança e sem machucá-lo", media: "./service2.jpg"},
+        {service: "Massagem", description: "Massagem relaxante para seu cão", media: "./service3.jpg"},
+        {service: "Tosa", description: "Corte dos pêlos do seu animal", media: "./service4.jpg"}
     ],
     shoppingCart: {
         user: "",
@@ -22,9 +33,23 @@ let userData = {
         user: "",
         animals: [
             // {name: "exampleString", race: "exampleString", media: "./dog1.jpg"}, {...}, ...
+            {name: "Felicloper", race: "Bernese", media: "./dog1.jpg"},
+            {name: "Glauber", race: "McNab", media: "./dog2.jpg"},
+            {name: "Gustavo", race: "Buldogue", media: "./dog3.jpg"},
+            {name: "Caramelo", race: "Harrier", media: "./dog4.jpg"},
+            {name: "Carolhos", race: "SRD", media: "./dog5.jpg"},
+            {name: "Nerso", race: "Labrador", media: "./dog6.jpg"},
+            {name: "Sabrino", race: "Pharaoh Hound", media: "./dog7.jpg"},
+            {name: "Kik", race: "Chihuahua", media: "./dog8.jpg"},
+            {name: "Frederico", race: "Siamês", media: "./cat1.jpg"},
+            {name: "Fofinho", race: "Maine Coon", media: "./cat2.jpg"}
         ],
         appointments: [
             // {service: "exampleString", animal: "exampleString", dateUTC:"DD-MM-AAAAZ"}, {...}, ...
+            {service: "Banho", animal: "Sabrino", dateUTC:"06-06-2018"},
+            {service: "Massagem", animal: "Nerso", dateUTC:"24-06-2019"},
+            {service: "Cortar Unha", animal: "Fofinho", dateUTC:"06-08-2018"},
+            {service: "Tosa", animal: "Felicloper", dateUTC:"04-06-2018"}
         ],
     }
 }
@@ -60,7 +85,7 @@ class Application extends React.Component {
     constructor(props) {
         super(props)
 
-        /* 
+        /*
             CONTEXT MODIFIER
 
             Change logged in user state.
@@ -115,7 +140,7 @@ class Application extends React.Component {
 
             What we ideally want is the following:
             - If the state passed down is used only in the child component
-              and not passed downwards to following children, then just 
+              and not passed downwards to following children, then just
               use regular properties (props).
             - If the state passed down has to be used in subsequent children
               or if children deeply nested has to use the state, then use
