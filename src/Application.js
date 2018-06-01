@@ -1,85 +1,8 @@
 import CssBaseline from '@material-ui/core/CssBaseline';
-import Typography from '@material-ui/core/Typography';
 import React from 'react';
 import ActionBar from './ActionBar';
+import MainContent from './MainContent';
 import { UserContext } from './UserContext';
-
-let siteData = {
-    products: [
-        // {id: "exampleString", name:"exampleString", description: "exampleString", media: "./product1.jpg"}, {...}, ...
-        {id: "biscoitoscaninos", name:"Biscoitos Caninos", description: "Deliciosos agrados de qualidade para cachorros", media: "./product1.jpg"},
-        {id: "boladetenis", name:"Bola de Tênis", description: "Bola verde que quica", media: "./product2.jpg"},
-        {id: "coleira", name:"Coleira", description: "Coleira de couro sintético", media: "./product3.jpg"},
-        {id: "ervadegato", name:"Erva de Gato", description: "Erva recreativa ressequida para gatos", media: "./product4.jpg"},
-        {id: "guia", name:"Guia", description: "Guia para coleiras padrão", media: "./product5.JPG"},
-        {id: "petiscodegato", name:"Petisco de Gato", description: "Deliciosos agrados de qualidade para gatos", media: "./product6.jpg"},
-        {id: "racao", name:"Ração", description: "Ração de primeira qualidade", media: "./product7.jpg"}
-    ],
-    services: [
-        // {service: "exampleString", description: "exampleString", media: "./service1.jpg"}, {...}, ...
-        {service: "Banho", description: "Banho com xampu hipoalergênico para gatos e cães", media: "./service1.jpg"},
-        {service: "Cortar Unha", description: "Cuidados com a unha de seu gato com segurança e sem machucá-lo", media: "./service2.jpg"},
-        {service: "Massagem", description: "Massagem relaxante para seu cão", media: "./service3.jpg"},
-        {service: "Tosa", description: "Corte dos pêlos do seu animal", media: "./service4.jpg"}
-    ],
-    shoppingCart: {
-        user: "",
-        items: [],
-    },
-}
-
-let userData = {
-    1: {
-        user: "",
-        animals: [
-            // {name: "exampleString", race: "exampleString", media: "./dog1.jpg"}, {...}, ...
-            {name: "Felicloper", race: "Bernese", media: "./dog1.jpg"},
-            {name: "Glauber", race: "McNab", media: "./dog2.jpg"},
-            {name: "Gustavo", race: "Buldogue", media: "./dog3.jpg"},
-            {name: "Caramelo", race: "Harrier", media: "./dog4.jpg"},
-            {name: "Carolhos", race: "SRD", media: "./dog5.jpg"},
-            {name: "Nerso", race: "Labrador", media: "./dog6.jpg"},
-            {name: "Sabrino", race: "Pharaoh Hound", media: "./dog7.jpg"},
-            {name: "Kik", race: "Chihuahua", media: "./dog8.jpg"},
-            {name: "Frederico", race: "Siamês", media: "./cat1.jpg"},
-            {name: "Fofinho", race: "Maine Coon", media: "./cat2.jpg"}
-        ],
-        appointments: [
-            // {service: "exampleString", animal: "exampleString", dateUTC:"DD-MM-AAAAZ"}, {...}, ...
-            {service: "Banho", animal: "Sabrino", dateUTC:"06-06-2018"},
-            {service: "Massagem", animal: "Nerso", dateUTC:"24-06-2019"},
-            {service: "Cortar Unha", animal: "Fofinho", dateUTC:"06-08-2018"},
-            {service: "Tosa", animal: "Felicloper", dateUTC:"04-06-2018"}
-        ],
-    }
-}
-
-// TODO move this out of here
-function MainContent(props) {
-    let headtext = null
-    let subtext = null
-
-    if (props.loggedIn) {
-        headtext = "Você é um " + props.userRights
-        subtext = "Explore o painel para mais opções"
-    } else {
-        headtext = "Seja bem vindo!"
-        subtext = "Faça login para mais informações ou compra de produtos e serviços"
-    }
-
-    return (
-        <div>
-            <br />
-            <br />
-            <Typography align="center" variant="display4" gutterBottom>
-                {headtext}
-            </Typography>
-            <Typography align="center" variant="subheading" gutterBottom>
-                {subtext}
-            </Typography>
-        </div>
-    )
-}
 
 class Application extends React.Component {
     constructor(props) {
@@ -126,7 +49,7 @@ class Application extends React.Component {
             updateUserContext: this.handleUpdateUserContext,
 
             // View context
-            currentView: "",
+            currentView: "home",
 
             // Use this to update view context
             updateViewContext: this.handleUpdateViewContext,
@@ -134,7 +57,6 @@ class Application extends React.Component {
     }
 
     render() {
-
         /*
             STATE HANDLING ACROSS COMPONENTS
 
@@ -158,7 +80,7 @@ class Application extends React.Component {
                 <CssBaseline />
                 <UserContext.Provider value={this.state}>
                     <ActionBar loggedIn={this.state.loggedIn} />
-                    <MainContent loggedIn={this.state.loggedIn} userRights={this.state.userRights} />
+                    <MainContent />
                 </UserContext.Provider>
             </React.Fragment>
         )

@@ -19,4 +19,10 @@ export const UserContext = React.createContext({
 
     // Updates user context data
     updateUserContext: (newState) => { },
+
+    // View context
+    currentView: "",
+
+    // Use this to update view context
+    updateViewContext: (newState) => { },
 })
