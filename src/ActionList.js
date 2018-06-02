@@ -16,17 +16,18 @@ function ActionList(props) {
     let customerOptions = []
     if (props.userRights === "customer") {
         customerOptions = [
-            { control: "appointments", pt: "Agendamentos", st: "Informações de serviços agendados" },
-            { control: "pets", pt: "Meus Pets", st: "Lista dos seus pets cadastrados na loja" },
-            { control: "cart", pt: "Carrinho", st: "Estado do carrinho de compras" },
+            { control: "myPets", pt: "Meus Pets", st: "Lista dos seus pets cadastrados na loja" },
+            { control: "myAppoints", pt: "Meus agendamentos", st: "Informações de serviços agendados" },
+            { control: "myShoppingCart", pt: "Carrinho de compras", st: "Estado atual do carrinho de compras" },
         ]
     }
 
     let adminOptions = []
     if (props.userRights === "admin") {
         adminOptions = [
-            { control: "appointments", pt: "Agendamentos", st: "Informações sobre todos agendamentos" },
-            { control: "stock", pt: "Estoque", st: "Controle de produtos em estoque" },
+            { control: "userCtl", pt: "Controle de usuários", st: "Controle de cadastros de usuários" },
+            { control: "stockCtl", pt: "Controle de estoque", st: "Controle de produtos em estoque" },
+            { control: "serviceCtl", pt: "Controle de serviços", st: "Controle de serviços agendamentos" },
         ]
     }
 

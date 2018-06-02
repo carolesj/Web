@@ -39,10 +39,6 @@ const styles = theme => ({
         paddingTop: '76.25%',  // Originally, 56.25%, meaning 16:9 media
     },
 
-    expRoot: {
-        width: '100%',
-    },
-
     heading: {
         fontSize: theme.typography.pxToRem(15),
     },
@@ -139,7 +135,7 @@ let userData = [
 /*
     DATA VIEW BUILDERS
  */
-const makePresenterView = (userRights, loggedIn) => {
+const commonHomeSummary = (userRights, loggedIn) => {
     let headtext = null
     let subtext = null
 
@@ -165,7 +161,7 @@ const makePresenterView = (userRights, loggedIn) => {
     )
 }
 
-const makeProductsList = (classes) => {
+const commonProductList = (classes) => {
     return (
         <div className={classes.root}>
             <Grid container spacing={24} justify="flex-start">
@@ -215,7 +211,7 @@ const makeProductsList = (classes) => {
     )
 }
 
-const makeServicesList = (classes) => {
+const commonServiceList = (classes) => {
     return (
         <div className={classes.root}>
             <Grid container spacing={24} justify="flex-start">
@@ -265,7 +261,7 @@ const makeServicesList = (classes) => {
     )
 }
 
-const makePetList = (classes, userEmail) => {
+const customerPetList = (classes, userEmail) => {
     let data = null
 
     for (const user of userData) {
@@ -323,7 +319,7 @@ const makePetList = (classes, userEmail) => {
         )
 }
 
-const makeAppointmentList = (classes, userEmail) => {
+const customerAppointList = (classes, userEmail) => {
     let data = null
 
     for (const user of userData) {
@@ -380,11 +376,23 @@ const makeAppointmentList = (classes, userEmail) => {
         )
 }
 
-const makeShoppingCartView = () => {
+// TODO
+const customerShoppingCartSummary = (classes, userEmail) => {
     return null
 }
 
-const makeStockDashboard = () => {
+// TODO
+const supervisorUserControlView = () => {
+    return null
+}
+
+// TODO
+const supervisorStockControlView = () => {
+    return null
+}
+
+// TODO
+const supervisorServiceControlView = () => {
     return null
 }
 
@@ -403,26 +411,35 @@ class MainContent extends React.Component {
         let view = state.currentView
 
         switch (view) {
+            // Visitor options
             case "home":
-                return makePresenterView(state.userRights, state.loggedIn)
+                return commonHomeSummary(state.userRights, state.loggedIn)
 
             case "products":
-                return makeProductsList(this.props.classes)
+                return commonProductList(this.props.classes)
 
             case "services":
-                return makeServicesList(this.props.classes)
+                return commonServiceList(this.props.classes)
 
-            case "appointments":
-                return makeAppointmentList(this.props.classes, state.userEmail)
+            // Customer options
+            case "myPets":
+                return customerPetList(this.props.classes, state.userEmail)
 
-            case "pets":
-                return makePetList(this.props.classes, state.userEmail)
+            case "myAppoints":
+                return customerAppointList(this.props.classes, state.userEmail)
 
-            case "cart":
-                return makeShoppingCartView()
+            case "myShoppingCart":
+                return customerShoppingCartSummary(this.props.classes, state.userEmail)
 
-            case "stock":
-                return makeStockDashboard()
+            // Supervisor options
+            case "userCtl":
+                return supervisorUserControlView()
+
+            case "stockCtl":
+                return supervisorStockControlView()
+
+            case "serviceCtl":
+                return supervisorServiceControlView()
 
             default:
                 return null
