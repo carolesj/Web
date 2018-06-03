@@ -8,9 +8,9 @@ import { withStyles } from '@material-ui/core/styles';
 import MenuIcon from '@material-ui/icons/Menu';
 import PropTypes from 'prop-types';
 import React from 'react';
+import { connect } from 'react-redux';
 import ActionList from './ActionList';
 import UACDialog from './UACDialog';
-import {UserContext} from './UserContext';
 
 // Local styles
 const styles = {
@@ -82,11 +82,7 @@ class ActionBar extends React.Component {
                     <div tabIndex={0} role="button"
                         onClick={() => this.handleToggleDrawer(false)}
                         onKeyDown={() => this.handleToggleDrawer(false)}>
-                        <UserContext.Consumer>
-                            {state => (
-                                <ActionList userRights={state.userRights} />
-                            )}
-                        </UserContext.Consumer>
+                            <ActionList />
                     </div>
                 </Drawer>
                 {/* The main thing in this shiznit */}
@@ -109,9 +105,18 @@ class ActionBar extends React.Component {
 
 // Do typechecking
 ActionBar.propTypes = {
-    classes: PropTypes.object.isRequired,
+    // From store state
     loggedIn: PropTypes.bool.isRequired,
+
+    // From material-ui
+    classes: PropTypes.object.isRequired,
 }
 
-// Styles are injected as a "classes" prop!!!
-export default withStyles(styles)(ActionBar)
+function mapStateToProps(state) {
+    return {
+        loggedIn: state.currentUserLoggedIn
+    }
+}
+
+// Inject styles, connect mappers with the redux store and export symbol
+export default connect(mapStateToProps)(withStyles(styles)(ActionBar))

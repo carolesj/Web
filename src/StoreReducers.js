@@ -16,7 +16,7 @@ import {
     sudoEditAppointment, sudoRemoveAppointment, addServiceRegistry
 } from './StoreActions';
 
-const initialState = {
+let initialState = {
     // Current user
     currentUserView: "home",        // Any user starts at home page
     currentUserEmail: "",           // No sense in tracking a visitors e-mail

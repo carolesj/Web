@@ -3,10 +3,10 @@ import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
 import PropTypes from 'prop-types';
 import React from 'react';
-import { UserContext } from './UserContext';
+import { connect } from 'react-redux';
+import { changeCurrentView } from './StoreActions';
 
 function ActionList(props) {
-
     let defaultOptions = [
         { control: "home", pt: "Início", st: "Página inicial" },
         { control: "products", pt: "Produtos", st: "Catálogo de produtos em oferta" },
@@ -35,30 +35,44 @@ function ActionList(props) {
     let allOptions = defaultOptions.concat(customerOptions).concat(adminOptions)
 
     return (
-        <UserContext.Consumer>
-            {state => (
-                <List component="nav">
-                    {
-                        allOptions.map((item, index) => (
-                            // The "key" prop MUST be provided!
-                            <ListItem button divider key={index}
-                                onClick={() => state.updateViewContext({ currentView: item.control })}>
-                                <ListItemText
-                                    primary={item.pt}
-                                    secondary={item.st}
-                                />
-                            </ListItem>
-                        ))
-                    }
-                </List>
-            )}
-        </UserContext.Consumer>
+        <List component="nav">
+            {
+                allOptions.map((item, index) => (
+                    // The "key" prop MUST be provided!
+                    <ListItem button divider key={index}
+                        onClick={() => props.onChangeViewClick(item.control)}>
+                        <ListItemText
+                            primary={item.pt}
+                            secondary={item.st}
+                        />
+                    </ListItem>
+                ))
+            }
+        </List>
     )
 }
 
-// Do typechecking
 ActionList.propTypes = {
+    // From store state
     userRights: PropTypes.string.isRequired,
+
+    // From store actions
+    onChangeViewClick: PropTypes.func.isRequired
 }
 
-export default ActionList
+function mapStateToProps(state) {
+    return {
+        userRights: state.currentUserRights
+    }
+}
+
+function mapDispatchToProps(dispatch) {
+    return {
+        onChangeViewClick: nextView => {
+            dispatch(changeCurrentView(nextView))
+        }
+    }
+}
+
+// Connect mappers with the redux store and export symbol
+export default connect(mapStateToProps, mapDispatchToProps)(ActionList)

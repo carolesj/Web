@@ -2,59 +2,58 @@ import CssBaseline from '@material-ui/core/CssBaseline';
 import React from 'react';
 import ActionBar from './ActionBar';
 import MainContent from './MainContent';
-import { UserContext } from './UserContext';
 
 class Application extends React.Component {
-    constructor(props) {
-        super(props)
-
-        /*
-            CONTEXT MODIFIER
-
-            Change logged in user state.
-            Important state to be tracked is:
-            - Login status (is any user logged in?)
-            - User rights (is the user an admin or customer?)
-            - User e-mail (identifies the user univocally)
-        */
-        this.handleUpdateUserContext = (newState) => {
-            this.setState(state => ({  // receives old state as param
-                loggedIn: newState.loggedIn,
-                userEmail: newState.userEmail,
-                userRights: newState.userRights,
-            }))
-        }
-
-        this.handleUpdateViewContext = (newState) => {
-            this.setState(state => ({
-                currentView: newState.currentView,
-            }))
-        }
-
-        /*
-            GLOBAL CONTEXT
-
-            This state describes the complete context of the app.
-            Any more state to be used deep inside the component hierarchy
-            should be initialized HERE, passed down via context provider
-            and modified deep down via context consumers.
-         */
-        this.state = {
-            // User context
-            loggedIn: false,
-            userEmail: "user@example.com",
-            userRights: "visitor",
-
-            // Use this to update user context
-            updateUserContext: this.handleUpdateUserContext,
-
-            // View context
-            currentView: "home",
-
-            // Use this to update view context
-            updateViewContext: this.handleUpdateViewContext,
-        }
-    }
+//    constructor(props) {
+//        super(props)
+//
+//        /*
+//            CONTEXT MODIFIER
+//
+//            Change logged in user state.
+//            Important state to be tracked is:
+//            - Login status (is any user logged in?)
+//            - User rights (is the user an admin or customer?)
+//            - User e-mail (identifies the user univocally)
+//        */
+//        this.handleUpdateUserContext = (newState) => {
+//            this.setState(state => ({  // receives old state as param
+//                loggedIn: newState.loggedIn,
+//                userEmail: newState.userEmail,
+//                userRights: newState.userRights,
+//            }))
+//        }
+//
+//        this.handleUpdateViewContext = (newState) => {
+//            this.setState(state => ({
+//                currentView: newState.currentView,
+//            }))
+//        }
+//
+//        /*
+//            GLOBAL CONTEXT
+//
+//            This state describes the complete context of the app.
+//            Any more state to be used deep inside the component hierarchy
+//            should be initialized HERE, passed down via context provider
+//            and modified deep down via context consumers.
+//         */
+//        this.state = {
+//            // User context
+//            loggedIn: false,
+//            userEmail: "user@example.com",
+//            userRights: "visitor",
+//
+//            // Use this to update user context
+//            updateUserContext: this.handleUpdateUserContext,
+//
+//            // View context
+//            currentView: "home",
+//
+//            // Use this to update view context
+//            updateViewContext: this.handleUpdateViewContext,
+//        }
+//    }
 
     render() {
         /*
@@ -78,10 +77,8 @@ class Application extends React.Component {
         return (
             <React.Fragment>
                 <CssBaseline />
-                <UserContext.Provider value={this.state}>
-                    <ActionBar loggedIn={this.state.loggedIn} />
-                    <MainContent />
-                </UserContext.Provider>
+                <ActionBar />
+                <MainContent />
             </React.Fragment>
         )
     }

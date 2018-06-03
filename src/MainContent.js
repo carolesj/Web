@@ -15,11 +15,12 @@ import Typography from '@material-ui/core/Typography';
 import { withStyles } from '@material-ui/core/styles';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import classNames from 'classnames';
+import { PropTypes } from 'prop-types';
 import React from 'react';
-import { UserContext } from './UserContext';
+import { connect } from 'react-redux';
 
 const styles = theme => ({
-    root: {
+    mainRoot: {
         flexGrow: 1,
         margin: 2 * theme.spacing.unit,
     },
@@ -77,69 +78,13 @@ const styles = theme => ({
 })
 
 /*
-    STATIC DATA
-
-    Declares initial static data for profiles and such.
- */
-let siteData = {
-    products: [
-        // {id: "exampleString", name:"exampleString", description: "exampleString", media: "./product1.jpg"}, {...}, ...
-        { id: 0, name: "Biscoitos Caninos", description: "Deliciosos agrados de qualidade para cachorros", media: "product1.jpg", amount: 1000 },
-        { id: 1, name: "Bola de Tênis", description: "Bola verde que quica", media: "product2.jpg", amount: 1000 },
-        { id: 2, name: "Coleira", description: "Coleira de couro sintético", media: "product3.jpg", amount: 1000 },
-        { id: 3, name: "Erva de Gato", description: "Erva recreativa ressequida para gatos", media: "product4.jpg", amount: 0 },
-        { id: 4, name: "Guia", description: "Guia para coleiras padrão", media: "product5.JPG", amount: 1000 },
-        { id: 5, name: "Petisco de Gato", description: "Deliciosos agrados de qualidade para gatos", media: "product6.jpg", amount: 1000 },
-        { id: 6, name: "Ração", description: "Ração de primeira qualidade", media: "product7.jpg", amount: 1000 }
-    ],
-    services: [
-        // {service: "exampleString", description: "exampleString", media: "./service1.jpg"}, {...}, ...
-        { id: 0, name: "Banho", description: "Banho com xampu hipoalergênico para gatos e cães", media: "service1.jpg", available: true },
-        { id: 1, name: "Cortar Unha", description: "Cuidados com a unha de seu gato com segurança e sem machucá-lo", media: "service2.jpg", available: false },
-        { id: 2, name: "Massagem", description: "Massagem relaxante para seu cão", media: "service3.jpg", available: true },
-        { id: 3, name: "Tosa", description: "Corte dos pêlos do seu animal", media: "service4.jpg", available: true }
-    ],
-    shoppingCart: {
-        user: "",
-        items: [],
-    },
-}
-
-let userData = [
-    {
-        id: 1,
-        email: "user@example.com",
-        animals: [
-            // {name: "exampleString", race: "exampleString", media: "./dog1.jpg"}, {...}, ...
-            { id: 0, name: "Felicloper", race: "Bernese", media: "dog1.jpg" },
-            { id: 1, name: "Glauber", race: "McNab", media: "dog2.jpg" },
-            { id: 2, name: "Gustavo", race: "Buldogue", media: "dog3.jpg" },
-            { id: 3, name: "Caramelo", race: "Harrier", media: "dog4.jpg" },
-            { id: 4, name: "Carolhos", race: "SRD", media: "dog5.jpg" },
-            { id: 5, name: "Nerso", race: "Labrador", media: "dog6.jpg" },
-            { id: 6, name: "Sabrino", race: "Pharaoh Hound", media: "dog7.jpg" },
-            { id: 7, name: "Kik", race: "Chihuahua", media: "dog8.jpg" },
-            { id: 8, name: "Frederico", race: "Siamês", media: "cat1.jpg" },
-            { id: 9, name: "Fofinho", race: "Maine Coon", media: "cat2.jpg" }
-        ],
-        appointments: [
-            // {service: "exampleString", animal: "exampleString", dateUTC:"MM/DD/AAAA XX:YY:ZZ GMT-3"}, {...}, ...
-            { serviceId: 0, serviceName: "Banho", animalId: 6, animalName: "Sabrino", date: "06/06/2018 14:00:00 GMT-3" },
-            { serviceId: 2, serviceName: "Massagem", animalId: 5, animalName: "Nerso", date: "06/24/2019 14:00:00 GMT-3" },
-            { serviceId: 1, serviceName: "Cortar Unha", animalId: 9, animalName: "Fofinho", date: "08/06/2018 14:00:00 GMT-3" },
-            { serviceId: 3, serviceName: "Tosa", animalId: 0, animalName: "Felicloper", date: "06/04/2018 14:00:00 GMT-3" }
-        ],
-    },
-]
-
-/*
     DATA VIEW BUILDERS
  */
-const commonHomeSummary = (userRights, loggedIn) => {
+const commonHomeSummary = (userRights, userLoggedIn) => {
     let headtext = null
     let subtext = null
 
-    if (loggedIn) {
+    if (userLoggedIn) {
         headtext = "Você é um " + userRights
         subtext = "Explore o painel para mais opções"
     } else {
@@ -161,9 +106,9 @@ const commonHomeSummary = (userRights, loggedIn) => {
     )
 }
 
-const commonProductList = (classes) => {
+const commonProductList = (classes, siteData) => {
     return (
-        <div className={classes.root}>
+        <div className={classes.mainRoot}>
             <Grid container spacing={24} justify="flex-start">
                 {siteData.products.map((item, index) => (
                     <Grid key={index} item xs={12} sm={6} md={4}>
@@ -211,9 +156,9 @@ const commonProductList = (classes) => {
     )
 }
 
-const commonServiceList = (classes) => {
+const commonServiceList = (classes, siteData) => {
     return (
-        <div className={classes.root}>
+        <div className={classes.mainRoot}>
             <Grid container spacing={24} justify="flex-start">
                 {siteData.services.map((item, index) => (
                     <Grid key={index} item xs={12} sm={6} md={4}>
@@ -261,10 +206,9 @@ const commonServiceList = (classes) => {
     )
 }
 
-const customerPetList = (classes, userEmail) => {
+const customerPetList = (classes, userEmail, customerData) => {
     let data = null
-
-    for (const user of userData) {
+    for (const user of customerData) {
         if (user.email === userEmail) {
             data = user
         }
@@ -288,7 +232,7 @@ const customerPetList = (classes, userEmail) => {
      */
     return (data === null) ? null :  // Don't worry, this comparison is safe
         (
-            <div className={classes.root}>
+            <div className={classes.mainRoot}>
                 <Grid container spacing={24} justify="flex-start">
                     {data.animals.map((item, index) => (
                         <Grid key={index} item xs={12} sm={6} md={4}>
@@ -319,10 +263,9 @@ const customerPetList = (classes, userEmail) => {
         )
 }
 
-const customerAppointList = (classes, userEmail) => {
+const customerAppointList = (classes, userEmail, customerData) => {
     let data = null
-
-    for (const user of userData) {
+    for (const user of customerData) {
         if (user.email === userEmail) {
             data = user
         }
@@ -333,7 +276,8 @@ const customerAppointList = (classes, userEmail) => {
 
     return (data === null) ? null :
         (
-            <div className={classes.expRoot}>
+            //<div className={classes.expRoot}>
+            <div>
                 {data.appointments.map((item, index) => (
                     <ExpansionPanel key={index}>
                         <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
@@ -354,7 +298,7 @@ const customerAppointList = (classes, userEmail) => {
                             <div className={classes.column}>
                                 <Chip label={item.animalName} className={classes.chip}
                                     avatar={<Avatar src={require("./media/" + data.animals[item.animalId].media)} />}
-                                    onClick={() => {console.log(data.animals[item.animalId].media)}} />
+                                    onClick={() => { console.log(data.animals[item.animalId].media) }} />
                             </div>
                             <div className={classNames(classes.column, classes.helper)}>
                                 <Typography variant="caption">
@@ -377,7 +321,7 @@ const customerAppointList = (classes, userEmail) => {
 }
 
 // TODO
-const customerShoppingCartSummary = (classes, userEmail) => {
+const customerShoppingCartSummary = (classes, userEmail, customerData) => {
     return null
 }
 
@@ -407,29 +351,27 @@ const supervisorServiceControlView = () => {
  */
 class MainContent extends React.Component {
 
-    buildMainView(state) {
-        let view = state.currentView
-
-        switch (view) {
+    buildMainView() {
+        switch (this.props.userView) {
             // Visitor options
             case "home":
-                return commonHomeSummary(state.userRights, state.loggedIn)
+                return commonHomeSummary(this.props.userRights, this.props.userLoggedIn)
 
             case "products":
-                return commonProductList(this.props.classes)
+                return commonProductList(this.props.classes, this.props.SiteData)
 
             case "services":
-                return commonServiceList(this.props.classes)
+                return commonServiceList(this.props.classes, this.props.SiteData)
 
             // Customer options
             case "myPets":
-                return customerPetList(this.props.classes, state.userEmail)
+                return customerPetList(this.props.classes, this.props.userEmail, this.props.CustomerData)
 
             case "myAppoints":
-                return customerAppointList(this.props.classes, state.userEmail)
+                return customerAppointList(this.props.classes, this.props.userEmail, this.props.CustomerData)
 
             case "myShoppingCart":
-                return customerShoppingCartSummary(this.props.classes, state.userEmail)
+                return customerShoppingCartSummary(this.props.classes, this.props.userEmail, this.props.CustomerData)
 
             // Supervisor options
             case "userCtl":
@@ -448,15 +390,33 @@ class MainContent extends React.Component {
 
     render() {
         return (
-            <UserContext.Consumer>
-                {state => (
-                    <div>
-                        {this.buildMainView(state)}
-                    </div>
-                )}
-            </UserContext.Consumer>
+            <div>
+                {this.buildMainView()}
+            </div>
         )
     }
 }
 
-export default withStyles(styles)(MainContent)
+MainContent.propTypes = {
+    // From store state
+    userView: PropTypes.string.isRequired,
+    userEmail: PropTypes.string.isRequired,
+    userRights: PropTypes.string.isRequired,
+    userLoggedIn: PropTypes.bool.isRequired,
+    // CustomerData
+    // SiteData
+}
+
+function mapStateToProps(state) {
+    return {
+        userView: state.currentUserView,
+        userEmail: state.currentUserEmail,
+        userRights: state.currentUserRights,
+        userLoggedIn: state.currentUserLoggedIn,
+        CustomerData: state.CustomerData,
+        SiteData: state.SiteData
+    }
+}
+
+// Inject styles, connect mappers with the redux store and export symbol
+export default connect(mapStateToProps)(withStyles(styles)(MainContent))

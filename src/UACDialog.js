@@ -8,23 +8,8 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import TextField from '@material-ui/core/TextField';
 import PropTypes from 'prop-types';
 import React from 'react';
-import { UserContext } from './UserContext';
-
-/*
-    UAC LOGIC STATE
-
-    This obivously should not be here.
-    Ideally, this state would be kept in a database in a remote server.
- */
-let users = [
-    { email: "user@example.com", password: "user", rights: "customer" },
-    { email: "admin@example.com", password: "admin", rights: "admin" }
-]
-
-const validateEmail = (email) => {
-    const pattern = /^([A-Za-z0-9_\-\.])+\@([A-Za-z0-9_\-\.])+\.([A-Za-z]{2,4})$/
-    return pattern.test(email)
-}
+import { connect } from 'react-redux';
+import { logUserOut, signUserIn, signUserUp } from './StoreActions';
 
 class UACDialog extends React.Component {
     constructor(props) {
@@ -101,29 +86,27 @@ class UACDialog extends React.Component {
     /*
         UAC BUSINESS LOGIC
 
-        This is here for mock purposes only.
-        Ideally this business logic should be run on the server.
+        This component is too big and too tightly bound together to change now.
+        It will serve as not only presenter but also as a container component,
+        connected with the redux store. A way to change this is turn the
+        current state into props and delegate all business logic
+        to sateToProps and dispatchToProps mappers.
      */
-    handleSigninRequest(state) {
+    handleSigninRequest() {
         let stageEmail = this.state.userEmailFieldValue
         let stagePassword = this.state.userPasswordFieldValue
 
         // """authenticate"""
         let authorization = "visitor"
-        for (const user of users) {
+        for (const user of this.props.UACData) {
             if (user.email === stageEmail && user.password === stagePassword) {
                 authorization = user.rights
             }
         }
 
         if (authorization !== "visitor") {
-            // Update user context
-            let newState = {
-                loggedIn: true,
-                userEmail: stageEmail,
-                userRights: authorization,
-            }
-            state.updateUserContext(newState)
+            // Dispatch user sign in action
+            this.props.onSigninClick(stageEmail, authorization)
 
             // Close dialog on success
             this.handleCloseDialog()
@@ -143,6 +126,7 @@ class UACDialog extends React.Component {
         let stageEmail = this.state.userEmailFieldValue
         let stagePassword = this.state.userPasswordFieldValue
         let stagePasswordConf = this.state.userPasswordConfFieldValue
+        let validateEmail = (/^([A-Za-z0-9_\-\.])+\@([A-Za-z0-9_\-\.])+\.([A-Za-z]{2,4})$/).test(stageEmail)
 
         if (stagePassword.length < 6) {
             this.setState({
@@ -154,35 +138,23 @@ class UACDialog extends React.Component {
                 errorStatus: true,
                 errorText: "A senha de confirmação difere da original"
             })
-        } else if (validateEmail(stageEmail) === false) {
+        } else if (validateEmail === false) {
             this.setState({
                 errorStatus: true,
                 errorText: "Por favor forneça um e-mail válido"
             })
         } else {
-            // If both above pass, add new user
-            let stageRights = this.state.userWantsAdminChecked ? "admin" : "customer"
-            let newUser = {
-                email: stageEmail,
-                password: stagePassword,
-                rights: stageRights,
-            }
-            users = users.concat(newUser)
+            // Dispatch user sign up action
+            this.props.onSignupClick(stageEmail, stagePassword)
 
-            // Pass control and log user in
-            this.handleSigninRequest(state)
+            // Pass control and log in
+            this.handleSigninRequest()
         }
     }
 
     handleLogoutRequest(state) {
-        // Update user context
-        let newState = {
-            loggedIn: false,
-            userEmail: "user@example.com",
-            userRights: "visitor",
-        }
-        state.updateUserContext(newState)
-        state.updateViewContext({currentView: "home"}) // DON'T FORGET TO RESET THE VIEW
+        // Dispatch user log out action
+        this.props.onLogoutClick()
 
         // Close dialog on success
         this.handleCloseDialog()
@@ -231,13 +203,9 @@ class UACDialog extends React.Component {
             )
 
             dialogActions = (
-                <UserContext.Consumer>
-                    {state => (
-                        <Button onClick={() => this.handleSigninRequest(state)} color="primary">
-                            Submeter
-                        </Button>
-                    )}
-                </UserContext.Consumer>
+                <Button onClick={() => this.handleSigninRequest()} color="primary">
+                    Submeter
+                </Button>
             )
 
         } else if (wantsSignup) {
@@ -278,25 +246,21 @@ class UACDialog extends React.Component {
                         onChange={e => this.handlePasswordConfTextFieldChange(e)}
                         fullWidth
                     />
-                    <div>
+                    {(this.props.userRights === "admin") && <div>
                         <br />
                         <FormControlLabel
                             control={<Checkbox checked={wantsAdmin}
                                 onChange={() => this.handleToggleUserWantsAdmin()}
                                 color="secondary" />}
                             label="Administrador" />
-                    </div>
+                    </div>}
                 </DialogContent>
             )
 
             dialogActions = (
-                <UserContext.Consumer>
-                    {state => (
-                        <Button onClick={() => this.handleSignupRequest(state)} color="primary">
-                            Submeter
-                        </Button>
-                    )}
-                </UserContext.Consumer>
+                <Button onClick={() => this.handleSignupRequest()} color="primary">
+                    Submeter
+                </Button>
             )
 
         } else if (wantsLogout) {
@@ -311,14 +275,9 @@ class UACDialog extends React.Component {
             )
 
             dialogActions = (
-
-                <UserContext.Consumer>
-                    {state => (
-                        <Button onClick={() => this.handleLogoutRequest(state)} color="primary">
-                            Sair
-                        </Button>
-                    )}
-                </UserContext.Consumer>
+                <Button onClick={() => this.handleLogoutRequest()} color="primary">
+                    Sair
+                </Button>
             )
         }
 
@@ -381,11 +340,50 @@ class UACDialog extends React.Component {
     }
 }
 
-// Do typechecking
 UACDialog.propTypes = {
+    // From parent
     open: PropTypes.bool.isRequired,
     mode: PropTypes.string.isRequired,
     toggleDialog: PropTypes.func.isRequired,
+
+    // From store state
+    userLoggedIn: PropTypes.bool.isRequired,
+    userRights: PropTypes.string.isRequired,
+    UACData: PropTypes.arrayOf(
+        PropTypes.shape({
+            email: PropTypes.string.isRequired,
+            password: PropTypes.string.isRequired,
+            rights: PropTypes.string.isRequired
+        })
+    ).isRequired,
+
+    // From store actions
+    onSigninClick: PropTypes.func.isRequired,
+    onSignupClick: PropTypes.func.isRequired,
+    onLogoutClick: PropTypes.func.isRequired
 }
 
-export default UACDialog
+function mapStateToProps(state) {
+    return {
+        userLoggedIn: state.currentUserLoggedIn,
+        userRights: state.currentUserRights,
+        UACData: state.UACData
+    }
+}
+
+function mapDispatchToProps(dispatch) {
+    return {
+        onSigninClick: (userEmail, userRights) => {
+            dispatch(signUserIn(userEmail, userRights))
+        },
+        onSignupClick: (userEmail, userPassword) => {
+            dispatch(signUserUp(userEmail, userPassword))
+        },
+        onLogoutClick: () => {
+            dispatch(logUserOut())
+        }
+    }
+}
+
+// Connect mappers with the redux store and export symbol
+export default connect(mapStateToProps, mapDispatchToProps)(UACDialog)
