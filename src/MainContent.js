@@ -18,6 +18,7 @@ import classNames from 'classnames';
 import { PropTypes } from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
+import CustomerPetManager from './CustomerPetManager';
 
 const styles = theme => ({
     mainRoot: {
@@ -206,63 +207,6 @@ const commonServiceList = (classes, siteData) => {
     )
 }
 
-const customerPetList = (classes, userEmail, customerData) => {
-    let data = null
-    for (const user of customerData) {
-        if (user.email === userEmail) {
-            data = user
-        }
-    }
-
-    /*
-        GRID TYPE
-
-            Full-width, with grow (control grow via outer div and justification
-            via the Grid container element).
-        
-        GRID ITEM
-
-            Size controlled via breakpoints, for xs, sm, and upper.
-            (To re-enable control via media size, set the class to classes.media.)
-
-        CARD TYPE
-
-            Media container. (TODO include pet register control in the cards.)
-
-     */
-    return (data === null) ? null :  // Don't worry, this comparison is safe
-        (
-            <div className={classes.mainRoot}>
-                <Grid container spacing={24} justify="flex-start">
-                    {data.animals.map((item, index) => (
-                        <Grid key={index} item xs={12} sm={6} md={4}>
-                            <Card>
-                                <CardMedia
-                                    className={classes.media}
-                                    image={require("./media/" + item.media)}
-                                    title={"Meu pet " + item.name}
-                                />
-                                <CardContent>
-                                    <Typography gutterBottom variant="headline" component="h2">
-                                        {item.name}
-                                    </Typography>
-                                    <Typography component="p">
-                                        {"Raça: " + item.race}
-                                    </Typography>
-                                </CardContent>
-                                <CardActions>
-                                    <Button size="small" color="primary">
-                                        Editar
-                                    </Button>
-                                </CardActions>
-                            </Card>
-                        </Grid>
-                    ))}
-                </Grid>
-            </div>
-        )
-}
-
 const customerAppointList = (classes, userEmail, customerData) => {
     let data = null
     for (const user of customerData) {
@@ -365,7 +309,7 @@ class MainContent extends React.Component {
 
             // Customer options
             case "myPets":
-                return customerPetList(this.props.classes, this.props.userEmail, this.props.CustomerData)
+                return <CustomerPetManager />
 
             case "myAppoints":
                 return customerAppointList(this.props.classes, this.props.userEmail, this.props.CustomerData)
@@ -405,6 +349,7 @@ MainContent.propTypes = {
     userLoggedIn: PropTypes.bool.isRequired,
     // CustomerData
     // SiteData
+    // classes
 }
 
 function mapStateToProps(state) {

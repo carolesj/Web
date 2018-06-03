@@ -130,7 +130,9 @@ function petShopApp(state, action) {
         case CustomerActions.PET_ADD:
             return Object.assign({}, state, {
                 CustomerData: state.CustomerData.map((customer, index) => {
+                    console.log(customer.email + ", " + action.payload.userEmail)
                     if (customer.email === action.payload.userEmail) {
+                        console.log("found the guy")
                         return Object.assign({}, customer, {
                             animals: [
                                 ...customer.animals,

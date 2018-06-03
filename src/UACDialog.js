@@ -336,7 +336,7 @@ class UACDialog extends React.Component {
                     </DialogActions>
                 </Dialog>
             </div>
-        );
+        )
     }
 }
 
