@@ -192,7 +192,7 @@ export function removeProduct(adminData, itemData) {
 }
 
 // TODO adminData might not be necessary
-export function addStockRegistry(admindata, newItem) {
+export function addStockRegistry(adminData, newItem) {
     return {
         type: SupervisorActions.STOCKCTL_REG_INCLUDE,
         payload: { adminData, newItem }

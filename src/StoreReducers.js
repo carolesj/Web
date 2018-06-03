@@ -89,6 +89,7 @@ const initialState = {
     ],
 }
 
+// TODO decompose into separate reducers
 function petShopApp(state, action) {
     // This is where we set the initial state
     if (typeof (state) === "undefined") {
@@ -142,7 +143,6 @@ function petShopApp(state, action) {
                             ]
                         })
                     }
-
                     // Otherwise keep old state
                     return customer
                 })
@@ -163,13 +163,11 @@ function petShopApp(state, action) {
                                         media: action.payload.petData.media
                                     })
                                 }
-
                                 // Otherwise keep old state
                                 return animal
                             })
                         })
                     }
-
                     // Otherwise keep old state
                     return customer
                 })
@@ -185,7 +183,6 @@ function petShopApp(state, action) {
                             })
                         })
                     }
-
                     // Otherwise keep old state
                     return customer
                 })
@@ -210,3 +207,5 @@ function petShopApp(state, action) {
             return state
     }
 }
+
+export default petShopApp
