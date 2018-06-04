@@ -73,7 +73,7 @@ const styles = theme => ({
         },
     },
 
-    // Dialog: add mode
+    // Dialog: all modes
     button: {
         margin: theme.spacing.unit,
     },
@@ -136,7 +136,7 @@ function PetList(props) {
     return (typeof (data) === "undefined") ? null :  // Don't worry, this comparison is safe
         (
             <div className={props.classes.root}>
-                <Grid container spacing={24} justify="flex-end">
+                <Grid container spacing={24} direction="row" justify="flex-end" alignItems="flex-start">
                     <Grid item>
                         <Button variant="raised" color="primary" className={props.classes.button}
                             onClick={() => props.onToggleDialog(true, "add")}>
@@ -144,7 +144,7 @@ function PetList(props) {
                         </Button>
                     </Grid>
                 </Grid>
-                <Grid container spacing={24} justify="flex-start">
+                <Grid container spacing={24} direction="row" justify="space-between" alignItems="flex-start">
                     {data.animals.map((item, index) => (
                         <Grid key={index} item xs={12} sm={6} md={4}>
                             <Card>
@@ -535,7 +535,7 @@ class PetControl extends React.Component {
                     <Button onClick={() => this.handleClickRemovePet()} color="secondary"
                         disabled={!this.state.checkedAwareOfPetRemoval}>
                         Proceder
-                </Button>
+                    </Button>
                 )
             }
         }
@@ -575,7 +575,6 @@ class PetControl extends React.Component {
                     </DialogActions>
                 </Dialog>
             </div>
-
         )
     }
 }
@@ -600,15 +599,14 @@ PetControl.propTypes = {
     onClickSubmitRemovePet: PropTypes.func.isRequired,
 }
 
-
 /*
     Exposed main component
  */
-class CustomerPetManager extends React.Component {
+class CustomerPetViewBehavior extends React.Component {
     state = {
         dialogOpen: false,
-        dialogMode: "",  // Can be any of { "add", "edit", "remove" }
-        selectedId: 0,  // Id of pet selected for "edit" or "remove" operations
+        dialogMode: "",    // Can be any of { "add", "edit", "remove" }
+        selectedId: 0,     // Id of pet selected for "edit" or "remove" operations
     }
 
     handleToggleDialog(open, mode = null) {
@@ -672,4 +670,4 @@ function mapDispatchToProps(dispatch) {
     }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(CustomerPetManager))
+export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(CustomerPetViewBehavior))

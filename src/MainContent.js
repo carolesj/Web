@@ -18,7 +18,8 @@ import classNames from 'classnames';
 import { PropTypes } from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
-import CustomerPetManager from './CustomerPetManager';
+import CustomerPetViewBehavior from './CustomerPetViewBehavior';
+import CustomerShopViewBehavior from './CustomerShopViewBehavior';
 
 const styles = theme => ({
     mainRoot: {
@@ -81,6 +82,7 @@ const styles = theme => ({
 /*
     DATA VIEW BUILDERS
  */
+// TODO HERE
 const commonHomeSummary = (userRights, userLoggedIn) => {
     let headtext = null
     let subtext = null
@@ -107,56 +109,7 @@ const commonHomeSummary = (userRights, userLoggedIn) => {
     )
 }
 
-const commonProductList = (classes, siteData) => {
-    return (
-        <div className={classes.mainRoot}>
-            <Grid container spacing={24} justify="flex-start">
-                {siteData.products.map((item, index) => (
-                    <Grid key={index} item xs={12} sm={6} md={4}>
-                        <Card>
-                            <CardMedia
-                                className={classes.media}
-                                image={require("./media/" + item.media)}
-                                title={"Serviço de " + item.name}
-                            />
-                            <CardContent>
-                                <Typography gutterBottom variant="headline" component="h2">
-                                    {item.name}
-                                </Typography>
-                                <Typography component="p">
-                                    {item.description}
-                                </Typography>
-                                {item.amount > 0 ?
-                                    <Typography variant="caption" gutterBottom align="left">
-                                        <br />
-                                        {`Disponibilidade: ${item.amount} unidades`}
-                                    </Typography>
-                                    :
-                                    <Typography variant="body1" color="error" gutterBottom align="left">
-                                        <br />
-                                        Produto esgotado
-                                    </Typography>
-                                }
-                            </CardContent>
-                            <CardActions>
-                                {item.amount > 0 ?
-                                    <Button size="small" color="primary">
-                                        Comprar
-                                    </Button>
-                                    :
-                                    <Button disabled size="small" color="primary">
-                                        Comprar
-                                    </Button>
-                                }
-                            </CardActions>
-                        </Card>
-                    </Grid>
-                ))}
-            </Grid>
-        </div>
-    )
-}
-
+// TODO HERE
 const commonServiceList = (classes, siteData) => {
     return (
         <div className={classes.mainRoot}>
@@ -177,7 +130,7 @@ const commonServiceList = (classes, siteData) => {
                                     {item.description}
                                 </Typography>
                                 {item.available ?
-                                    <Typography variant="caption" gutterBottom align="left">
+                                    <Typography variant="body1" gutterBottom align="left">
                                         <br />
                                         Disponível para agendamento
                                     </Typography>
@@ -207,6 +160,7 @@ const commonServiceList = (classes, siteData) => {
     )
 }
 
+// TODO HERE
 const customerAppointList = (classes, userEmail, customerData) => {
     let data = null
     for (const user of customerData) {
@@ -265,11 +219,6 @@ const customerAppointList = (classes, userEmail, customerData) => {
 }
 
 // TODO
-const customerShoppingCartSummary = (classes, userEmail, customerData) => {
-    return null
-}
-
-// TODO
 const supervisorUserControlView = () => {
     return null
 }
@@ -285,12 +234,6 @@ const supervisorServiceControlView = () => {
 }
 
 /*
-    DATA VIEW MODIFIERS
- */
-
-// TODO stuff here
-
-/*
     MAIN COMPONENT CLASS
  */
 class MainContent extends React.Component {
@@ -302,20 +245,26 @@ class MainContent extends React.Component {
                 return commonHomeSummary(this.props.userRights, this.props.userLoggedIn)
 
             case "products":
-                return commonProductList(this.props.classes, this.props.SiteData)
+                switch (this.props.userRights) {
+                    case "customer":
+                        return <CustomerShopViewBehavior />
+                    default:
+                        // TODO return CommonShopViewBehavior
+                        return null
+                }
 
             case "services":
                 return commonServiceList(this.props.classes, this.props.SiteData)
 
             // Customer options
             case "myPets":
-                return <CustomerPetManager />
+                return <CustomerPetViewBehavior />
 
             case "myAppoints":
                 return customerAppointList(this.props.classes, this.props.userEmail, this.props.CustomerData)
 
             case "myShoppingCart":
-                return customerShoppingCartSummary(this.props.classes, this.props.userEmail, this.props.CustomerData)
+                return <CustomerShopViewBehavior />
 
             // Supervisor options
             case "userCtl":
