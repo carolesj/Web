@@ -56,16 +56,16 @@ let initialState = {
             email: "user@example.com",
             animals: [
                 // {name: "exampleString", race: "exampleString", media: "./dog1.jpg"}, {...}, ...
-                { id: 0, name: "Felicloper",    race: "Bernese",        media: "dog1.jpg" },
-                { id: 1, name: "Glauber",       race: "McNab",          media: "dog2.jpg" },
-                { id: 2, name: "Gustavo",       race: "Buldogue",       media: "dog3.jpg" },
-                { id: 3, name: "Caramelo",      race: "Harrier",        media: "dog4.jpg" },
-                { id: 4, name: "Carolhos",      race: "SRD",            media: "dog5.jpg" },
-                { id: 5, name: "Nerso",         race: "Labrador",       media: "dog6.jpg" },
-                { id: 6, name: "Sabrino",       race: "Pharaoh Hound",  media: "dog7.jpg" },
-                { id: 7, name: "Kik",           race: "Chihuahua",      media: "dog8.jpg" },
-                { id: 8, name: "Frederico",     race: "Siamês",         media: "cat1.jpg" },
-                { id: 9, name: "Fofinho",       race: "Maine Coon",     media: "cat2.jpg" }
+                { id: 0, name: "Felicloper",    race: "Bernese",        media: "./media/dog1.jpg", localMedia: true },
+                { id: 1, name: "Glauber",       race: "McNab",          media: "./media/dog2.jpg", localMedia: true },
+                { id: 2, name: "Gustavo",       race: "Buldogue",       media: "./media/dog3.jpg", localMedia: true },
+                { id: 3, name: "Caramelo",      race: "Harrier",        media: "./media/dog4.jpg", localMedia: true },
+                { id: 4, name: "Carolhos",      race: "SRD",            media: "./media/dog5.jpg", localMedia: true },
+                { id: 5, name: "Nerso",         race: "Labrador",       media: "./media/dog6.jpg", localMedia: true },
+                { id: 6, name: "Sabrino",       race: "Pharaoh Hound",  media: "./media/dog7.jpg", localMedia: true },
+                { id: 7, name: "Kik",           race: "Chihuahua",      media: "./media/dog8.jpg", localMedia: true },
+                { id: 8, name: "Frederico",     race: "Siamês",         media: "./media/cat1.jpg", localMedia: true },
+                { id: 9, name: "Fofinho",       race: "Maine Coon",     media: "./media/cat2.jpg", localMedia: true }
             ],
             appointments: [
                 // {service: "exampleString", animal: "exampleString", dateUTC:"MM/DD/AAAA XX:YY:ZZ GMT-3"}, {...}, ...
@@ -130,9 +130,7 @@ function petShopApp(state, action) {
         case CustomerActions.PET_ADD:
             return Object.assign({}, state, {
                 CustomerData: state.CustomerData.map((customer, index) => {
-                    console.log(customer.email + ", " + action.payload.userEmail)
                     if (customer.email === action.payload.userEmail) {
-                        console.log("found the guy")
                         return Object.assign({}, customer, {
                             animals: [
                                 ...customer.animals,
@@ -140,7 +138,8 @@ function petShopApp(state, action) {
                                     id: customer.animals.length,
                                     name: action.payload.petData.name,
                                     race: action.payload.petData.race,
-                                    media: action.payload.petData.media
+                                    media: action.payload.petData.media,
+                                    localMedia: action.payload.petData.localMedia,
                                 }
                             ]
                         })
@@ -162,7 +161,8 @@ function petShopApp(state, action) {
                                         id: action.payload.petData.id,
                                         name: action.payload.petData.name,
                                         race: action.payload.petData.race,
-                                        media: action.payload.petData.media
+                                        media: action.payload.petData.media,
+                                        localMedia: action.payload.petData.localMedia,
                                     })
                                 }
                                 // Otherwise keep old state

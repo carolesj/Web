@@ -150,7 +150,7 @@ function PetList(props) {
                             <Card>
                                 <CardMedia
                                     className={props.classes.media}
-                                    image={require("./media/" + item.media)}
+                                    image={item.localMedia ? require(`${item.media}`) : item.media}
                                     title={"Meu pet " + item.name}
                                 />
                                 <CardContent>
@@ -205,6 +205,11 @@ class PetControl extends React.Component {
         petNameFieldValue: "",
         petRaceFieldValue: "",
         checkedAwareOfPetRemoval: false,
+
+        // Pet image state
+        willUploadPetImage: false,
+        didUploadPetImage: false,
+        petImageAsURL: null,
     }
 
     /*
@@ -222,6 +227,30 @@ class PetControl extends React.Component {
         })
     }
 
+    handleAddPetImagePathChange(event) {
+        let media = event.target.files[0]
+        let reader = new FileReader()
+
+        // Start uploading image
+        this.setState(state => ({
+            willUploadPetImage: true,
+            didUploadPetImage: false,
+            petImageAsURL: null,
+        }))
+
+        // When done uploading image
+        reader.onload = event => {
+            this.setState(state => ({
+                willUploadPetImage: false,
+                didUploadPetImage: true,
+                petImageAsURL: event.target.result
+            }))
+        }
+
+        // Begin op and trigger callback
+        reader.readAsDataURL(media)
+    }
+
     handleToggleAwareOfPetRemoval() {
         this.setState(state => ({
             checkedAwareOfPetRemoval: !state.checkedAwareOfPetRemoval,
@@ -235,6 +264,11 @@ class PetControl extends React.Component {
             petNameFieldValue: "",
             petRaceFieldValue: "",
             checkedAwareOfPetRemoval: false,
+
+            // Pet image state
+            willUploadPetImage: false,
+            didUploadPetImage: false,
+            petImageAsURL: null,
         })
         this.props.onToggleDialog(false)
     }
@@ -247,7 +281,8 @@ class PetControl extends React.Component {
         // TODO Actually move an image file and use it
         let stagePetName = this.state.petNameFieldValue
         let stagePetRace = this.state.petRaceFieldValue
-        let stagePetMedia = "sampleDog.png"
+        let stagePetMedia = this.state.didUploadPetImage ? this.state.petImageAsURL : "./media/sampleDog.png"
+        let stageLocalMedia = !this.state.didUploadPetImage
 
         // Dispatch add pet store action
         this.props.onClickSubmitAddPet(this.props.currentUserEmail, {
@@ -255,6 +290,7 @@ class PetControl extends React.Component {
             name: stagePetName,
             race: stagePetRace,
             media: stagePetMedia,
+            localMedia: stageLocalMedia,
         })
 
         // Close dialog on success
@@ -267,7 +303,8 @@ class PetControl extends React.Component {
         let stagePetId = currentData.id
         let stagePetName = this.state.petNameFieldValue
         let stagePetRace = this.state.petRaceFieldValue
-        let stagePetMedia = currentData.media
+        let stagePetMedia = this.state.didUploadPetImage ? this.state.petImageAsURL : currentData.media
+        let stageLocalMedia = !this.state.didUploadPetImage
 
         this.props.onClickSubmitEditPet(this.props.currentUserEmail, {
             // HOW TO KNOW WHICH ARE REQUIRED FOR THE ACTION
@@ -275,6 +312,7 @@ class PetControl extends React.Component {
             name: stagePetName,
             race: stagePetRace,
             media: stagePetMedia,
+            localMedia: stageLocalMedia,
         })
 
         // Close dialog on success
@@ -315,9 +353,9 @@ class PetControl extends React.Component {
         /*
             TODO
 
-            0. Change "media" values to contain actual paths
-                + Use "./media/" or just "media" ???
-            1. Resolve paths correctly now with require.resolve
+            0. Change "media" values to contain actual paths            DONE
+                + Use "./media/" or just "media" ???                    DONE
+            1. Resolve paths correctly now with require.resolve         DONE (require.resolve doesn't do it for us, it just returns the absolute path)
             2. Set behaviour of "onChange" for file input component
          */
         if (this.props.dialogMode === "add") {
@@ -346,7 +384,16 @@ class PetControl extends React.Component {
                             margin="normal"
                         />
                     </form>
-                    <Grid container justify="center" alignItems="center">
+                    <Grid container direction="column" justify="center" alignItems="center">
+                        {this.state.didUploadPetImage && 
+                        <Grid item>
+                            <Avatar
+                                alt="Imagem do novo pet"
+                                src={this.state.petImageAsURL}
+                                className={classNames(this.props.classes.avatar, this.props.classes.bigAvatar)}
+                            />
+                        </Grid>
+                        }
                         <Grid item>
                             <input
                                 accept="image/*"
@@ -354,9 +401,11 @@ class PetControl extends React.Component {
                                 id="image-file-upload"
                                 multiple
                                 type="file"
+                                onChange={event => this.handleAddPetImagePathChange(event)}
                             />
                             <label htmlFor="image-file-upload">
-                                <Button variant="raised" component="span" className={this.props.classes.button}>
+                                <Button variant="raised" component="span" className={this.props.classes.button}
+                                    disabled={this.state.willUploadPetImage}>
                                     Escolher Imagem
                                 <FileUpload className={this.props.classes.rightIcon} />
                                 </Button>
@@ -367,7 +416,7 @@ class PetControl extends React.Component {
             )
 
             dialogActions = (
-                <Button onClick={() => this.handleClickAddPet()} color="primary">
+                <Button onClick={() => this.handleClickAddPet()} color="primary" disabled={this.state.willUploadPetImage}>
                     Submeter
                 </Button>
             )
@@ -411,11 +460,19 @@ class PetControl extends React.Component {
                         </form>
                         <Grid container direction="column" justify="center" alignItems="center">
                             <Grid item>
+                                {this.state.didUploadPetImage ?
                                 <Avatar
-                                    alt="Imagem atual"
-                                    src={require("./media/" + data.media)}
+                                    alt="Nova imagem"
+                                    src={this.state.petImageAsURL}
                                     className={classNames(this.props.classes.avatar, this.props.classes.bigAvatar)}
                                 />
+                                :
+                                <Avatar
+                                    alt="Imagem atual"
+                                    src={data.localMedia ? require(`${data.media}`) : data.media}
+                                    className={classNames(this.props.classes.avatar, this.props.classes.bigAvatar)}
+                                />
+                                }
                             </Grid>
                             <Grid item>
                                 <input
@@ -424,11 +481,13 @@ class PetControl extends React.Component {
                                     id="image-file-upload"
                                     multiple
                                     type="file"
+                                    onChange={event => this.handleAddPetImagePathChange(event)}
                                 />
                                 <label htmlFor="image-file-upload">
-                                    <Button variant="raised" component="span" className={this.props.classes.button}>
+                                    <Button variant="raised" component="span" className={this.props.classes.button}
+                                        disabled={this.state.willUploadPetImage}>
                                         Trocar Imagem
-                                <FileUpload className={this.props.classes.rightIcon} />
+                                        <FileUpload className={this.props.classes.rightIcon} />
                                     </Button>
                                 </label>
                             </Grid>
@@ -437,7 +496,8 @@ class PetControl extends React.Component {
                 )
 
                 dialogActions = (
-                    <Button onClick={() => this.handleClickEditPet(data)} color="primary">
+                    <Button onClick={() => this.handleClickEditPet(data)} color="primary"
+                        disabled={this.state.willUploadPetImage}>
                         Submeter
                 </Button>
                 )
