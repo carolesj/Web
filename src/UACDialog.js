@@ -148,7 +148,7 @@ class UACDialog extends React.Component {
             this.props.onSignupClick(stageEmail, stagePassword)
 
             // Pass control and log in
-            this.handleSigninRequest()
+            this.handleCloseDialog()
         }
     }
 

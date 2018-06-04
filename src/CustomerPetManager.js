@@ -311,6 +311,15 @@ class PetControl extends React.Component {
         let dialogContent = null
         let dialogActions = null
 
+
+        /*
+            TODO
+
+            0. Change "media" values to contain actual paths
+                + Use "./media/" or just "media" ???
+            1. Resolve paths correctly now with require.resolve
+            2. Set behaviour of "onChange" for file input component
+         */
         if (this.props.dialogMode === "add") {
             dialogContent = (
                 <DialogContent>
