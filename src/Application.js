@@ -1,7 +1,7 @@
-import CssBaseline from '@material-ui/core/CssBaseline';
-import React from 'react';
-import ActionBar from './ActionBar';
-import MainContent from './MainContent';
+import CssBaseline from "@material-ui/core/CssBaseline"
+import React from "react"
+import ActionBar from "./ActionBar"
+import MainContent from "./MainContent"
 
 class Application extends React.Component {
 //    constructor(props) {

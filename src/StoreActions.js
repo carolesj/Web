@@ -6,7 +6,7 @@ export const CommonActions = {
     USER_SIGNIN: "USER_SIGNIN",
     USER_SIGNUP: "USER_SIGNUP",
     USER_LOGOUT: "USER_LOGOUT",
-    CHANGE_CURRENT_VIEW: "CHANGE_CURRENT_VIEW",
+    CHANGE_CURRENT_VIEW: "CHANGE_CURRENT_VIEW"
 }
 
 /*
@@ -20,12 +20,13 @@ export const CustomerActions = {
 
     // Store interaction
     STORE_ADD_TO_CART: "STORE_ADD_TO_CART",
+    STORE_EDIT_CART_ITEM: "STORE_EDIT_CART_ITEM",
     STORE_REMOVE_FROM_CART: "STORE_REMOVE_FROM_CART",
     STORE_COMMIT_ON_PURCHASE: "STORE_COMMIT_ON_PURCHASE",
 
     // Appointment control
     APPOINTMENT_ADD: "APPOINTMENT_ADD",
-    APPOINTMENT_REMOVE: "APPOINTMENT_REMOVE",
+    APPOINTMENT_REMOVE: "APPOINTMENT_REMOVE"
 }
 
 /*
@@ -46,7 +47,7 @@ export const SupervisorActions = {
     // Service control
     SERVICECTL_EDIT: "SERVICECTL_EDIT",
     SERVICECTL_REMOVE: "SERVICECTL_REMOVE",
-    SERVICECTL_REG_INCLUDE: "SERVICECTL_REG_INCLUDE", // Register new service
+    SERVICECTL_REG_INCLUDE: "SERVICECTL_REG_INCLUDE" // Register new service
 }
 
 /*
@@ -112,6 +113,13 @@ export function addToCart(userEmail, itemData) {
     }
 }
 
+export function editCartItem(userEmail, itemData) {
+    return {
+        type: CustomerActions.STORE_EDIT_CART_ITEM,
+        payload: { userEmail, itemData }
+    }
+}
+
 export function removeFromCart(userEmail, itemData) {
     return {
         type: CustomerActions.STORE_REMOVE_FROM_CART,
@@ -119,10 +127,10 @@ export function removeFromCart(userEmail, itemData) {
     }
 }
 
-export function commitOnPurchase(userEmail) {
+export function commitOnPurchase(userEmail, shoppingCart) {
     return {
         type: CustomerActions.STORE_COMMIT_ON_PURCHASE,
-        payload: { userEmail }
+        payload: { userEmail, shoppingCart }
     }
 }
 

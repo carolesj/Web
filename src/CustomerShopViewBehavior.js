@@ -1,92 +1,59 @@
-import Button from '@material-ui/core/Button';
-import Card from '@material-ui/core/Card';
-import CardActions from '@material-ui/core/CardActions';
-import CardContent from '@material-ui/core/CardContent';
-import CardMedia from '@material-ui/core/CardMedia';
-import Dialog from '@material-ui/core/Dialog';
-import DialogActions from '@material-ui/core/DialogActions';
-import DialogContent from '@material-ui/core/DialogContent';
-import DialogContentText from '@material-ui/core/DialogContentText';
-import DialogTitle from '@material-ui/core/DialogTitle';
-import Grid from '@material-ui/core/Grid';
-import Paper from '@material-ui/core/Paper';
-import Table from '@material-ui/core/Table';
-import TableBody from '@material-ui/core/TableBody';
-import TableCell from '@material-ui/core/TableCell';
-import TableHead from '@material-ui/core/TableHead';
-import TableRow from '@material-ui/core/TableRow';
-import TextField from '@material-ui/core/TextField';
-import Typography from '@material-ui/core/Typography';
-import { withStyles } from '@material-ui/core/styles';
-import { PropTypes } from 'prop-types';
-import React from 'react';
-import { connect } from 'react-redux';
+import Button from "@material-ui/core/Button"
+import Card from "@material-ui/core/Card"
+import CardActions from "@material-ui/core/CardActions"
+import CardContent from "@material-ui/core/CardContent"
+import CardMedia from "@material-ui/core/CardMedia"
+import Dialog from "@material-ui/core/Dialog"
+import DialogActions from "@material-ui/core/DialogActions"
+import DialogContent from "@material-ui/core/DialogContent"
+import DialogContentText from "@material-ui/core/DialogContentText"
+import DialogTitle from "@material-ui/core/DialogTitle"
+import Grid from "@material-ui/core/Grid"
+import Paper from "@material-ui/core/Paper"
+import Table from "@material-ui/core/Table"
+import TableBody from "@material-ui/core/TableBody"
+import TableCell from "@material-ui/core/TableCell"
+import TableHead from "@material-ui/core/TableHead"
+import TableRow from "@material-ui/core/TableRow"
+import TextField from "@material-ui/core/TextField"
+import Typography from "@material-ui/core/Typography"
+import { withStyles } from "@material-ui/core/styles"
+import { PropTypes } from "prop-types"
+import React from "react"
+import { connect } from "react-redux"
+import { addToCart, removeFromCart, editCartItem, commitOnPurchase } from "./StoreActions"
 
 const styles = theme => ({
-    root: {
+    // Shopping list
+    listRoot: {
         flexGrow: 1,
         margin: 2 * theme.spacing.unit,
     },
-
     card: {  // DON'T FORGET to add this to <Card /> for dimension control
         minWidth: 380,
         maxWidth: 480,
     },
-
     media: {
         height: 0,
-        paddingTop: '76.25%',  // Originally, 56.25%, meaning 16:9 media
+        paddingTop: "76.25%",  // Originally, 56.25%, meaning 16:9 media
     },
-
-    heading: {
-        fontSize: theme.typography.pxToRem(15),
-    },
-
-    secondaryHeading: {
-        fontSize: theme.typography.pxToRem(15),
-        color: theme.palette.text.secondary,
-    },
-
-    icon: {
-        verticalAlign: 'bottom',
-        height: 20,
-        width: 20,
-    },
-
     details: {
-        alignItems: 'center',
-    },
-
-    column: {
-        flexBasis: '33.33%',
-    },
-
-    helper: {
-        borderLeft: `2px solid ${theme.palette.divider}`,
-        padding: `${theme.spacing.unit}px ${theme.spacing.unit * 2}px`,
-    },
-
-    link: {
-        color: theme.palette.primary.main,
-        textDecoration: 'none',
-        '&:hover': {
-            textDecoration: 'underline',
-        },
+        alignItems: "center",
     },
 
     // Shopping cart
     tableRoot: {
-        //width: '100%',
+        //width: "100%",
         marginTop: theme.spacing.unit * 3,
         marginLeft: theme.spacing.unit * 3,
         marginRight: theme.spacing.unit * 3,
-        overflowX: 'auto',
+        overflowX: "auto",
     },
     tableBody: {
         minWidth: 500,
     },
     row: {
-        '&:nth-of-type(odd)': {
+        "&:nth-of-type(odd)": {
             backgroundColor: theme.palette.background.default,
         },
     },
@@ -94,11 +61,11 @@ const styles = theme => ({
         marginRight: -15,
     },
     confirmButton: {
-        marginRight: 3 * theme.spacing.unit,
+        marginLeft: 3 * theme.spacing.unit,
     },
     container: {
-        display: 'flex',
-        flexWrap: 'wrap',
+        display: "flex",
+        flexWrap: "wrap",
     },
     textField: {
         marginLeft: theme.spacing.unit,
@@ -125,7 +92,7 @@ function ShoppingList(props) {
     const { classes } = props
 
     return (
-        <div className={classes.root}>
+        <div className={classes.listRoot}>
             <Grid container spacing={24} justify="flex-start">
                 {props.siteData.products.map((item, index) => (
                     <Grid key={index} item xs={12} sm={6} md={4}>
@@ -158,11 +125,11 @@ function ShoppingList(props) {
                                 {item.amount > 0 ?
                                     <Button size="small" color="primary"
                                         onClick={() => { props.onSetSelected(item.id); props.onToggleDialog(true, "add") }}>
-                                        Comprar
+                                        Adicionar ao Carrinho
                                     </Button>
                                     :
                                     <Button disabled size="small" color="primary">
-                                        Comprar
+                                        Adicionar ao Carrinho
                                     </Button>
                                 }
                             </CardActions>
@@ -181,9 +148,6 @@ ShoppingList.propTypes = {
     onSetSelected: PropTypes.func.isRequired,
 }
 
-// Make externally injectable
-export { ShoppingList as CommonShopViewBehavior }
-
 
 /*
     Shopping cart sub-component
@@ -198,7 +162,7 @@ function ShoppingCart(props) {
         body: {
             fontSize: 14,
         },
-    }))(TableCell);
+    }))(TableCell)
 
     // Retrieve the data
     let data = props.customerData.find(customer => (customer.email === props.currentUserEmail)).shoppingCart
@@ -206,48 +170,69 @@ function ShoppingCart(props) {
     // Destructure
     const { classes } = props
 
+    // Tracker
+    let subTotal = 0.0
+
     return (
-        <Grid container spacing={24} direction="column" justify="flex-start" alignItems="stretch">
-            <Grid item>
-                <Paper className={classes.tableRoot}>
-                    <Table className={classes.tableBody}>
-                        <TableHead>
-                            <TableRow>
-                                <CustomTableCell>Item da loja</CustomTableCell>
-                                <CustomTableCell numeric>Preço (R$)</CustomTableCell>
-                                <CustomTableCell numeric>Unidades</CustomTableCell>
-                                <CustomTableCell numeric>Ação</CustomTableCell>
-                            </TableRow>
-                        </TableHead>
-                        <TableBody>
-                            {data.map((item, index) => (
-                                <TableRow className={classes.row} key={index}>
+        (data.length > 0) ?
+            <Grid container spacing={24} direction="column" justify="flex-start" alignItems="stretch">
+                <Grid item>
+                    <Paper className={classes.tableRoot}>
+                        <Table className={classes.tableBody}>
+                            <TableHead>
+                                <TableRow>
+                                    <CustomTableCell>Item da loja</CustomTableCell>
+                                    <CustomTableCell numeric>Unidades</CustomTableCell>
+                                    <CustomTableCell numeric>Preço (R$)</CustomTableCell>
+                                    <CustomTableCell numeric>Ação</CustomTableCell>
+                                </TableRow>
+                            </TableHead>
+                            <TableBody>
+                                {data.map((item, index) => {
+                                    subTotal = subTotal + (parseFloat(item.itemPrice) * parseInt(item.itemAmount))
+
+                                    return (
+                                        <TableRow className={classes.row} key={index}>
+                                            <CustomTableCell component="th" scope="row">
+                                                {item.itemName}
+                                            </CustomTableCell>
+                                            <CustomTableCell numeric>{item.itemAmount}</CustomTableCell>
+                                            <CustomTableCell numeric>{parseFloat(item.itemPrice) * parseInt(item.itemAmount)}</CustomTableCell>
+                                            <CustomTableCell numeric>
+                                                <Button color="secondary" className={classes.tableButton}
+                                                    onClick={() => { props.onSetSelected(item.itemId); props.onToggleDialog(true, "remove") }}>
+                                                    Remover
+                                                </Button>
+                                            </CustomTableCell>
+                                        </TableRow>
+                                    )
+                                })}
+                                <TableRow className={classes.row}>
                                     <CustomTableCell component="th" scope="row">
-                                        {item.itemName}
+                                        Subtotal
                                     </CustomTableCell>
-                                    <CustomTableCell numeric>{item.itemPrice}</CustomTableCell>
-                                    <CustomTableCell numeric>{item.itemAmount}</CustomTableCell>
+                                    <CustomTableCell numeric></CustomTableCell>
+                                    <CustomTableCell numeric></CustomTableCell>
                                     <CustomTableCell numeric>
-                                        <Button color="secondary" className={classes.tableButton}
-                                            onClick={() => { props.onSetSelected(item.itemId); props.onToggleDialog(true, "remove") }}>
-                                            Remover
-                                        </Button>
+                                        {`R$ ${subTotal}`}
                                     </CustomTableCell>
                                 </TableRow>
-                            ))}
-                        </TableBody>
-                    </Table>
-                </Paper>
-            </Grid>
-            <Grid item>
-                <Grid container justify="flex-end">
+                            </TableBody>
+                        </Table>
+                    </Paper>
+                </Grid>
+                <Grid item>
                     <Button variant="raised" color="secondary" className={classes.confirmButton}
                         onClick={() => props.onToggleDialog(true, "commit")}>
                         Confirmar Compra
                     </Button>
                 </Grid>
             </Grid>
-        </Grid>
+            :
+            <Typography variant="headline" align="center" color="secondary">
+                <br />
+                Seu carrinho de compras está vazio
+            </Typography>
     )
 }
 
@@ -271,11 +256,14 @@ ShoppingCart.propTypes = {
     Shop control sub-component
  */
 class ShopControl extends React.Component {
-    state = {
-        errorStatus: false,
-        errorMessage: "",
-        itemAmountField: "0",
-        itemAmountFieldParsed: 0,
+    constructor(props) {
+        super(props)
+        this.state = {
+            errorStatus: false,
+            errorMessage: "",
+            itemAmountField: "0",
+            itemAmountFieldParsed: 0,
+        }
     }
 
     /*
@@ -290,17 +278,73 @@ class ShopControl extends React.Component {
     }
 
     handleClickConfirmAddItem() {
-        // TODO HERE
-        this.handleCloseDialog()
+        // Fetch data from redux store 
+        let userData = this.props.customerData.find(customer => (customer.email === this.props.currentUserEmail))
+        let itemData = this.props.siteData.products.find(item => item.id === this.props.selectedId)
+
+        // Find chosen item already in user cart
+        let alreadyChosenData = userData.shoppingCart.find(item => (item.itemId === itemData.id))
+
+        // Has user already added this to cart?
+        if (typeof (alreadyChosenData) !== "undefined") {
+            if (this.state.itemAmountFieldParsed + alreadyChosenData.itemAmount > itemData.amount) {
+                this.setState({
+                    errorStatus: true,
+                    errorMessage: "Quantidade (somada à que já está presente no carrinho) excede o disponível",
+                })
+            } else {
+                // Dispatch edit cart
+                this.props.onClickConfirmEditItem(this.props.currentUserEmail, {
+                    itemId: itemData.id,
+                    itemName: itemData.name,
+                    itemPrice: itemData.price,
+                    itemAmount: (alreadyChosenData.itemAmount + this.state.itemAmountFieldParsed),
+                })
+                // Close dialog on success
+                this.handleCloseDialog()
+            }
+
+        } else {
+            if (this.state.itemAmountFieldParsed > itemData.amount) {
+                this.setState({
+                    errorStatus: true,
+                    errorMessage: "Quantidade excede o disponível",
+                })
+            } else {
+                // Dispatch add to cart
+                this.props.onClickConfirmAddItem(this.props.currentUserEmail, {
+                    itemId: itemData.id,
+                    itemName: itemData.name,
+                    itemPrice: itemData.price,
+                    itemAmount: this.state.itemAmountFieldParsed,
+                })
+                // Close dialog on success
+                this.handleCloseDialog()
+            }
+        }
     }
 
     handleClickConfirmRemoveItem() {
-        // TODO HERE
+        // Fetch data from redux store 
+        let itemData = this.props.siteData.products.find(item => (item.id === this.props.selectedId))
+
+        // Dispatch remove from cart
+        this.props.onClickConfirmRemoveItem(this.props.currentUserEmail, {
+            itemId: itemData.id,
+        })
+
+        // Close dialog on success
         this.handleCloseDialog()
     }
 
     handleClickConfirmCommitPurchase() {
-        // TODO HERE
+        // Fetch data from redux store 
+        let userData = this.props.customerData.find(customer => (customer.email === this.props.currentUserEmail))
+
+        // Dispatch commit purchase
+        this.props.onClickConfirmCommitPurchase(this.props.currentUserEmail, userData.shoppingCart)
+
+        // Close dialog on success
         this.handleCloseDialog()
     }
 
@@ -319,7 +363,7 @@ class ShopControl extends React.Component {
         let dialogActions = null
 
         // Destructure classes
-        const {classes} = this.props
+        const { classes } = this.props
 
         if (this.props.dialogMode === "add") {
             dialogContent = (
@@ -434,6 +478,10 @@ ShopControl.propTypes = {
     dialogMode: PropTypes.string.isRequired,
     selectedId: PropTypes.number.isRequired,
     onToggleDialog: PropTypes.func.isRequired,
+    onClickConfirmAddItem: PropTypes.func.isRequired,
+    onClickConfirmEditItem: PropTypes.func.isRequired,
+    onClickConfirmRemoveItem: PropTypes.func.isRequired,
+    onClickConfirmCommitPurchase: PropTypes.func.isRequired,
 }
 
 
@@ -441,10 +489,13 @@ ShopControl.propTypes = {
     Exposed main component
  */
 class CustomerShopViewBehavior extends React.Component {
-    state = {
-        dialogOpen: false,
-        dialogMode: "",    // Can be any of { "add", "commit" }
-        selectedId: 0,     // Id of product selected for "add to/remove from cart" or "commit purchase" operations
+    constructor(props) {
+        super(props)
+        this.state = {
+            dialogOpen: false,
+            dialogMode: "",    // Can be any of { "add", "commit" }
+            selectedId: 0,     // Id of product selected for "add to/remove from cart" or "commit purchase" operations
+        }
     }
 
     handleToggleDialog(open, mode = null) {
@@ -477,13 +528,17 @@ class CustomerShopViewBehavior extends React.Component {
                         onSetSelected={id => this.handleSetSelected(id)} />
                 }
                 <ShopControl classes={this.props.classes}
-                        siteData={this.props.siteData}
-                        customerData={this.props.customerData}
-                        currentUserEmail={this.props.currentUserEmail}
-                        dialogOpen={this.state.dialogOpen}
-                        dialogMode={this.state.dialogMode}
-                        selectedId={this.state.selectedId}
-                        onToggleDialog={(open, mode) => this.handleToggleDialog(open, mode)} />
+                    siteData={this.props.siteData}
+                    customerData={this.props.customerData}
+                    currentUserEmail={this.props.currentUserEmail}
+                    dialogOpen={this.state.dialogOpen}
+                    dialogMode={this.state.dialogMode}
+                    selectedId={this.state.selectedId}
+                    onToggleDialog={(open, mode) => this.handleToggleDialog(open, mode)}
+                    onClickConfirmAddItem={(userEmail, itemData) => this.props.onClickConfirmAddItem(userEmail, itemData)}
+                    onClickConfirmEditItem={(userEmail, itemData) => this.props.onClickConfirmEditItem(userEmail, itemData)}
+                    onClickConfirmRemoveItem={(userEmail, itemData) => this.props.onClickConfirmRemoveItem(userEmail, itemData)}
+                    onClickConfirmCommitPurchase={(userEmail, shoppingCart) => this.props.onClickConfirmCommitPurchase(userEmail, shoppingCart)} />
             </div>
         )
     }
@@ -500,4 +555,22 @@ function mapStateToProps(state) {
     }
 }
 
-export default connect(mapStateToProps)(withStyles(styles)(CustomerShopViewBehavior))
+function mapDispatchToProps(dispatch) {
+    return {
+        onClickConfirmAddItem: (userEmail, itemData) => {
+            dispatch(addToCart(userEmail, itemData))
+        },
+        onClickConfirmEditItem: (userEmail, itemData) => {
+            dispatch(editCartItem(userEmail, itemData))
+        },
+        onClickConfirmRemoveItem: (userEmail, itemData) => {
+            dispatch(removeFromCart(userEmail, itemData))
+        },
+        onClickConfirmCommitPurchase: (userEmail, shoppingCart) => {
+            dispatch(commitOnPurchase(userEmail, shoppingCart))
+        },
+    }
+}
+
+// Inject styles, connect mappers with the redux store and export symbol
+export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(CustomerShopViewBehavior))

@@ -1,91 +1,54 @@
-import Avatar from '@material-ui/core/Avatar';
-import Button from '@material-ui/core/Button';
-import Card from '@material-ui/core/Card';
-import CardActions from '@material-ui/core/CardActions';
-import CardContent from '@material-ui/core/CardContent';
-import CardMedia from '@material-ui/core/CardMedia';
-import Dialog from '@material-ui/core/Dialog';
-import DialogActions from '@material-ui/core/DialogActions';
-import DialogContent from '@material-ui/core/DialogContent';
-import DialogContentText from '@material-ui/core/DialogContentText';
-import DialogTitle from '@material-ui/core/DialogTitle';
-import Grid from '@material-ui/core/Grid';
-import TextField from '@material-ui/core/TextField';
-import Typography from '@material-ui/core/Typography';
-import { withStyles } from '@material-ui/core/styles';
-import FileUpload from '@material-ui/icons/FileUpload';
-import classNames from 'classnames';
-import { PropTypes } from 'prop-types';
-import React from 'react';
-import { connect } from 'react-redux';
-import { addPet, editPet, removePet } from './StoreActions';
-import { FormControlLabel, Checkbox } from '@material-ui/core';
+import Avatar from "@material-ui/core/Avatar"
+import Button from "@material-ui/core/Button"
+import Card from "@material-ui/core/Card"
+import CardActions from "@material-ui/core/CardActions"
+import CardContent from "@material-ui/core/CardContent"
+import CardMedia from "@material-ui/core/CardMedia"
+import Dialog from "@material-ui/core/Dialog"
+import DialogActions from "@material-ui/core/DialogActions"
+import DialogContent from "@material-ui/core/DialogContent"
+import DialogContentText from "@material-ui/core/DialogContentText"
+import DialogTitle from "@material-ui/core/DialogTitle"
+import Grid from "@material-ui/core/Grid"
+import TextField from "@material-ui/core/TextField"
+import Typography from "@material-ui/core/Typography"
+import { withStyles } from "@material-ui/core/styles"
+import FileUpload from "@material-ui/icons/FileUpload"
+import classNames from "classnames"
+import { PropTypes } from "prop-types"
+import React from "react"
+import { connect } from "react-redux"
+import { addPet, editPet, removePet } from "./StoreActions"
+import { FormControlLabel, Checkbox } from "@material-ui/core"
 
 const styles = theme => ({
+    // Pet list
     root: {
         flexGrow: 1,
         margin: 2 * theme.spacing.unit,
     },
-
     card: {  // DON'T FORGET to add this to <Card /> for dimension control
         minWidth: 380,
         maxWidth: 480,
     },
-
     media: {
         height: 0,
-        paddingTop: '76.25%',  // Originally, 56.25%, meaning 16:9 media
+        paddingTop: "76.25%",  // Originally, 56.25%, meaning 16:9 media
     },
 
-    heading: {
-        fontSize: theme.typography.pxToRem(15),
-    },
-
-    secondaryHeading: {
-        fontSize: theme.typography.pxToRem(15),
-        color: theme.palette.text.secondary,
-    },
-
-    icon: {
-        verticalAlign: 'bottom',
-        height: 20,
-        width: 20,
-    },
-
-    details: {
-        alignItems: 'center',
-    },
-
-    column: {
-        flexBasis: '33.33%',
-    },
-
-    helper: {
-        borderLeft: `2px solid ${theme.palette.divider}`,
-        padding: `${theme.spacing.unit}px ${theme.spacing.unit * 2}px`,
-    },
-
-    link: {
-        color: theme.palette.primary.main,
-        textDecoration: 'none',
-        '&:hover': {
-            textDecoration: 'underline',
-        },
-    },
-
-    // Dialog: all modes
+    // Pet control
     button: {
         margin: theme.spacing.unit,
     },
     input: {
-        display: 'none',
+        display: "none",
     },
     rightIcon: {
         marginLeft: theme.spacing.unit,
     },
     container: {
-        display: 'flex',
-        flexWrap: 'wrap',
+        display: "flex",
+        flexWrap: "wrap",
     },
     textField: {
         marginLeft: theme.spacing.unit,
@@ -95,7 +58,7 @@ const styles = theme => ({
     avatar: {
         margin: 10,
     },
-    bigAvatar: {
+    bigAvatar: { // Customize AVATAR SIZE through this class
         width: 150,
         height: 150,
     },
@@ -138,9 +101,9 @@ function PetList(props) {
             <div className={props.classes.root}>
                 <Grid container spacing={24} direction="row" justify="flex-end" alignItems="flex-start">
                     <Grid item>
-                        <Button variant="raised" color="primary" className={props.classes.button}
+                        <Button variant="raised" color="primary"
                             onClick={() => props.onToggleDialog(true, "add")}>
-                            Adicionar Pet
+                            Cadastrar Novo Pet
                         </Button>
                     </Grid>
                 </Grid>
@@ -199,17 +162,22 @@ PetList.propTypes = {
     Pet control sub-component
  */
 class PetControl extends React.Component {
-    state = {
-        errorStatus: false,
-        errorMessage: "",
-        petNameFieldValue: "",
-        petRaceFieldValue: "",
-        checkedAwareOfPetRemoval: false,
+    constructor(props) {
+        super(props)
+        this.state = {
+            errorStatus: false,
+            errorMessage: "",
+            petNameFieldValue: "",
+            petRaceFieldValue: "",
 
-        // Pet image state
-        willUploadPetImage: false,
-        didUploadPetImage: false,
-        petImageAsURL: null,
+            // Pet removal checker
+            checkedAwareOfPetRemoval: false,
+
+            // Pet image state
+            willUploadPetImage: false,
+            didUploadPetImage: false,
+            petImageAsURL: null,
+        }
     }
 
     /*
@@ -232,7 +200,7 @@ class PetControl extends React.Component {
         let reader = new FileReader()
 
         // Start uploading image
-        this.setState(state => ({
+        this.setState(state => ({  // TODO Not sure if this locks state for changing...
             willUploadPetImage: true,
             didUploadPetImage: false,
             petImageAsURL: null,
@@ -240,7 +208,7 @@ class PetControl extends React.Component {
 
         // When done uploading image
         reader.onload = event => {
-            this.setState(state => ({
+            this.setState(state => ({  // TODO Not sure if this locks state for changing...
                 willUploadPetImage: false,
                 didUploadPetImage: true,
                 petImageAsURL: event.target.result
@@ -264,8 +232,6 @@ class PetControl extends React.Component {
             petNameFieldValue: "",
             petRaceFieldValue: "",
             checkedAwareOfPetRemoval: false,
-
-            // Pet image state
             willUploadPetImage: false,
             didUploadPetImage: false,
             petImageAsURL: null,
@@ -385,14 +351,14 @@ class PetControl extends React.Component {
                         />
                     </form>
                     <Grid container direction="column" justify="center" alignItems="center">
-                        {this.state.didUploadPetImage && 
-                        <Grid item>
-                            <Avatar
-                                alt="Imagem do novo pet"
-                                src={this.state.petImageAsURL}
-                                className={classNames(this.props.classes.avatar, this.props.classes.bigAvatar)}
-                            />
-                        </Grid>
+                        {this.state.didUploadPetImage &&
+                            <Grid item>
+                                <Avatar
+                                    alt="Imagem do novo pet"
+                                    src={this.state.petImageAsURL}
+                                    className={classNames(this.props.classes.avatar, this.props.classes.bigAvatar)}
+                                />
+                            </Grid>
                         }
                         <Grid item>
                             <input
@@ -407,7 +373,7 @@ class PetControl extends React.Component {
                                 <Button variant="raised" component="span" className={this.props.classes.button}
                                     disabled={this.state.willUploadPetImage}>
                                     Escolher Imagem
-                                <FileUpload className={this.props.classes.rightIcon} />
+                                    <FileUpload className={this.props.classes.rightIcon} />
                                 </Button>
                             </label>
                         </Grid>
@@ -461,17 +427,17 @@ class PetControl extends React.Component {
                         <Grid container direction="column" justify="center" alignItems="center">
                             <Grid item>
                                 {this.state.didUploadPetImage ?
-                                <Avatar
-                                    alt="Nova imagem"
-                                    src={this.state.petImageAsURL}
-                                    className={classNames(this.props.classes.avatar, this.props.classes.bigAvatar)}
-                                />
-                                :
-                                <Avatar
-                                    alt="Imagem atual"
-                                    src={data.localMedia ? require(`${data.media}`) : data.media}
-                                    className={classNames(this.props.classes.avatar, this.props.classes.bigAvatar)}
-                                />
+                                    <Avatar
+                                        alt="Nova imagem"
+                                        src={this.state.petImageAsURL}
+                                        className={classNames(this.props.classes.avatar, this.props.classes.bigAvatar)}
+                                    />
+                                    :
+                                    <Avatar
+                                        alt="Imagem atual"
+                                        src={data.localMedia ? require(`${data.media}`) : data.media}
+                                        className={classNames(this.props.classes.avatar, this.props.classes.bigAvatar)}
+                                    />
                                 }
                             </Grid>
                             <Grid item>
@@ -499,7 +465,7 @@ class PetControl extends React.Component {
                     <Button onClick={() => this.handleClickEditPet(data)} color="primary"
                         disabled={this.state.willUploadPetImage}>
                         Submeter
-                </Button>
+                    </Button>
                 )
             }
 
@@ -603,10 +569,13 @@ PetControl.propTypes = {
     Exposed main component
  */
 class CustomerPetViewBehavior extends React.Component {
-    state = {
-        dialogOpen: false,
-        dialogMode: "",    // Can be any of { "add", "edit", "remove" }
-        selectedId: 0,     // Id of pet selected for "edit" or "remove" operations
+    constructor(props) {
+        super(props)
+        this.state = {
+            dialogOpen: false,
+            dialogMode: "",    // Can be any of { "add", "edit", "remove" }
+            selectedId: 0,     // Id of pet selected for "edit" or "remove" operations
+        }
     }
 
     handleToggleDialog(open, mode = null) {
@@ -670,4 +639,5 @@ function mapDispatchToProps(dispatch) {
     }
 }
 
+// Inject styles, connect mappers with the redux store and export symbol
 export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(CustomerPetViewBehavior))
