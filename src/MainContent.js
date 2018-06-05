@@ -19,7 +19,7 @@ import CustomerServiceViewBehavior from "./CustomerServiceViewBehavior"
 import CustomerShopViewBehavior from "./CustomerShopViewBehavior"
 
 const styles = theme => ({
-    mainRoot: {
+    listRoot: {
         flexGrow: 1,
         margin: 2 * theme.spacing.unit,
     },
@@ -110,17 +110,6 @@ const commonHomeSummary = (userRights, userLoggedIn) => {
     Common shop list view
  */
 function CommonShopViewBehavior(props) {
-    /*
-        required props:
-
-        - classes
-        - siteData
-
-        - onToggleDialog(open, mode)
-        - onSetSelected(id)
-     */
-
-    // Destructure classes
     const { classes } = props
 
     return (
@@ -157,11 +146,11 @@ function CommonShopViewBehavior(props) {
                                 {item.amount > 0 ?
                                     <Button size="small" color="primary"
                                         onClick={() => { props.onToggleDialog(true) }}>
-                                        Adicionar ao Carrinho
+                                        Comprar
                                     </Button>
                                     :
                                     <Button disabled size="small" color="primary">
-                                        Adicionar ao Carrinho
+                                        Comprar
                                     </Button>
                                 }
                             </CardActions>

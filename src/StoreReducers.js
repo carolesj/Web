@@ -27,6 +27,7 @@ let initialState = {
 
     // Credentials
     UACData: [
+        // {email, password (as plain text, no need to be serious here), rights (as in usage rights)}
         { email: "user@example.com", password: "user", rights: "customer" },
         { email: "admin@example.com", password: "admin", rights: "admin" },
     ],
@@ -34,7 +35,7 @@ let initialState = {
     // Static site
     SiteData: {
         products: [
-            // {id: "exampleString", name:"exampleString", description: "exampleString", media: "./product1.jpg"}, {...}, ...
+            // {id, name, description, price, media (relative to src folder), localMedia (is media locally imported by webpack?), amount}
             { id: 0, name: "Biscoitos Caninos", description: "Deliciosos agrados de qualidade para cachorros", price: 10.0, media: "./media/product1.jpg", localMedia: true, amount: 1000 },
             { id: 1, name: "Bola de Tênis", description: "Bola verde que quica", price: 10.0, media: "./media/product2.jpg", localMedia: true, amount: 1000 },
             { id: 2, name: "Coleira", description: "Coleira de couro sintético", price: 10.0, media: "./media/product3.jpg", localMedia: true, amount: 1000 },
@@ -44,9 +45,9 @@ let initialState = {
             { id: 6, name: "Ração", description: "Ração de primeira qualidade", price: 10.0, media: "./media/product7.jpg", localMedia: true, amount: 1000 }
         ],
         services: [
-            // {service: "exampleString", description: "exampleString", media: "./service1.jpg"}, {...}, ...
+            // {id, name, description, media (relative to src folder), localMedia (is media locally imported by webpack?), available}
             { id: 0, name: "Banho", description: "Banho com xampu hipoalergênico para gatos e cães", media: "./media/service1.jpg", available: true },
-            { id: 1, name: "Cortar Unha", description: "Cuidados com a unha de seu gato com segurança e sem machucá-lo", media: "./media/service2.jpg", available: false },
+            { id: 1, name: "Corte de Unhas", description: "Cuidados com a unha de seu gato com segurança e sem machucá-lo", media: "./media/service2.jpg", available: false },
             { id: 2, name: "Massagem", description: "Massagem relaxante para seu cão", media: "./media/service3.jpg", available: true },
             { id: 3, name: "Tosa", description: "Corte dos pêlos do seu animal", media: "./media/service4.jpg", available: true }
         ],
@@ -57,7 +58,7 @@ let initialState = {
         {
             email: "user@example.com",
             animals: [
-                // {name: "exampleString", race: "exampleString", media: "./dog1.jpg"}, {...}, ...
+                // {id, name, race, media (relative to src folder), localMedia (is media locally imported by webpack?)}
                 { id: 0, name: "Felicloper", race: "Bernese", media: "./media/dog1.jpg", localMedia: true },
                 { id: 1, name: "Glauber", race: "McNab", media: "./media/dog2.jpg", localMedia: true },
                 { id: 2, name: "Gustavo", race: "Buldogue", media: "./media/dog3.jpg", localMedia: true },
@@ -70,18 +71,19 @@ let initialState = {
                 { id: 9, name: "Fofinho", race: "Maine Coon", media: "./media/cat2.jpg", localMedia: true }
             ],
             appointments: [
-                // {service: "exampleString", animal: "exampleString", dateUTC:"MM/DD/AAAA XX:YY:ZZ GMT-3"}, {...}, ...
-                { serviceId: 0, serviceName: "Banho", animalId: 6, animalName: "Sabrino", date: "06/06/2018 14:00:00 GMT-3", status: "pending", message: "" },
-                { serviceId: 2, serviceName: "Massagem", animalId: 5, animalName: "Nerso", date: "06/24/2019 14:00:00 GMT-3", status: "approved", message: "Aprovado pelo supervisor (sujeito à mudanças)" },
-                { serviceId: 1, serviceName: "Cortar Unha", animalId: 9, animalName: "Fofinho", date: "08/06/2018 14:00:00 GMT-3", status: "pending", message: "" },
-                { serviceId: 3, serviceName: "Tosa", animalId: 0, animalName: "Felicloper", date: "06/04/2018 14:00:00 GMT-3", status: "revoked", message: "Requisição negada: emergência de plantão (nenhum doutor disponivel)" },
-                { serviceId: 3, serviceName: "Tosa", animalId: 0, animalName: "Felicloper", date: "06/04/2018 14:00:00 GMT-3", status: "revoked", message: "Requisição negada: nenhum horário indisponível" }
+                // {id, serviceId, serviceName, animalId, animalName, date (as a Date object), status, message}
+                { id: 0, serviceId: 0, serviceName: "Banho", animalId: 6, animalName: "Sabrino", date: new Date("06/06/2018 14:00:00 GMT-3"), status: "pending", message: "" },
+                { id: 1, serviceId: 2, serviceName: "Massagem", animalId: 5, animalName: "Nerso", date: new Date("06/24/2019 14:00:00 GMT-3"), status: "approved", message: "Aprovado pelo supervisor (sujeito à mudanças)" },
+                { id: 2, serviceId: 1, serviceName: "Cortar Unha", animalId: 9, animalName: "Fofinho", date: new Date("08/06/2018 14:00:00 GMT-3"), status: "pending", message: "" },
+                { id: 3, serviceId: 3, serviceName: "Tosa", animalId: 0, animalName: "Felicloper", date: new Date("06/04/2018 14:00:00 GMT-3"), status: "revoked", message: "Requisição negada: emergência de plantão (nenhum doutor disponivel)" },
+                { id: 4, serviceId: 3, serviceName: "Tosa", animalId: 0, animalName: "Felicloper", date: new Date("06/09/2018 14:00:00 GMT-3"), status: "revoked", message: "Requisição negada: nenhum horário indisponível" },
+                { id: 1, serviceId: 0, serviceName: "Banho", animalId: 5, animalName: "Nerso", date: new Date("06/28/2019 14:00:00 GMT-3"), status: "approved", message: "Aprovado pelo supervisor (sujeito à mudanças)" },
                 /*
                     status:
-                        pending: not yet processed
-                        approved: processed and approved, can be modified or removed at any time
-                        modified: processed, approved and eventually modified (but not removed)
-                        removed: processed and denied or processed, approved and then removed
+                        - pending: not yet processed
+                        - revoked: processed and denied
+                        - approved: processed and approved
+                        - we're planning to add "edited" as well but we still don't have the logic very clear
                  */
             ],
             shoppingCart: [
@@ -96,12 +98,13 @@ let initialState = {
 
 // TODO decompose into separate reducers
 function petShopApp(state, action) {
-    // This is where we set the initial state
+    // Can also be done via default value
     if (typeof (state) === "undefined") {
         return initialState
     }
 
     switch (action.type) {
+
     // Common action reducers
     case CommonActions.USER_SIGNIN:
         return Object.assign({}, state, {
@@ -109,6 +112,7 @@ function petShopApp(state, action) {
             currentUserRights: action.payload.userRights,
             currentUserLoggedIn: true,
         })
+
     case CommonActions.USER_SIGNUP:
         return Object.assign({}, state, {
             currentUserEmail: action.payload.userEmail,
@@ -123,6 +127,7 @@ function petShopApp(state, action) {
                 { email: action.payload.userEmail, animals: [], appointments: [], shoppingCart: [] }
             ]
         })
+
     case CommonActions.USER_LOGOUT:
         return Object.assign({}, state, {
             currentUserView: "home",
@@ -130,21 +135,22 @@ function petShopApp(state, action) {
             currentUserRights: "visitor",
             currentUserLoggedIn: false,
         })
+
     case CommonActions.CHANGE_CURRENT_VIEW:
         return Object.assign({}, state, {
             currentUserView: action.payload.nextView,
         })
 
-        // Customer action reducers
+    // Customer action reducers
     case CustomerActions.PET_ADD:
         return Object.assign({}, state, {
-            CustomerData: state.CustomerData.map((customer, index) => {
+            CustomerData: state.CustomerData.map(customer => {
                 if (customer.email === action.payload.userEmail) {
                     return Object.assign({}, customer, {
                         animals: [
                             ...customer.animals,
                             {
-                                id: customer.animals.length,
+                                id: (customer.animals.length > 0) ? (customer.animals[customer.animals.length-1].id + 1) : 0,
                                 name: action.payload.petData.name,
                                 race: action.payload.petData.race,
                                 media: action.payload.petData.media,
@@ -158,13 +164,13 @@ function petShopApp(state, action) {
             })
         })
 
-        // TODO Maybe a filter followed by an insertion will work best
+    // TODO Maybe a filter followed by an insertion will work best
     case CustomerActions.PET_EDIT:
         return Object.assign({}, state, {
-            CustomerData: state.CustomerData.map((customer, cIndex) => {
+            CustomerData: state.CustomerData.map(customer => {
                 if (customer.email === action.payload.userEmail) {
                     return Object.assign({}, customer, {
-                        animals: customer.animals.map((animal, aIndex) => {
+                        animals: customer.animals.map(animal => {
                             if (animal.id === action.payload.petData.id) {
                                 return Object.assign({}, animal, {
                                     id: action.payload.petData.id,
@@ -186,7 +192,7 @@ function petShopApp(state, action) {
 
     case CustomerActions.PET_REMOVE:
         return Object.assign({}, state, {
-            CustomerData: state.CustomerData.map((customer, index) => {
+            CustomerData: state.CustomerData.map(customer => {
                 if (customer.email === action.payload.userEmail) {
                     return Object.assign({}, customer, {
                         animals: customer.animals.filter(animal => {
@@ -201,7 +207,7 @@ function petShopApp(state, action) {
 
     case CustomerActions.STORE_ADD_TO_CART:
         return Object.assign({}, state, {
-            CustomerData: state.CustomerData.map((customer, index) => {
+            CustomerData: state.CustomerData.map(customer => {
                 if (customer.email === action.payload.userEmail) {
                     return Object.assign({}, customer, {
                         shoppingCart: [
@@ -215,15 +221,17 @@ function petShopApp(state, action) {
                         ]
                     })
                 }
+                // Otherwise keep old state
+                return customer
             })
         })
 
     case CustomerActions.STORE_EDIT_CART_ITEM:
         return Object.assign({}, state, {
-            CustomerData: state.CustomerData.map((customer, cIndex) => {
+            CustomerData: state.CustomerData.map(customer => {
                 if (customer.email === action.payload.userEmail) {
                     return Object.assign({}, customer, {
-                        shoppingCart: customer.shoppingCart.map((item, iIndex) => {
+                        shoppingCart: customer.shoppingCart.map(item => {
                             if (item.itemId === action.payload.itemData.itemId) {
                                 return Object.assign({}, item, {
                                     itemId: item.itemId,
@@ -244,7 +252,7 @@ function petShopApp(state, action) {
 
     case CustomerActions.STORE_REMOVE_FROM_CART:
         return Object.assign({}, state, {
-            CustomerData: state.CustomerData.map((customer, index) => {
+            CustomerData: state.CustomerData.map(customer=> {
                 if (customer.email === action.payload.userEmail) {
                     return Object.assign({}, customer, {
                         shoppingCart: customer.shoppingCart.filter(item => {
@@ -252,6 +260,8 @@ function petShopApp(state, action) {
                         })
                     })
                 }
+                // Otherwise keep old state
+                return customer
             })
         })
 
@@ -259,7 +269,7 @@ function petShopApp(state, action) {
         return Object.assign({}, state, {
             // Recalculate available amounts 
             SiteData: Object.assign({}, state.SiteData, {
-                products: state.SiteData.products.map((product, pIndex) => {
+                products: state.SiteData.products.map(product => {
                     for (const item of action.payload.shoppingCart) {
                         if (product.id === item.itemId) {
                             return Object.assign({}, product, {
@@ -272,20 +282,59 @@ function petShopApp(state, action) {
                 })
             }),
             // Clear customer shopping cart
-            CustomerData: state.CustomerData.map((customer, index) => {
+            CustomerData: state.CustomerData.map(customer => {
                 if (customer.email === action.payload.userEmail) {
                     return Object.assign({}, customer, {
                         shoppingCart: []
                     })
                 }
+                // Otherwise keep old state
+                return customer
             })
         })
-        
+
     case CustomerActions.APPOINTMENT_ADD:
-        return state
+        return Object.assign({}, state, {
+            CustomerData: state.CustomerData.map(customer => {
+                if (customer.email === action.payload.userEmail) {
+                    return Object.assign({}, customer, {
+                        appointments: [
+                            ...customer.appointments,
+                            {
+                                id: (customer.appointments.length > 0) ? (customer.appointments[customer.appointments.length-1].id + 1) : 0,
+                                serviceId: action.payload.appointData.serviceId,
+                                serviceName: action.payload.appointData.serviceName,
+                                animalId: action.payload.appointData.animalId,
+                                animalName: action.payload.appointData.animalName,
+                                date: action.payload.appointData.date,
+                                status: action.payload.appointData.status,
+                                message: action.payload.appointData.message,
+                            }
+                        ]
+                    })
+                }
+                // Otherwise keep old state
+                return customer
+            })
+        })        
 
     case CustomerActions.APPOINTMENT_REMOVE:
-        return state
+        return Object.assign({}, state, {
+            CustomerData: state.CustomerData.map(customer => {
+                if (customer.email === action.payload.userEmail) {
+                    return Object.assign({}, customer, {
+                        appointments: customer.appointments.filter(appointment => {
+                            return (appointment.id !== action.payload.appointData.id)
+                        })
+                    })
+                }
+                // Otherwise keep old state
+                return customer
+            })
+        })
+
+    // Supervisor action reducers
+    // TODO HERE
 
     default:
         return state

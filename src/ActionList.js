@@ -1,10 +1,10 @@
-import List from '@material-ui/core/List';
-import ListItem from '@material-ui/core/ListItem';
-import ListItemText from '@material-ui/core/ListItemText';
-import PropTypes from 'prop-types';
-import React from 'react';
-import { connect } from 'react-redux';
-import { changeCurrentView } from './StoreActions';
+import List from "@material-ui/core/List"
+import ListItem from "@material-ui/core/ListItem"
+import ListItemText from "@material-ui/core/ListItemText"
+import PropTypes from "prop-types"
+import React from "react"
+import { connect } from "react-redux"
+import { changeCurrentView } from "./StoreActions"
 
 function ActionList(props) {
     let defaultOptions = [

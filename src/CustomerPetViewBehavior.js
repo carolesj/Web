@@ -64,39 +64,14 @@ const styles = theme => ({
     },
 })
 
+
 /*
     Pet list sub-component
  */
 function PetList(props) {
-    /*
-        required props:
-
-        - classes
-        - customerData
-        - currentUserEmail
-
-        - onToggleDialog(open, mode)
-        - onSetSelected(id)
-     */
     let data = props.customerData.find(customer => (customer.email === props.currentUserEmail))
 
-    /*
-        GRID TYPE
-
-            Full-width, with grow (control grow via outer div and justification
-            via the Grid container element).
-        
-        GRID ITEM
-
-            Size controlled via breakpoints, for xs, sm, and upper.
-            (To re-enable control via media size, set the class to classes.media.)
-
-        CARD TYPE
-
-            Media container. (TODO include pet register control in the cards.)
-
-     */
-    return (typeof (data) === "undefined") ? null :  // Don't worry, this comparison is safe
+    return (typeof (data) === "undefined") ? null :
         (
             <div className={props.classes.root}>
                 <Grid container spacing={24} direction="row" justify="flex-end" alignItems="flex-start">
@@ -180,8 +155,9 @@ class PetControl extends React.Component {
         }
     }
 
+
     /*
-        CONTROLLED COMPONENT HANDLERS
+        LOCAL UI STATE CONTROLLERS
      */
     handlePetNameFieldChange(event) {
         this.setState({
@@ -239,12 +215,15 @@ class PetControl extends React.Component {
         this.props.onToggleDialog(false)
     }
 
+
     /*
-        REDUX STATE DISPATCH WRAPPERS
+        REDUX STORE DISPATCH WRAPPERS
+
+        TODO These hanglers need better names
+        TODO Check handlers on other files as well
      */
     handleClickAddPet() {
         // TODO Check all field values for validity
-        // TODO Actually move an image file and use it
         let stagePetName = this.state.petNameFieldValue
         let stagePetRace = this.state.petRaceFieldValue
         let stagePetMedia = this.state.didUploadPetImage ? this.state.petImageAsURL : "./media/sampleDog.png"
@@ -252,7 +231,7 @@ class PetControl extends React.Component {
 
         // Dispatch add pet store action
         this.props.onClickSubmitAddPet(this.props.currentUserEmail, {
-            // HOW TO KNOW WHICH ARE REQUIRED FOR THE ACTION
+            // TODO Is there an easy way to know which of these need to be set?
             name: stagePetName,
             race: stagePetRace,
             media: stagePetMedia,
@@ -265,7 +244,6 @@ class PetControl extends React.Component {
 
     handleClickEditPet(currentData) {
         // TODO Check all field values for validity
-        // TODO Actually move an image file and use it
         let stagePetId = currentData.id
         let stagePetName = this.state.petNameFieldValue
         let stagePetRace = this.state.petRaceFieldValue
@@ -273,7 +251,6 @@ class PetControl extends React.Component {
         let stageLocalMedia = !this.state.didUploadPetImage
 
         this.props.onClickSubmitEditPet(this.props.currentUserEmail, {
-            // HOW TO KNOW WHICH ARE REQUIRED FOR THE ACTION
             id: stagePetId,
             name: stagePetName,
             race: stagePetRace,
@@ -285,14 +262,10 @@ class PetControl extends React.Component {
         this.handleCloseDialog()
     }
 
-    /*
-        ACTUAL RENDER METHOD
-     */
     handleClickRemovePet() {
         let stagePetId = this.props.selectedId
 
         this.props.onClickSubmitRemovePet(this.props.currentUserEmail, {
-            // HOW TO KNOW WHICH ARE REQUIRED FOR THE ACTION
             id: stagePetId,
         })
 
@@ -300,30 +273,14 @@ class PetControl extends React.Component {
         this.handleCloseDialog()
     }
 
+    /*
+        RENDER FUNCTION
+     */
     render() {
-        /*
-            required props:
-    
-            - classes
-            - customerData
-            - currentUserEmail
-    
-            - dialogOpen
-            - dialogMode
-            - onToggleDialog
-         */
         let dialogContent = null
         let dialogActions = null
 
-
-        /*
-            TODO
-
-            0. Change "media" values to contain actual paths            DONE
-                + Use "./media/" or just "media" ???                    DONE
-            1. Resolve paths correctly now with require.resolve         DONE (require.resolve doesn't do it for us, it just returns the absolute path)
-            2. Set behaviour of "onChange" for file input component
-         */
+        // Dialog UI for adding a new pet
         if (this.props.dialogMode === "add") {
             dialogContent = (
                 <DialogContent>
@@ -387,17 +344,16 @@ class PetControl extends React.Component {
                 </Button>
             )
 
+        // Dialog UI for editing an existing pet
         } else if (this.props.dialogMode === "edit") {
             // VERY NAUGHTY CODE AHEAD
             // VERY NAUGHTY CODE AHEAD
             // VERY NAUGHTY CODE AHEAD
-
-            // Fetch from store HMMMMMMMMMMMMMMMMMMMMMMMMMM
             let data = this.props
                 .customerData.find(customer => (customer.email === this.props.currentUserEmail))
                 .animals.find(animal => (animal.id === this.props.selectedId))
 
-            // Change UI setters
+            // Don't eplode the running UI
             if (typeof (data) !== "undefined") {
                 dialogContent = (
                     <DialogContent>
@@ -469,17 +425,16 @@ class PetControl extends React.Component {
                 )
             }
 
+        // Dialog UI for removing an existing pet
         } else if (this.props.dialogMode === "remove") {
             // VERY NAUGHTY CODE AHEAD
             // VERY NAUGHTY CODE AHEAD
             // VERY NAUGHTY CODE AHEAD
-
-            // Fetch from store HMMMMMMMMMMMMMMMMMMMMMMMMMM
             let data = this.props
                 .customerData.find(customer => (customer.email === this.props.currentUserEmail))
                 .animals.find(animal => (animal.id === this.props.selectedId))
 
-            // Change UI setters
+            // Don't explode the running UI
             if (typeof (data) !== "undefined") {
                 dialogContent = (
                     <DialogContent>
@@ -564,6 +519,7 @@ PetControl.propTypes = {
     onClickSubmitEditPet: PropTypes.func.isRequired,
     onClickSubmitRemovePet: PropTypes.func.isRequired,
 }
+
 
 /*
     Exposed main component

@@ -1,15 +1,15 @@
-import { Checkbox, FormControlLabel } from '@material-ui/core';
-import Button from '@material-ui/core/Button';
-import Dialog from '@material-ui/core/Dialog';
-import DialogActions from '@material-ui/core/DialogActions';
-import DialogContent from '@material-ui/core/DialogContent';
-import DialogContentText from '@material-ui/core/DialogContentText';
-import DialogTitle from '@material-ui/core/DialogTitle';
-import TextField from '@material-ui/core/TextField';
-import PropTypes from 'prop-types';
-import React from 'react';
-import { connect } from 'react-redux';
-import { logUserOut, signUserIn, signUserUp } from './StoreActions';
+import { Checkbox, FormControlLabel } from "@material-ui/core"
+import Button from "@material-ui/core/Button"
+import Dialog from "@material-ui/core/Dialog"
+import DialogActions from "@material-ui/core/DialogActions"
+import DialogContent from "@material-ui/core/DialogContent"
+import DialogContentText from "@material-ui/core/DialogContentText"
+import DialogTitle from "@material-ui/core/DialogTitle"
+import TextField from "@material-ui/core/TextField"
+import PropTypes from "prop-types"
+import React from "react"
+import { connect } from "react-redux"
+import { logUserOut, signUserIn, signUserUp } from "./StoreActions"
 
 class UACDialog extends React.Component {
     constructor(props) {
@@ -118,7 +118,7 @@ class UACDialog extends React.Component {
         }
     }
 
-    handleSignupRequest(state) {
+    handleSignupRequest() {
         // TODO Check if passwords match
         // TODO Check if user already exists
         // TODO If the above passes, add info to users
@@ -126,7 +126,7 @@ class UACDialog extends React.Component {
         let stageEmail = this.state.userEmailFieldValue
         let stagePassword = this.state.userPasswordFieldValue
         let stagePasswordConf = this.state.userPasswordConfFieldValue
-        let validateEmail = (/^([A-Za-z0-9_\-\.])+\@([A-Za-z0-9_\-\.])+\.([A-Za-z]{2,4})$/).test(stageEmail)
+        let validateEmail = (/^([A-Za-z0-9_\-.])+@([A-Za-z0-9_\-.])+\.([A-Za-z]{2,4})$/).test(stageEmail)
 
         if (stagePassword.length < 6) {
             this.setState({
@@ -152,7 +152,7 @@ class UACDialog extends React.Component {
         }
     }
 
-    handleLogoutRequest(state) {
+    handleLogoutRequest() {
         // Dispatch user log out action
         this.props.onLogoutClick()
 

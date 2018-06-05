@@ -74,21 +74,11 @@ const styles = theme => ({
     },
 })
 
+
 /*
     Shop list sub-component
  */
 function ShoppingList(props) {
-    /*
-        required props:
-
-        - classes
-        - siteData
-
-        - onToggleDialog(open, mode)
-        - onSetSelected(id)
-     */
-
-    // Destructure classes
     const { classes } = props
 
     return (
@@ -153,7 +143,7 @@ ShoppingList.propTypes = {
     Shopping cart sub-component
  */
 function ShoppingCart(props) {
-    // Just inline this I don't give a fuck
+    // Just inline this I don't care
     const CustomTableCell = withStyles(theme => ({
         head: {
             backgroundColor: theme.palette.common.black,
@@ -164,13 +154,9 @@ function ShoppingCart(props) {
         },
     }))(TableCell)
 
-    // Retrieve the data
+    // Fetch and prepare data
     let data = props.customerData.find(customer => (customer.email === props.currentUserEmail)).shoppingCart
-
-    // Destructure
     const { classes } = props
-
-    // Tracker
     let subTotal = 0.0
 
     return (
@@ -189,7 +175,7 @@ function ShoppingCart(props) {
                             </TableHead>
                             <TableBody>
                                 {data.map((item, index) => {
-                                    subTotal = subTotal + (parseFloat(item.itemPrice) * parseInt(item.itemAmount))
+                                    subTotal = subTotal + parseFloat(item.itemPrice) * parseInt(item.itemAmount, 10)
 
                                     return (
                                         <TableRow className={classes.row} key={index}>
@@ -197,7 +183,7 @@ function ShoppingCart(props) {
                                                 {item.itemName}
                                             </CustomTableCell>
                                             <CustomTableCell numeric>{item.itemAmount}</CustomTableCell>
-                                            <CustomTableCell numeric>{parseFloat(item.itemPrice) * parseInt(item.itemAmount)}</CustomTableCell>
+                                            <CustomTableCell numeric>{parseFloat(item.itemPrice) * parseInt(item.itemAmount, 10)}</CustomTableCell>
                                             <CustomTableCell numeric>
                                                 <Button color="secondary" className={classes.tableButton}
                                                     onClick={() => { props.onSetSelected(item.itemId); props.onToggleDialog(true, "remove") }}>
@@ -266,17 +252,31 @@ class ShopControl extends React.Component {
         }
     }
 
+
     /*
-        CONTROLLED COMPONENT HANDLERS
+        LOCAL UI STATE CONTROLLERS
      */
     handleItemAmountFieldChange(event) {
         this.setState({
-            // DON'T FORGET TO PARSEINT
             itemAmountField: event.target.value,
-            itemAmountFieldParsed: parseInt(event.target.value),
+            itemAmountFieldParsed: parseInt(event.target.value, 10),
         })
     }
 
+    handleCloseDialog() {
+        this.setState({
+            errorStatus: false,
+            errorMessage: "",
+            itemAmountField: "0",
+            itemAmountFIeldParsed: 0,
+        })
+        this.props.onToggleDialog(false)
+    }
+
+
+    /*
+        REDUX STORE DISPATCH WRAPPERS
+     */
     handleClickConfirmAddItem() {
         // Fetch data from redux store 
         let userData = this.props.customerData.find(customer => (customer.email === this.props.currentUserEmail))
@@ -348,23 +348,16 @@ class ShopControl extends React.Component {
         this.handleCloseDialog()
     }
 
-    handleCloseDialog() {
-        this.setState({
-            errorStatus: false,
-            errorMessage: "",
-            itemAmountField: "0",
-            itemAmountFIeldParsed: 0,
-        })
-        this.props.onToggleDialog(false)
-    }
 
+    /*
+        RENDER FUNCTION
+     */
     render() {
         let dialogContent = null
         let dialogActions = null
-
-        // Destructure classes
         const { classes } = this.props
 
+        // Dialog UI for adding item to cart
         if (this.props.dialogMode === "add") {
             dialogContent = (
                 <DialogContent>
@@ -392,6 +385,7 @@ class ShopControl extends React.Component {
                 </Button>
             )
 
+        // Dialog UI for removing item from cart
         } else if (this.props.dialogMode === "remove") {
             dialogContent = (
                 <DialogContent>
@@ -407,6 +401,7 @@ class ShopControl extends React.Component {
                 </Button>
             )
 
+        // Dialog UI for commiting on a purchase
         } else if (this.props.dialogMode === "commit") {
             dialogContent = (
                 <DialogContent>
