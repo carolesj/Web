@@ -24,7 +24,6 @@ function ActionList(props) {
             { control: "pets", pt: "Meus Pets", st: "Controle sua lista de pets" },
             { control: "services", pt: "Serviços", st: "Marque seus agendamentos" },
             { control: "appointments", pt: "Agendamentos", st: "Controle suas requisições" },
-            { control: "shoppingCart", pt: "Carrinho de compras", st: "Finalize sua compra" },
         ]
     }
 
@@ -32,7 +31,7 @@ function ActionList(props) {
         allOptions = [
             { control: "home", pt: "Início", st: "Sua página inicial" },
             { control: "shop", pt: "Estoque", st: "Controle de catálogo da loja" },
-            { control: "users", pt: "Usuários", st: "Controle d0 cadastros de usuários" },
+            { control: "users", pt: "Usuários", st: "Controle do cadastros de usuários" },
             { control: "services", pt: "Serviços", st: "Controle de serviços e agendamentos" },
         ]
     }
@@ -42,7 +41,7 @@ function ActionList(props) {
             {
                 allOptions.map((item, index) => (
                     // The "key" prop MUST be provided!
-                    <ListItem button divider key={index}
+                    <ListItem button key={index}
                         onClick={() => props.onChangeViewClick(item.control)}>
                         <ListItemText
                             primary={item.pt}

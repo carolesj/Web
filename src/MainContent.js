@@ -19,18 +19,29 @@ import CustomerPetViewBehavior from "./CustomerPetViewBehavior"
 import CustomerServiceViewBehavior from "./CustomerServiceViewBehavior"
 import CustomerShopViewBehavior from "./CustomerShopViewBehavior"
 import Avatar from "@material-ui/core/Avatar"
+import { Paper } from "@material-ui/core"
 
 const styles = theme => ({
     listRoot: {
         flexGrow: 1,
-        margin: 2 * theme.spacing.unit,
+        marginTop: -2 * theme.spacing.unit,
+        marginLeft: -1 * theme.spacing.unit,
+        marginRight: -1 * theme.spacing.unit,
+    },
+
+    maxCard: {
+        margin: 0,
+        width: "100%"
+    },
+    maxMedia: {
+        height: 0,
+        paddingTop: "56.25%", // 16:9
     },
 
     card: {  // DON'T FORGET to add this to <Card /> for dimension control
         minWidth: 380,
         maxWidth: 480,
     },
-
     media: {
         height: 0,
         paddingTop: "76.25%",  // Originally, 56.25%, meaning 16:9 media
@@ -75,8 +86,8 @@ const styles = theme => ({
         margin: 3 * theme.spacing.unit,
     },
     bigAvatar: { // Customize AVATAR SIZE through this class
-        width: 200,
-        height: 200,
+        width: 150,
+        height: 150,
     },
 })
 
@@ -85,41 +96,80 @@ const styles = theme => ({
  */
 // TODO HERE
 function CommonHomeScreenBehavior(props) {
-    let content = null
+    const {classes} = props
 
-    const {userLoggedIn, classes} = props
-
-    if (userLoggedIn) {
-        content = (
-            <Grid container direction="column" justify="flex-start" alignItems="center">
-                <Grid item>
-                    <Typography align="center" variant="display3" gutterBottom>
-                        Seja bem vindo de volta
-                    </Typography>
-                    <Typography align="center" variant="subheading" gutterBottom>
-                        Explore o painel para mais opções
-                    </Typography>
-                </Grid>
-                <Grid item>
-                    <Avatar
-                        alt="Imagem do novo pet"
-                        src={require("./media/sampleDog.png")}
-                        className={classNames(classes.avatar, classes.bigAvatar)} />
+    let content = (
+        <Grid container direction="column" justify="flex-start" alignItems="stretch" spacing={24}>
+            <Card className={classes.maxCard}>
+                <CardMedia
+                    className={classes.maxMedia}
+                    image={require("./media/sampleBanner.jpg")}
+                    title="Seu melhor amigo"
+                />
+            </Card>
+            <Grid item>
+                <br />
+                <Typography color="textSecondary" align="center" variant="display3">
+                        Tudo para seu melhor amigo!
+                </Typography>
+            </Grid>
+            <Grid item>
+                <br />
+                <Grid container justify="space-around" alignItems="center">
+                    <Grid item>
+                        <Grid container direction="column" alignItems="center">
+                            <Typography color="textSecondary" align="center" variant="headline">
+                            Faça seu cadastro
+                            </Typography>
+                            <Avatar
+                                alt="Imagem do novo pet"
+                                src={require("./media/sampleDog.png")}
+                                className={classNames(classes.avatar, classes.bigAvatar)} />
+                            <Typography color="textSecondary" align="center" variant="body1">
+                            Cadastre-se e aproveite os recursos 
+                                <br />
+                            que nossa plataforma pode lhe oferecer
+                            </Typography>
+                        </Grid>
+                    </Grid>
+                    <Grid item>
+                        <Grid container direction="column" alignItems="center">
+                            <Typography color="textSecondary" align="center" variant="headline">
+                            Consulte nossa loja
+                            </Typography>
+                            <Avatar
+                                alt="Imagem do novo pet"
+                                src={require("./media/product3.jpg")}
+                                className={classNames(classes.avatar, classes.bigAvatar)} />
+                            <Typography color="textSecondary" align="center" variant="body1">
+                            Produtos e alimentos da melhor qualidade
+                                <br />
+                            para seu melhor amigo de estimação
+                            </Typography>
+                        </Grid>
+                    </Grid>
+                    <Grid item>
+                        <Grid container direction="column" alignItems="center">
+                            <Typography color="textSecondary" align="center" variant="headline">
+                            Agende um serviço conosco
+                            </Typography>
+                            <Avatar
+                                alt="Imagem do novo pet"
+                                src={require("./media/service1.jpg")}
+                                className={classNames(classes.avatar, classes.bigAvatar)} />
+                            <Typography color="textSecondary" align="center" variant="body1">
+                            Garantimos prestação de serviço
+                                <br />
+                            com o maior carinho e atenção
+                                <br />
+                            que seu pet pode merecer
+                            </Typography>
+                        </Grid>
+                    </Grid>
                 </Grid>
             </Grid>
-        )
-    } else {
-        content = (
-            <div>
-                <Typography align="center" variant="display3" gutterBottom>
-                    Seja bem vindo ao site
-                </Typography>
-                <Typography align="center" variant="subheading" gutterBottom>
-                    Faça login para ter acesso aos nossos serviços
-                </Typography>
-            </div>
-        )
-    }
+        </Grid>
+    )
 
     return (
         <div>
@@ -298,7 +348,8 @@ class MainContent extends React.Component {
                 return <CustomerShopViewBehavior />
             case "supervisor":
                 // TODO HERE
-                return null
+                return <CommonShopViewBehavior classes={this.props.classes} siteData={this.props.siteData}
+                    onToggleDialog={(open) => this.handleToggleDialog(open)} />
             default:
                 return <CommonShopViewBehavior classes={this.props.classes} siteData={this.props.siteData}
                     onToggleDialog={(open) => this.handleToggleDialog(open)} />
@@ -307,13 +358,12 @@ class MainContent extends React.Component {
         case "services":
             switch (this.props.userRights) {
             case "customer":
-                // TODO HERE
                 return <CustomerServiceViewBehavior />
             case "supervisor":
                 // TODO HERE
-                return null
+                return <CommonServiceViewBehavior classes={this.props.classes} siteData={this.props.siteData}
+                    onToggleDialog={(open) => this.handleToggleDialog(open)} />
             default:
-                // TODO HERE
                 return <CommonServiceViewBehavior classes={this.props.classes} siteData={this.props.siteData}
                     onToggleDialog={(open) => this.handleToggleDialog(open)} />
             }
@@ -323,7 +373,7 @@ class MainContent extends React.Component {
             return <CustomerPetViewBehavior />
         
         case "users":
-            // TODO
+            // TODO HERE
             return null
 
         case "shoppingCart":
@@ -348,7 +398,7 @@ class MainContent extends React.Component {
                     </DialogTitle>
                     <DialogContent>
                         <DialogContentText align="center" color="secondary">
-                            Faça login ou cadastre-se para acessar nossos serviços
+                            Faça login ou cadastre-se para acessar os serviços
                         </DialogContentText>
                     </DialogContent>
                     <DialogActions>

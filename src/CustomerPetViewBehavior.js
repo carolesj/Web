@@ -24,10 +24,11 @@ import { addPet, editPet, removePet } from "./StoreActions"
 
 const styles = theme => ({
     // Pet list
-    root: {
+    listRoot: {
         flexGrow: 1,
-        marginLeft: theme.spacing.unit,
-        marginRight: theme.spacing.unit,
+        marginTop: -2 * theme.spacing.unit,
+        marginLeft: -1 * theme.spacing.unit,
+        marginRight: -1 * theme.spacing.unit,
     },
     card: {  // DON'T FORGET to add this to <Card /> for dimension control
         minWidth: 380,
@@ -75,8 +76,8 @@ function PetList(props) {
 
     return (typeof (data) === "undefined") ? null :
         (
-            <div className={props.classes.root}>
-                <Grid container spacing={24} justify="flex-end" alignItems="flex-start">
+            <div className={props.classes.listRoot}>
+                <Grid container spacing={16} direction="column" justify="flex-start" alignItems="flex-end">
                     <Grid item>
                         <Button variant="raised" color="primary"
                             onClick={() => props.onToggleDialog(true, "add")}>

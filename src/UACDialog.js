@@ -196,11 +196,13 @@ class UACDialog extends React.Component {
 
             dialogContent = (
                 <DialogContent>
+                    {/*
                     <DialogContentText align="center">
                         <Button color="secondary" onClick={() => this.handleSwitchToSignup()}>
                             Fazer cadastro
                         </Button>
                     </DialogContentText>
+                    */}
                     <TextField
                         autoFocus
                         margin="dense"
@@ -234,11 +236,13 @@ class UACDialog extends React.Component {
 
             dialogContent = (
                 <DialogContent>
+                    {/*
                     <DialogContentText align="center">
                         <Button color="secondary" onClick={() => this.handleSwitchToSignin()}>
                             Voltar para login
                         </Button>
                     </DialogContentText>
+                    */}
                     <TextField
                         autoFocus
                         margin="dense"
@@ -250,7 +254,6 @@ class UACDialog extends React.Component {
                         fullWidth
                     />
                     <TextField
-                        autoFocus
                         margin="dense"
                         id="userEmail"
                         label="Endereço de email"

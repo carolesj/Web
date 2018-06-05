@@ -1,0 +1,48 @@
+Integrantes do grupo:
+Caroline Jesuíno Nunes da Silva - 9293925
+Danilo Zecchin Nery - 8602430
+Felipe Scrochio Custódio - 9442688
+Henrique Martins Loschiavo - 8936972
+
+Comentários:
+    Há dois usuários cadastrados como exemplo:
+        -> permissões de administrador:
+            usuário: admin@example.com, senha: admin
+        -> permissões de cliente:
+            usuário: user@example.com, senha: user
+    O grupo utilizou React e Redux para o desenvolvimento do trabalho.
+    Repositório do github: https://github.com/carolesj/Web
+    No diretório do projeto, pode-se usar os comandos:
+        ->'npm start' para rodar o site em modo de desenvolvimento
+        ->'npm run build' para construir o site
+        (para utilizar esses comandos, é necessário utilizar o 'npm install' no
+        diretório do projeto. Há explicações mais detalhadas no README)
+
+Arquivos:
+ActionBar.js:
+    Código referente à barra de ação superior do site.
+ActionList.js:
+    Código referente à lista de ações possíveis de serem performadas por qualquer
+    um, por um administrador e por um cliente.
+Application.js.
+CustomerPetViewBehavior.js:
+    Código da tela de visualização de pets por parte do usuário.
+CustomerServiceViewBehavior.js:
+    Código da tela de serviços por parte do usuário.
+CustomerShopViewBehavior.js:
+    Código da tela da loja por parte do usuário.
+MainContent.js:
+    Código referente às definições de estilo da aplicação e ações em comum e
+    suas mudanças para ações específicas para cada tipo de usuário.
+StoreActions.js:
+    Código referente às ações da loja.
+StoreReducers.js:
+    Código referente aos dados internos da loja e dos serviços, e performance
+    das ações existentes.
+UACDialog.js:
+    Código referente às manipulações dos itens referentes às caixas de diálogo.
+UserContext.js:
+    Código referente à verificação do usuário e definição de seu tipo e suas permissões.
+index.js.
+registerServiceWorker.js:
+    Código referente ao Service Worker usado para utilizar dados salvos em cache.

@@ -35,7 +35,9 @@ const styles = theme => ({
     // Service list
     listRoot: {
         flexGrow: 1,
-        margin: 2 * theme.spacing.unit,
+        marginTop: -2 * theme.spacing.unit,
+        marginLeft: -1 * theme.spacing.unit,
+        marginRight: -1 * theme.spacing.unit,
     },
     card: {  // DON'T FORGET to add this to <Card /> for dimension control
         minWidth: 380,
@@ -52,9 +54,12 @@ const styles = theme => ({
     // Appointment list
     tableRoot: {
         //width: "100%",
-        marginTop: theme.spacing.unit * 3,
-        marginLeft: theme.spacing.unit * 3,
-        marginRight: theme.spacing.unit * 3,
+        //marginTop: theme.spacing.unit * 3,
+        //marginLeft: theme.spacing.unit * 3,
+        //marginRight: theme.spacing.unit * 3,
+        marginTop: -1 * theme.spacing.unit,
+        marginLeft: -1 * theme.spacing.unit,
+        marginRight: -1 * theme.spacing.unit,
         overflowX: "auto",
     },
     tableBody: {
