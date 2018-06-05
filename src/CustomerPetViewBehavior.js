@@ -1,3 +1,4 @@
+import { Checkbox, FormControlLabel } from "@material-ui/core"
 import Avatar from "@material-ui/core/Avatar"
 import Button from "@material-ui/core/Button"
 import Card from "@material-ui/core/Card"
@@ -13,19 +14,20 @@ import Grid from "@material-ui/core/Grid"
 import TextField from "@material-ui/core/TextField"
 import Typography from "@material-ui/core/Typography"
 import { withStyles } from "@material-ui/core/styles"
+import AddIcon from "@material-ui/icons/Add"
 import FileUpload from "@material-ui/icons/FileUpload"
 import classNames from "classnames"
 import { PropTypes } from "prop-types"
 import React from "react"
 import { connect } from "react-redux"
 import { addPet, editPet, removePet } from "./StoreActions"
-import { FormControlLabel, Checkbox } from "@material-ui/core"
 
 const styles = theme => ({
     // Pet list
     root: {
         flexGrow: 1,
-        margin: 2 * theme.spacing.unit,
+        marginLeft: theme.spacing.unit,
+        marginRight: theme.spacing.unit,
     },
     card: {  // DON'T FORGET to add this to <Card /> for dimension control
         minWidth: 380,
@@ -74,17 +76,18 @@ function PetList(props) {
     return (typeof (data) === "undefined") ? null :
         (
             <div className={props.classes.root}>
-                <Grid container spacing={24} direction="row" justify="flex-end" alignItems="flex-start">
+                <Grid container spacing={24} justify="flex-end" alignItems="flex-start">
                     <Grid item>
                         <Button variant="raised" color="primary"
                             onClick={() => props.onToggleDialog(true, "add")}>
+                            <AddIcon />
                             Cadastrar Novo Pet
                         </Button>
                     </Grid>
                 </Grid>
-                <Grid container spacing={24} direction="row" justify="space-between" alignItems="flex-start">
+                <Grid container spacing={24} justify="flex-start" alignItems="flex-start">
                     {data.animals.map((item, index) => (
-                        <Grid key={index} item xs={12} sm={6} md={4}>
+                        <Grid item key={index} xs={12} sm={6} md={4}>
                             <Card>
                                 <CardMedia
                                     className={props.classes.media}
@@ -95,19 +98,23 @@ function PetList(props) {
                                     <Typography gutterBottom variant="headline" component="h2">
                                         {item.name}
                                     </Typography>
-                                    <Typography component="p">
+                                    <Typography gutterBottom component="p">
                                         {"Raça: " + item.race}
                                     </Typography>
                                 </CardContent>
                                 <CardActions>
-                                    <Button size="small" color="primary"
-                                        onClick={() => { props.onSetSelected(item.id); props.onToggleDialog(true, "edit") }}>
-                                        Editar
-                                    </Button>
-                                    <Button size="small" color="secondary"
-                                        onClick={() => { props.onSetSelected(item.id); props.onToggleDialog(true, "remove") }}>
-                                        Remover
-                                    </Button>
+                                    <Grid container justify="flex-end">
+                                        <Grid item>
+                                            <Button size="small" color="secondary"
+                                                onClick={() => { props.onSetSelected(item.id); props.onToggleDialog(true, "remove") }}>
+                                                Remover
+                                            </Button>
+                                            <Button size="small" color="primary"
+                                                onClick={() => { props.onSetSelected(item.id); props.onToggleDialog(true, "edit") }}>
+                                                Editar
+                                            </Button>
+                                        </Grid>
+                                    </Grid>
                                 </CardActions>
                             </Card>
                         </Grid>
@@ -455,7 +462,7 @@ class PetControl extends React.Component {
                 dialogActions = (
                     <Button onClick={() => this.handleClickRemovePet()} color="secondary"
                         disabled={!this.state.checkedAwareOfPetRemoval}>
-                        Proceder
+                        Confirmar
                     </Button>
                 )
             }

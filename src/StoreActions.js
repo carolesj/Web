@@ -18,6 +18,9 @@ export const CustomerActions = {
     PET_EDIT: "PET_EDIT",
     PET_REMOVE: "PET_REMOVE",
 
+    // Edit profile
+    PROFILE_EDIT: "PROFILE_EDIT",
+
     // Store interaction
     STORE_ADD_TO_CART: "STORE_ADD_TO_CART",
     STORE_EDIT_CART_ITEM: "STORE_EDIT_CART_ITEM",
@@ -35,8 +38,8 @@ export const CustomerActions = {
 export const SupervisorActions = {
     // User control
     USERCTL_ADD: "USERCTL_ADD",
-    USERCTL_EDIT: "USERCTL_EDIT",
     USERCTL_REMOVE: "USERCTL_REMOVE",
+    USERCTL_CHANGE_RIGHTS: "USERCTL_CHANGE_RIGHTS",
 
     // Stock control
     STOCKCTL_ADD: "STOCKCTL_ADD",
@@ -53,25 +56,25 @@ export const SupervisorActions = {
 /*
    UAC action creators
  */
-export function signUserIn(userEmail, userRights) {
+export function signUserIn(userData) {
     return {
         type: CommonActions.USER_SIGNIN,
-        payload: { userEmail, userRights }
+        payload: { userData }
     }
 }
 
-export function signUserUp(userEmail, userPassword) {
+export function signUserUp(userData) {
     return {
         type: CommonActions.USER_SIGNUP,
-        payload: { userEmail, userPassword }
+        payload: { userData }
     }
 }
 
 // TODO credentials may be unnecessary
-export function logUserOut() {
+export function logUserOut(userData) {
     return {
         type: CommonActions.USER_LOGOUT,
-        payload: {}
+        payload: { userData }
     }
 }
 
@@ -85,6 +88,13 @@ export function changeCurrentView(nextView) {
 /*
    Customer action creators
  */
+export function editUserProfile(userData) {
+    return {
+        type: CustomerActions.PROFILE_EDIT,
+        payload: { userData }
+    }
+}
+
 export function addPet(userEmail, petData) {
     return {
         type: CustomerActions.PET_ADD,
@@ -160,17 +170,17 @@ export function addUser(adminData, userData) {
 }
 
 // TODO adminData might not be necessary
-export function editUser(adminData, userData) {
+export function removeUser(adminData, userData) {
     return {
-        type: SupervisorActions.USERCTL_EDIT,
+        type: SupervisorActions.USERCTL_REMOVE,
         payload: { adminData, userData }
     }
 }
 
 // TODO adminData might not be necessary
-export function removeUser(adminData, userData) {
+export function changeUserRights(adminData, userData) {
     return {
-        type: SupervisorActions.USERCTL_REMOVE,
+        type: SupervisorActions.USERCTL_EDIT,
         payload: { adminData, userData }
     }
 }

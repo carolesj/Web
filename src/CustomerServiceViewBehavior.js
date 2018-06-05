@@ -1,3 +1,4 @@
+import Avatar from "@material-ui/core/Avatar"
 import Button from "@material-ui/core/Button"
 import Card from "@material-ui/core/Card"
 import CardActions from "@material-ui/core/CardActions"
@@ -9,6 +10,7 @@ import DialogContent from "@material-ui/core/DialogContent"
 import DialogContentText from "@material-ui/core/DialogContentText"
 import DialogTitle from "@material-ui/core/DialogTitle"
 import Grid from "@material-ui/core/Grid"
+import MenuItem from "@material-ui/core/MenuItem"
 import Paper from "@material-ui/core/Paper"
 import Table from "@material-ui/core/Table"
 import TableBody from "@material-ui/core/TableBody"
@@ -18,6 +20,7 @@ import TableRow from "@material-ui/core/TableRow"
 import TextField from "@material-ui/core/TextField"
 import Typography from "@material-ui/core/Typography"
 import { withStyles } from "@material-ui/core/styles"
+import classNames from "classnames"
 import ptLocale from "date-fns/locale/pt"
 import { DateTimePicker } from "material-ui-pickers"
 import MuiPickersUtilsProvider from "material-ui-pickers/utils/MuiPickersUtilsProvider"
@@ -26,9 +29,6 @@ import { PropTypes } from "prop-types"
 import React from "react"
 import { connect } from "react-redux"
 import { addAppointment, removeAppointment } from "./StoreActions"
-import MenuItem from "@material-ui/core/MenuItem"
-import classNames from "classnames"
-import Avatar from "@material-ui/core/Avatar"
 
 
 const styles = theme => ({
@@ -106,7 +106,7 @@ function ServiceList(props) {
         <div className={classes.listRoot}>
             <Grid container spacing={24} justify="flex-start">
                 {props.siteData.services.map((item, index) => (
-                    <Grid key={index} item xs={12} sm={6} md={4}>
+                    <Grid item key={index} xs={12} sm={6} md={4}>
                         <Card>
                             <CardMedia
                                 className={classes.media}
@@ -117,32 +117,36 @@ function ServiceList(props) {
                                 <Typography gutterBottom variant="headline" component="h2">
                                     {item.name}
                                 </Typography>
-                                <Typography component="p">
+                                <Typography gutterBottom component="p">
                                     {item.description}
                                 </Typography>
                                 {item.available ?
-                                    <Typography variant="body1" gutterBottom align="left">
+                                    <Typography variant="body1" align="right">
                                         <br />
                                         Disponível para agendamento
                                     </Typography>
                                     :
-                                    <Typography variant="body1" color="error" gutterBottom align="left">
+                                    <Typography variant="body1" color="error" align="right">
                                         <br />
                                         Serviço indisponível
                                     </Typography>
                                 }
                             </CardContent>
                             <CardActions>
-                                {item.available ?
-                                    <Button size="small" color="primary"
-                                        onClick={() => { props.onSetSelected(item.id); props.onToggleDialog(true, "add") }}>
-                                        Contratar
-                                    </Button>
-                                    :
-                                    <Button disabled size="small" color="primary">
-                                        Contratar
-                                    </Button>
-                                }
+                                <Grid container justify="flex-end">
+                                    <Grid item>
+                                        {item.available ?
+                                            <Button size="small" color="primary"
+                                                onClick={() => { props.onSetSelected(item.id); props.onToggleDialog(true, "add") }}>
+                                                Contratar
+                                            </Button>
+                                            :
+                                            <Button disabled size="small" color="primary">
+                                                Contratar
+                                            </Button>
+                                        }
+                                    </Grid>
+                                </Grid>
                             </CardActions>
                         </Card>
                     </Grid>
@@ -658,7 +662,7 @@ class CustomerServiceViewBehavior extends React.Component {
                         onToggleDialog={(open, mode) => this.handleToggleDialog(open, mode)}
                         onSetSelected={id => this.handleSetSelected(id)} />
                 }
-                {(this.props.currentUserView === "myAppoints") &&
+                {(this.props.currentUserView === "appointments") &&
                     <AppointmentList classes={this.props.classes}
                         customerData={this.props.customerData}
                         currentUserEmail={this.props.currentUserEmail}

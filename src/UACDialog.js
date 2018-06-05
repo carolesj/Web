@@ -11,6 +11,7 @@ import React from "react"
 import { connect } from "react-redux"
 import { logUserOut, signUserIn, signUserUp } from "./StoreActions"
 
+
 class UACDialog extends React.Component {
     constructor(props) {
         super(props)
@@ -18,6 +19,7 @@ class UACDialog extends React.Component {
         this.state = {
             errorText: "",
             errorStatus: false,
+            userNameFieldValue: "",
             userEmailFieldValue: "",
             userPasswordFieldValue: "",
             userPasswordConfFieldValue: "",
@@ -25,9 +27,16 @@ class UACDialog extends React.Component {
         }
     }
 
+
     /*
         CONTROLLED COMPONENT HANDLERS
      */
+    handleNameTextFieldChange(event) {
+        this.setState({
+            userNameFieldValue: event.target.value,
+        })
+    }
+
     handleEmailTextFieldChange(event) {
         this.setState({
             userEmailFieldValue: event.target.value,
@@ -51,6 +60,7 @@ class UACDialog extends React.Component {
             userWantsAdminChecked: !state.userWantsAdminChecked
         }))
     }
+
 
     /*
         UAC DIALOG STATE WRAPPERS
@@ -106,7 +116,11 @@ class UACDialog extends React.Component {
 
         if (authorization !== "visitor") {
             // Dispatch user sign in action
-            this.props.onSigninClick(stageEmail, authorization)
+            this.props.onSigninClick({
+                nextView: "home",
+                userEmail: stageEmail,
+                userRights: authorization,
+            })
 
             // Close dialog on success
             this.handleCloseDialog()
@@ -119,10 +133,7 @@ class UACDialog extends React.Component {
     }
 
     handleSignupRequest() {
-        // TODO Check if passwords match
-        // TODO Check if user already exists
-        // TODO If the above passes, add info to users
-
+        let stageName = this.state.userNameFieldValue
         let stageEmail = this.state.userEmailFieldValue
         let stagePassword = this.state.userPasswordFieldValue
         let stagePasswordConf = this.state.userPasswordConfFieldValue
@@ -145,7 +156,13 @@ class UACDialog extends React.Component {
             })
         } else {
             // Dispatch user sign up action
-            this.props.onSignupClick(stageEmail, stagePassword)
+            this.props.onSignupClick({
+                nextView: "home",
+                userName: stageName,
+                userEmail: stageEmail,
+                userRights: "customer",
+                userPassword: stagePassword,
+            })
 
             // Pass control and log in
             this.handleCloseDialog()
@@ -154,7 +171,11 @@ class UACDialog extends React.Component {
 
     handleLogoutRequest() {
         // Dispatch user log out action
-        this.props.onLogoutClick()
+        this.props.onLogoutClick({
+            nextView: "home",
+            userEmail: "none",
+            userRights: "visitor",
+        })
 
         // Close dialog on success
         this.handleCloseDialog()
@@ -221,8 +242,18 @@ class UACDialog extends React.Component {
                     <TextField
                         autoFocus
                         margin="dense"
+                        id="userName"
+                        label="Nome completo"
+                        type="text"
+                        value={this.state.userNameFieldValue}
+                        onChange={e => this.handleNameTextFieldChange(e)}
+                        fullWidth
+                    />
+                    <TextField
+                        autoFocus
+                        margin="dense"
                         id="userEmail"
-                        label="Endereço de e-mail"
+                        label="Endereço de email"
                         type="email"
                         value={this.state.userEmailFieldValue}
                         onChange={e => this.handleEmailTextFieldChange(e)}
@@ -367,20 +398,20 @@ function mapStateToProps(state) {
     return {
         userLoggedIn: state.currentUserLoggedIn,
         userRights: state.currentUserRights,
-        UACData: state.UACData
+        UACData: state.UACData,
     }
 }
 
 function mapDispatchToProps(dispatch) {
     return {
-        onSigninClick: (userEmail, userRights) => {
-            dispatch(signUserIn(userEmail, userRights))
+        onSigninClick: userData => {
+            dispatch(signUserIn(userData))
         },
-        onSignupClick: (userEmail, userPassword) => {
-            dispatch(signUserUp(userEmail, userPassword))
+        onSignupClick: userData => {
+            dispatch(signUserUp(userData))
         },
-        onLogoutClick: () => {
-            dispatch(logUserOut())
+        onLogoutClick: userData => {
+            dispatch(logUserOut(userData))
         }
     }
 }

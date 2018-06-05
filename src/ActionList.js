@@ -7,32 +7,35 @@ import { connect } from "react-redux"
 import { changeCurrentView } from "./StoreActions"
 
 function ActionList(props) {
-    let defaultOptions = [
-        { control: "home", pt: "Início", st: "Página inicial" },
-        { control: "products", pt: "Produtos", st: "Catálogo de produtos em oferta" },
-        { control: "services", pt: "Serviços", st: "Listagem de serviços prestados" },
-    ]
+    let allOptions = []
 
-    let customerOptions = []
+    if (props.userRights === "visitor") {
+        allOptions = [
+            { control: "home", pt: "Início", st: "Página inicial" },
+            { control: "shop", pt: "Loja", st: "Consulte nosso catálogo" },
+            { control: "services", pt: "Serviços", st: "Consulte os serviços prestados" },
+        ]
+    }
+
     if (props.userRights === "customer") {
-        customerOptions = [
-            { control: "myPets", pt: "Meus Pets", st: "Lista dos seus pets cadastrados na loja" },
-            { control: "myAppoints", pt: "Meus agendamentos", st: "Informações de serviços agendados" },
-            { control: "myShoppingCart", pt: "Carrinho de compras", st: "Estado atual do carrinho de compras" },
+        allOptions = [
+            { control: "home", pt: "Início", st: "Sua página inicial" },
+            { control: "shop", pt: "Loja", st: "Consulte nosso catálogo" },
+            { control: "pets", pt: "Meus Pets", st: "Controle sua lista de pets" },
+            { control: "services", pt: "Serviços", st: "Marque seus agendamentos" },
+            { control: "appointments", pt: "Agendamentos", st: "Controle suas requisições" },
+            { control: "shoppingCart", pt: "Carrinho de compras", st: "Finalize sua compra" },
         ]
     }
 
-    let adminOptions = []
-    if (props.userRights === "admin") {
-        adminOptions = [
-            { control: "userCtl", pt: "Controle de usuários", st: "Controle de cadastros de usuários" },
-            { control: "stockCtl", pt: "Controle de estoque", st: "Controle de produtos em estoque" },
-            { control: "serviceCtl", pt: "Controle de serviços", st: "Controle de serviços agendamentos" },
+    if (props.userRights === "supervisor") {
+        allOptions = [
+            { control: "home", pt: "Início", st: "Sua página inicial" },
+            { control: "shop", pt: "Estoque", st: "Controle de catálogo da loja" },
+            { control: "users", pt: "Usuários", st: "Controle d0 cadastros de usuários" },
+            { control: "services", pt: "Serviços", st: "Controle de serviços e agendamentos" },
         ]
     }
-
-    // Concatenate custom options conditionally
-    let allOptions = defaultOptions.concat(customerOptions).concat(adminOptions)
 
     return (
         <List component="nav">

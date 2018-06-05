@@ -1,7 +1,27 @@
 import CssBaseline from "@material-ui/core/CssBaseline"
 import React from "react"
 import ActionBar from "./ActionBar"
-import MainContent from "./MainContent"
+import { MuiThemeProvider, createMuiTheme } from "@material-ui/core/styles"
+
+
+const newTheme = createMuiTheme({
+    palette: {
+        primary: {
+            light: "#ff6655",
+            main: "#f7272a",
+            dark: "#bb0000",
+            // contrastText: will be calculated to contast with palette.primary.main
+        },
+        secondary: {
+            light: "#ff5dae",
+            main: "#e0187f",
+            dark: "##a90053",
+            // contrastText: '#ffcc00',
+        },
+        //error:
+    }
+})
+
 
 class Application extends React.Component {
 //    constructor(props) {
@@ -77,8 +97,9 @@ class Application extends React.Component {
         return (
             <React.Fragment>
                 <CssBaseline />
-                <ActionBar />
-                <MainContent />
+                <MuiThemeProvider theme={newTheme}>
+                    <ActionBar />
+                </MuiThemeProvider>
             </React.Fragment>
         )
     }

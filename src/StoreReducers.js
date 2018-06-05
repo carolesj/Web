@@ -1,5 +1,5 @@
 // Action types
-import { CommonActions, CustomerActions, SupervisorActions } from "./StoreActions";
+import { CommonActions, CustomerActions, SupervisorActions } from "./StoreActions"
 
 // UAC actions
 import { signUserIn, signUserUp, logUserOut, changeCurrentView } from "./StoreActions"
@@ -9,19 +9,19 @@ import {
     addPet, editPet, removePet,
     addToCart, editCartItem, removeFromCart, commitOnPurchase,
     addAppointment, removeAppointment
-} from "./StoreActions";
+} from "./StoreActions"
 
 // Supervisor actions
 import {
-    addUser, editUser, removeUser,
+    addUser, removeUser, changeUserRights, 
     addProduct, editProduct, removeProduct, addStockRegistry,
     sudoEditAppointment, sudoRemoveAppointment, addServiceRegistry
-} from "./StoreActions";
+} from "./StoreActions"
 
 let initialState = {
     // Current user
     currentUserView: "home",        // Any user starts at home page
-    currentUserEmail: "",           // No sense in tracking a visitors e-mail
+    currentUserEmail: "none",       // No sense in tracking a visitors e-mail
     currentUserRights: "visitor",   // Any user starts browsing as a visitor
     currentUserLoggedIn: false,     // Any user starts as not logged in
 
@@ -29,7 +29,8 @@ let initialState = {
     UACData: [
         // {email, password (as plain text, no need to be serious here), rights (as in usage rights)}
         { email: "user@example.com", password: "user", rights: "customer" },
-        { email: "admin@example.com", password: "admin", rights: "admin" },
+        { email: "admin@example.com", password: "admin", rights: "supervisor" },
+        // email IS PRIMARY KEY ALWAYS
     ],
 
     // Static site
@@ -56,7 +57,11 @@ let initialState = {
     // Customer specific
     CustomerData: [
         {
-            email: "user@example.com",
+            // Personal data
+            name: "Cliente Exemplo",
+            email: "user@example.com", // Primary identifier
+
+            // State trackers
             animals: [
                 // {id, name, race, media (relative to src folder), localMedia (is media locally imported by webpack?)}
                 { id: 0, name: "Felicloper", race: "Bernese", media: "./media/dog1.jpg", localMedia: true },
@@ -108,31 +113,33 @@ function petShopApp(state, action) {
     // Common action reducers
     case CommonActions.USER_SIGNIN:
         return Object.assign({}, state, {
-            currentUserEmail: action.payload.userEmail,
-            currentUserRights: action.payload.userRights,
+            currentUserView: action.payload.userData.nextView,
+            currentUserEmail: action.payload.userData.userEmail,
+            currentUserRights: action.payload.userData.userRights,
             currentUserLoggedIn: true,
         })
 
     case CommonActions.USER_SIGNUP:
         return Object.assign({}, state, {
-            currentUserEmail: action.payload.userEmail,
-            currentUserRights: "customer",
+            currentUserView: action.payload.userData.nextView,
+            currentUserEmail: action.payload.userData.userEmail,
+            currentUserRights: action.payload.userData.userRights,
             currentUserLoggedIn: true,
             UACData: [
                 ...state.UACData,
-                { email: action.payload.userEmail, password: action.payload.userPassword, rights: "customer" }
+                { email: action.payload.userData.userEmail, password: action.payload.userData.userPassword, rights: action.payload.userData.userRights }
             ],
             CustomerData: [
                 ...state.CustomerData,
-                { email: action.payload.userEmail, animals: [], appointments: [], shoppingCart: [] }
+                { name: action.payload.userData.userName, email: action.payload.userData.userEmail, animals: [], appointments: [], shoppingCart: [] }
             ]
         })
 
     case CommonActions.USER_LOGOUT:
         return Object.assign({}, state, {
-            currentUserView: "home",
-            currentUserEmail: "",
-            currentUserRights: "visitor",
+            currentUserView: action.payload.userData.nextView,
+            currentUserEmail: action.payload.userData.userEmail,
+            currentUserRights: action.payload.userData.userRights,
             currentUserLoggedIn: false,
         })
 
@@ -142,6 +149,28 @@ function petShopApp(state, action) {
         })
 
     // Customer action reducers
+    case CustomerActions.PROFILE_EDIT:
+        return Object.assign({}, state, {
+            UACData: state.UACData.map(user => {
+                if (user.email === action.payload.userData.userEmail) {
+                    return Object.assign({}, user, {
+                        email: action.payload.userData.userEmail,
+                        password: action.payload.userData.userPassword,
+                    })
+                }
+                return user
+            }),
+            CustomerData: state.CustomerData.map(customer => {
+                if (customer.email === action.payload.userData.userEmail) {
+                    return Object.assign({}, customer, {
+                        name: action.payload.userData.userName,
+                        email: action.payload.userData.userEmail,
+                    })
+                }
+                return customer
+            })
+        })
+
     case CustomerActions.PET_ADD:
         return Object.assign({}, state, {
             CustomerData: state.CustomerData.map(customer => {

@@ -11,21 +11,18 @@ import DialogTitle from "@material-ui/core/DialogTitle"
 import Grid from "@material-ui/core/Grid"
 import Typography from "@material-ui/core/Typography"
 import { withStyles } from "@material-ui/core/styles"
+import classNames from "classnames"
 import { PropTypes } from "prop-types"
 import React from "react"
 import { connect } from "react-redux"
 import CustomerPetViewBehavior from "./CustomerPetViewBehavior"
 import CustomerServiceViewBehavior from "./CustomerServiceViewBehavior"
 import CustomerShopViewBehavior from "./CustomerShopViewBehavior"
+import Avatar from "@material-ui/core/Avatar"
 
 const styles = theme => ({
     listRoot: {
         flexGrow: 1,
-        margin: 2 * theme.spacing.unit,
-    },
-
-    expRoot: {
-        width: "100%",
         margin: 2 * theme.spacing.unit,
     },
 
@@ -74,37 +71,68 @@ const styles = theme => ({
             textDecoration: "underline",
         },
     },
+    avatar: {
+        margin: 3 * theme.spacing.unit,
+    },
+    bigAvatar: { // Customize AVATAR SIZE through this class
+        width: 200,
+        height: 200,
+    },
 })
 
 /*
     DATA VIEW BUILDERS
  */
 // TODO HERE
-const commonHomeSummary = (userRights, userLoggedIn) => {
-    let headtext = null
-    let subtext = null
+function CommonHomeScreenBehavior(props) {
+    let content = null
+
+    const {userLoggedIn, classes} = props
 
     if (userLoggedIn) {
-        headtext = "Você é um " + userRights
-        subtext = "Explore o painel para mais opções"
+        content = (
+            <Grid container direction="column" justify="flex-start" alignItems="center">
+                <Grid item>
+                    <Typography align="center" variant="display3" gutterBottom>
+                        Seja bem vindo de volta
+                    </Typography>
+                    <Typography align="center" variant="subheading" gutterBottom>
+                        Explore o painel para mais opções
+                    </Typography>
+                </Grid>
+                <Grid item>
+                    <Avatar
+                        alt="Imagem do novo pet"
+                        src={require("./media/sampleDog.png")}
+                        className={classNames(classes.avatar, classes.bigAvatar)} />
+                </Grid>
+            </Grid>
+        )
     } else {
-        headtext = "Seja bem vindo!"
-        subtext = "Faça login para mais informações ou compra de produtos e serviços"
+        content = (
+            <div>
+                <Typography align="center" variant="display3" gutterBottom>
+                    Seja bem vindo ao site
+                </Typography>
+                <Typography align="center" variant="subheading" gutterBottom>
+                    Faça login para ter acesso aos nossos serviços
+                </Typography>
+            </div>
+        )
     }
 
     return (
         <div>
-            <br />
-            <br />
-            <Typography align="center" variant="display3" gutterBottom>
-                {headtext}
-            </Typography>
-            <Typography align="center" variant="subheading" gutterBottom>
-                {subtext}
-            </Typography>
+            {content}
         </div>
     )
 }
+
+CommonHomeScreenBehavior.propTypes = {
+    classes: PropTypes.object.isRequired,
+    userLoggedIn: PropTypes.bool.isRequired,
+}
+
 
 /*
     Common shop list view
@@ -116,7 +144,7 @@ function CommonShopViewBehavior(props) {
         <div className={classes.listRoot}>
             <Grid container spacing={24} justify="flex-start">
                 {props.siteData.products.map((item, index) => (
-                    <Grid key={index} item xs={12} sm={6} md={4}>
+                    <Grid item key={index} xs={12} sm={6} md={4}>
                         <Card>
                             <CardMedia
                                 className={classes.media}
@@ -127,32 +155,36 @@ function CommonShopViewBehavior(props) {
                                 <Typography gutterBottom variant="headline" component="h2">
                                     {`${item.name} - R$${item.price}`}
                                 </Typography>
-                                <Typography component="p">
+                                <Typography gutterBottom component="p">
                                     {item.description}
                                 </Typography>
                                 {item.amount > 0 ?
-                                    <Typography variant="body1" gutterBottom align="left">
+                                    <Typography variant="body1" align="right">
                                         <br />
                                         {`Disponibilidade: ${item.amount} unidades`}
                                     </Typography>
                                     :
-                                    <Typography variant="body1" color="error" gutterBottom align="left">
+                                    <Typography variant="body1" color="error" align="right">
                                         <br />
                                         Produto esgotado
                                     </Typography>
                                 }
                             </CardContent>
                             <CardActions>
-                                {item.amount > 0 ?
-                                    <Button size="small" color="primary"
-                                        onClick={() => { props.onToggleDialog(true) }}>
+                                <Grid container justify="flex-end">
+                                    <Grid item>
+                                        {item.amount > 0 ?
+                                            <Button size="small" color="primary"
+                                                onClick={() => { props.onToggleDialog(true) }}>
                                         Comprar
-                                    </Button>
-                                    :
-                                    <Button disabled size="small" color="primary">
+                                            </Button>
+                                            :
+                                            <Button disabled size="small" color="primary">
                                         Comprar
-                                    </Button>
-                                }
+                                            </Button>
+                                        }
+                                    </Grid>
+                                </Grid>
                             </CardActions>
                         </Card>
                     </Grid>
@@ -168,22 +200,73 @@ CommonShopViewBehavior.propTypes = {
     onToggleDialog: PropTypes.func.isRequired,
 }
 
-// TODO HERE
 
-// TODO
-const supervisorUserControlView = () => {
-    return null
+/*
+    Service list sub-component
+ */
+function CommonServiceViewBehavior(props) {
+    const { classes } = props
+
+    return (
+        <div className={classes.listRoot}>
+            <Grid container spacing={24} justify="flex-start">
+                {props.siteData.services.map((item, index) => (
+                    <Grid item key={index} xs={12} sm={6} md={4}>
+                        <Card>
+                            <CardMedia
+                                className={classes.media}
+                                image={require(`${item.media}`)}
+                                title={"Serviço de " + item.name}
+                            />
+                            <CardContent>
+                                <Typography gutterBottom variant="headline" component="h2">
+                                    {item.name}
+                                </Typography>
+                                <Typography gutterBottom component="p">
+                                    {item.description}
+                                </Typography>
+                                {item.available ?
+                                    <Typography variant="body1" align="right">
+                                        <br />
+                                        Disponível para agendamento
+                                    </Typography>
+                                    :
+                                    <Typography variant="body1" color="error" align="right">
+                                        <br />
+                                        Serviço indisponível
+                                    </Typography>
+                                }
+                            </CardContent>
+                            <CardActions>
+                                <Grid container justify="flex-end">
+                                    <Grid item>
+                                        {item.available ?
+                                            <Button size="small" color="primary"
+                                                onClick={() => { props.onToggleDialog(true) }}>
+                                                Contratar
+                                            </Button>
+                                            :
+                                            <Button disabled size="small" color="primary">
+                                                Contratar
+                                            </Button>
+                                        }
+                                    </Grid>
+                                </Grid>
+                            </CardActions>
+                        </Card>
+                    </Grid>
+                ))}
+            </Grid>
+        </div>
+    )
 }
 
-// TODO
-const supervisorStockControlView = () => {
-    return null
+CommonServiceViewBehavior.propTypes = {
+    classes: PropTypes.object.isRequired,
+    siteData: PropTypes.object.isRequired,
+    onToggleDialog: PropTypes.func.isRequired,
 }
 
-// TODO
-const supervisorServiceControlView = () => {
-    return null
-}
 
 /*
     MAIN COMPONENT CLASS
@@ -206,9 +289,10 @@ class MainContent extends React.Component {
         switch (this.props.userView) {
         // Visitor options
         case "home":
-            return commonHomeSummary(this.props.userRights, this.props.userLoggedIn)
+            return <CommonHomeScreenBehavior classes={this.props.classes}
+                userLoggedIn={this.props.userLoggedIn} />
 
-        case "products":
+        case "shop":
             switch (this.props.userRights) {
             case "customer":
                 return <CustomerShopViewBehavior />
@@ -230,28 +314,23 @@ class MainContent extends React.Component {
                 return null
             default:
                 // TODO HERE
-                return null
+                return <CommonServiceViewBehavior classes={this.props.classes} siteData={this.props.siteData}
+                    onToggleDialog={(open) => this.handleToggleDialog(open)} />
             }
 
         // Customer options
-        case "myPets":
+        case "pets":
             return <CustomerPetViewBehavior />
+        
+        case "users":
+            // TODO
+            return null
 
-        case "myShoppingCart":
+        case "shoppingCart":
             return <CustomerShopViewBehavior />
 
-        case "myAppoints":
+        case "appointments":
             return <CustomerServiceViewBehavior />
-
-        // Supervisor options
-        case "userCtl":
-            return supervisorUserControlView()
-
-        case "stockCtl":
-            return supervisorStockControlView()
-
-        case "serviceCtl":
-            return supervisorServiceControlView()
 
         default:
             return null

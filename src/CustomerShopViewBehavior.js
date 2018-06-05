@@ -85,7 +85,7 @@ function ShoppingList(props) {
         <div className={classes.listRoot}>
             <Grid container spacing={24} justify="flex-start">
                 {props.siteData.products.map((item, index) => (
-                    <Grid key={index} item xs={12} sm={6} md={4}>
+                    <Grid item key={index} xs={12} sm={6} md={4}>
                         <Card>
                             <CardMedia
                                 className={classes.media}
@@ -96,32 +96,36 @@ function ShoppingList(props) {
                                 <Typography gutterBottom variant="headline" component="h2">
                                     {`${item.name} - R$${item.price}`}
                                 </Typography>
-                                <Typography component="p">
+                                <Typography gutterBottom component="p">
                                     {item.description}
                                 </Typography>
                                 {item.amount > 0 ?
-                                    <Typography variant="body1" gutterBottom align="left">
+                                    <Typography variant="body1" align="right">
                                         <br />
                                         {`Disponibilidade: ${item.amount} unidades`}
                                     </Typography>
                                     :
-                                    <Typography variant="body1" color="error" gutterBottom align="left">
+                                    <Typography variant="body1" color="error" align="right">
                                         <br />
                                         Produto esgotado
                                     </Typography>
                                 }
                             </CardContent>
                             <CardActions>
-                                {item.amount > 0 ?
-                                    <Button size="small" color="primary"
-                                        onClick={() => { props.onSetSelected(item.id); props.onToggleDialog(true, "add") }}>
-                                        Adicionar ao Carrinho
-                                    </Button>
-                                    :
-                                    <Button disabled size="small" color="primary">
-                                        Adicionar ao Carrinho
-                                    </Button>
-                                }
+                                <Grid container justify="flex-end">
+                                    <Grid item>
+                                        {item.amount > 0 ?
+                                            <Button size="small" color="primary"
+                                                onClick={() => { props.onSetSelected(item.id); props.onToggleDialog(true, "add") }}>
+                                                Comprar
+                                            </Button>
+                                            :
+                                            <Button disabled size="small" color="primary">
+                                                Comprar
+                                            </Button>
+                                        }
+                                    </Grid>
+                                </Grid>
                             </CardActions>
                         </Card>
                     </Grid>
@@ -509,13 +513,13 @@ class CustomerShopViewBehavior extends React.Component {
     render() {
         return (
             <div>
-                {(this.props.currentUserView === "products") &&
+                {(this.props.currentUserView === "shop") &&
                     <ShoppingList classes={this.props.classes}
                         siteData={this.props.siteData}
                         onToggleDialog={(open, mode) => this.handleToggleDialog(open, mode)}
                         onSetSelected={id => this.handleSetSelected(id)} />
                 }
-                {(this.props.currentUserView === "myShoppingCart") &&
+                {(this.props.currentUserView === "shoppingCart") &&
                     <ShoppingCart classes={this.props.classes}
                         customerData={this.props.customerData}
                         currentUserEmail={this.props.currentUserEmail}
