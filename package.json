@@ -2,11 +2,15 @@
   "name": "pet-shop-app",
   "version": "0.1.0",
   "private": true,
+  "homepage": "https://dnery.github.io/pet-shop-app",
   "dependencies": {
     "@material-ui/core": "^1.0.0",
     "@material-ui/icons": "^1.0.0",
     "date-fns": "^2.0.0-alpha.7",
+    "gh-pages": "^1.2.0",
     "material-ui-pickers": "^1.0.0-rc.9",
+    "moment": "^2.22.2",
+    "moment-timezone": "^0.5.17",
     "prop-types": "^15.6.1",
     "react": "^16.4.0",
     "react-dom": "^16.4.0",
@@ -16,6 +20,8 @@
     "serve": "^7.2.0"
   },
   "scripts": {
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d build",
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test --env=jsdom",

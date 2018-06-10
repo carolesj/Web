@@ -47,10 +47,10 @@ let initialState = {
         ],
         services: [
             // {id, name, description, media (relative to src folder), localMedia (is media locally imported by webpack?), available}
-            { id: 0, name: "Banho", description: "Banho com xampu hipoalergênico para gatos e cães", media: "./media/service1.jpg", available: true },
-            { id: 1, name: "Corte de Unhas", description: "Cuidados com a unha de seu gato com segurança e sem machucá-lo", media: "./media/service2.jpg", available: false },
-            { id: 2, name: "Massagem", description: "Massagem relaxante para seu cão", media: "./media/service3.jpg", available: true },
-            { id: 3, name: "Tosa", description: "Corte dos pêlos do seu animal", media: "./media/service4.jpg", available: true }
+            { id: 0, name: "Banho", description: "Banho com xampu hipoalergênico para gatos e cães", media: "./media/service1.jpg", available: true, localMedia: true },
+            { id: 1, name: "Corte de Unhas", description: "Cuidados com a unha de seu gato com segurança e sem machucá-lo", media: "./media/service2.jpg", available: false, localMedia: true },
+            { id: 2, name: "Massagem", description: "Massagem relaxante para seu cão", media: "./media/service3.jpg", available: true, localMedia: true },
+            { id: 3, name: "Tosa", description: "Corte dos pêlos do seu animal", media: "./media/service4.jpg", available: true, localMedia: true }
         ],
     },
 

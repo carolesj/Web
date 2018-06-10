@@ -21,15 +21,17 @@ import TextField from "@material-ui/core/TextField"
 import Typography from "@material-ui/core/Typography"
 import { withStyles } from "@material-ui/core/styles"
 import classNames from "classnames"
-import ptLocale from "date-fns/locale/pt"
 import { DateTimePicker } from "material-ui-pickers"
 import MuiPickersUtilsProvider from "material-ui-pickers/utils/MuiPickersUtilsProvider"
-import DateFnsUtils from "material-ui-pickers/utils/date-fns-utils"
+import MomentUtils from "material-ui-pickers/utils/moment-utils"
+import moment from "moment"
+import BRLocale from "moment/locale/pt-br"
 import { PropTypes } from "prop-types"
 import React from "react"
 import { connect } from "react-redux"
 import { addAppointment, removeAppointment } from "./StoreActions"
 
+moment.locale("pt-br")
 
 const styles = theme => ({
     // Service list
@@ -471,7 +473,7 @@ class AppointmentControl extends React.Component {
                             </TextField>
                         </Grid>
                         <Grid item>
-                            <MuiPickersUtilsProvider utils={DateFnsUtils} locale={ptLocale}>
+                            <MuiPickersUtilsProvider utils={MomentUtils} moment={moment} locale={BRLocale}>
                                 <div className="picker">
                                     <DateTimePicker
                                         autoOk
