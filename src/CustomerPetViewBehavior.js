@@ -1,44 +1,21 @@
 import { Checkbox, FormControlLabel } from "@material-ui/core"
 import Avatar from "@material-ui/core/Avatar"
 import Button from "@material-ui/core/Button"
-import Card from "@material-ui/core/Card"
-import CardActions from "@material-ui/core/CardActions"
-import CardContent from "@material-ui/core/CardContent"
-import CardMedia from "@material-ui/core/CardMedia"
-import Dialog from "@material-ui/core/Dialog"
-import DialogActions from "@material-ui/core/DialogActions"
-import DialogContent from "@material-ui/core/DialogContent"
 import DialogContentText from "@material-ui/core/DialogContentText"
-import DialogTitle from "@material-ui/core/DialogTitle"
 import Grid from "@material-ui/core/Grid"
 import TextField from "@material-ui/core/TextField"
-import Typography from "@material-ui/core/Typography"
 import { withStyles } from "@material-ui/core/styles"
-import AddIcon from "@material-ui/icons/Add"
 import FileUpload from "@material-ui/icons/FileUpload"
 import classNames from "classnames"
 import { PropTypes } from "prop-types"
 import React from "react"
 import { connect } from "react-redux"
+import { PetShopPetList } from "./PetShopCardViews"
+import PetShopResponsiveDialog from "./PetShopResponsiveDialog"
 import { addPet, editPet, removePet } from "./StoreActions"
 
-const styles = theme => ({
-    // Pet list
-    listRoot: {
-        flexGrow: 1,
-        marginTop: -2 * theme.spacing.unit,
-        marginLeft: -1 * theme.spacing.unit,
-        marginRight: -1 * theme.spacing.unit,
-    },
-    card: {  // DON'T FORGET to add this to <Card /> for dimension control
-        minWidth: 380,
-        maxWidth: 480,
-    },
-    media: {
-        height: 0,
-        paddingTop: "76.25%",  // Originally, 56.25%, meaning 16:9 media
-    },
 
+const styles = theme => ({
     // Pet control
     button: {
         margin: theme.spacing.unit,
@@ -66,79 +43,6 @@ const styles = theme => ({
         height: 150,
     },
 })
-
-
-/*
-    Pet list sub-component
- */
-function PetList(props) {
-    let data = props.customerData.find(customer => (customer.email === props.currentUserEmail))
-
-    return (typeof (data) === "undefined") ? null :
-        (
-            <div className={props.classes.listRoot}>
-                <Grid container spacing={16} direction="column" justify="flex-start" alignItems="flex-end">
-                    <Grid item>
-                        <Button variant="raised" color="primary"
-                            onClick={() => props.onToggleDialog(true, "add")}>
-                            <AddIcon />
-                            Cadastrar Novo Pet
-                        </Button>
-                    </Grid>
-                </Grid>
-                <Grid container spacing={24} justify="flex-start" alignItems="flex-start">
-                    {data.animals.map((item, index) => (
-                        <Grid item key={index} xs={12} sm={6} md={4}>
-                            <Card>
-                                <CardMedia
-                                    className={props.classes.media}
-                                    image={item.localMedia ? require(`${item.media}`) : item.media}
-                                    title={"Meu pet " + item.name}
-                                />
-                                <CardContent>
-                                    <Typography gutterBottom variant="headline" component="h2">
-                                        {item.name}
-                                    </Typography>
-                                    <Typography gutterBottom component="p">
-                                        {"Raça: " + item.race}
-                                    </Typography>
-                                </CardContent>
-                                <CardActions>
-                                    <Grid container justify="flex-end">
-                                        <Grid item>
-                                            <Button size="small" color="secondary"
-                                                onClick={() => { props.onSetSelected(item.id); props.onToggleDialog(true, "remove") }}>
-                                                Remover
-                                            </Button>
-                                            <Button size="small" color="primary"
-                                                onClick={() => { props.onSetSelected(item.id); props.onToggleDialog(true, "edit") }}>
-                                                Editar
-                                            </Button>
-                                        </Grid>
-                                    </Grid>
-                                </CardActions>
-                            </Card>
-                        </Grid>
-                    ))}
-                </Grid>
-            </div>
-        )
-}
-
-PetList.propTypes = {
-    classes: PropTypes.object.isRequired,
-    customerData: PropTypes.arrayOf(
-        PropTypes.shape({
-            email: PropTypes.string.isRequired,
-            animals: PropTypes.arrayOf(PropTypes.object).isRequired,
-            appointments: PropTypes.arrayOf(PropTypes.object).isRequired,
-            shoppingCart: PropTypes.arrayOf(PropTypes.object).isRequired
-        })
-    ).isRequired,
-    currentUserEmail: PropTypes.string.isRequired,
-    onToggleDialog: PropTypes.func.isRequired,
-    onSetSelected: PropTypes.func.isRequired,
-}
 
 
 /*
@@ -184,19 +88,19 @@ class PetControl extends React.Component {
         let reader = new FileReader()
 
         // Start uploading image
-        this.setState(state => ({  // TODO Not sure if this locks state for changing...
+        this.setState({  // TODO Not sure if this locks state for changing...
             willUploadPetImage: true,
             didUploadPetImage: false,
             petImageAsURL: null,
-        }))
+        })
 
         // When done uploading image
         reader.onload = event => {
-            this.setState(state => ({  // TODO Not sure if this locks state for changing...
+            this.setState({  // TODO Not sure if this locks state for changing...
                 willUploadPetImage: false,
                 didUploadPetImage: true,
                 petImageAsURL: event.target.result
-            }))
+            })
         }
 
         // Begin op and trigger callback
@@ -227,7 +131,7 @@ class PetControl extends React.Component {
     /*
         REDUX STORE DISPATCH WRAPPERS
 
-        TODO These hanglers need better names
+        TODO These handlers need better names
         TODO Check handlers on other files as well
      */
     handleClickAddPet() {
@@ -256,7 +160,7 @@ class PetControl extends React.Component {
         let stagePetName = this.state.petNameFieldValue
         let stagePetRace = this.state.petRaceFieldValue
         let stagePetMedia = this.state.didUploadPetImage ? this.state.petImageAsURL : currentData.media
-        let stageLocalMedia = !this.state.didUploadPetImage
+        let stageLocalMedia = this.state.didUploadPetImage ? false : currentData.localMedia
 
         this.props.onClickSubmitEditPet(this.props.currentUserEmail, {
             id: stagePetId,
@@ -271,10 +175,8 @@ class PetControl extends React.Component {
     }
 
     handleClickRemovePet() {
-        let stagePetId = this.props.selectedId
-
         this.props.onClickSubmitRemovePet(this.props.currentUserEmail, {
-            id: stagePetId,
+            id: this.props.selectedId,
         })
 
         // Close dialog on success
@@ -285,13 +187,55 @@ class PetControl extends React.Component {
         RENDER FUNCTION
      */
     render() {
+        let dialogTitle = null
         let dialogContent = null
         let dialogActions = null
 
-        // Dialog UI for adding a new pet
-        if (this.props.dialogMode === "add") {
+        // Query pet data
+        let petData = this.props
+            .customerData.find(customer => (customer.email === this.props.currentUserEmail))
+            .animals.find(animal => (animal.id === this.props.selectedId))
+        if (typeof(petData) === "undefined")
+            return null
+
+        if (this.props.dialogMode === "remove") { // Dialog UI for removing an existing pet
+            dialogTitle = "Remover Cadastro do Pet"
+
             dialogContent = (
-                <DialogContent>
+                <div>
+                    <DialogContentText align="center">
+                        {"Tem certeza que deseja remover o pet " + petData.name + "?"}
+                        <br />
+                        {"Ele será permanentemente excluído de nossos registros."}
+                    </DialogContentText>
+                    <br />
+                    <FormControlLabel
+                        control={<Checkbox checked={this.state.checkedAwareOfPetRemoval}
+                            onChange={() => this.handleToggleAwareOfPetRemoval()}
+                            color="secondary" />}
+                        label="Tenho noção de que o pet será permanentemente removido dos registros"
+                    />
+                </div>
+            )
+
+            dialogActions = (
+                <div>
+                    <Button onClick={() => this.handleClickRemovePet()} color="secondary"
+                        disabled={!this.state.checkedAwareOfPetRemoval}
+                    >
+                            Confirmar
+                    </Button>
+                    <Button onClick={() => this.handleCloseDialog()} color="primary">
+                            Cancelar
+                    </Button>
+                </div>
+            )
+
+        } else { // Dialog UI for adding or editing a pet
+            dialogTitle = (this.props.dialogMode === "registryAdd") ? "Cadastrar Novo Pet" : "Editar Dados do Pet"
+
+            dialogContent = (
+                <div>
                     <form className={this.props.classes.container} noValidate autoComplete="off">
                         <TextField
                             autoFocus
@@ -299,6 +243,7 @@ class PetControl extends React.Component {
                             fullWidth
                             id="name"
                             label="Nome"
+                            placeholder={(this.props.dialogMode === "edit") ? petData.name : undefined}
                             className={this.props.classes.textField}
                             value={this.state.petNameFieldValue}
                             onChange={event => this.handlePetNameFieldChange(event)}
@@ -309,6 +254,7 @@ class PetControl extends React.Component {
                             fullWidth
                             id="race"
                             label="Raça"
+                            placeholder={(this.props.dialogMode === "edit") ? petData.race : undefined}
                             className={this.props.classes.textField}
                             value={this.state.petRaceFieldValue}
                             onChange={event => this.handlePetRaceFieldChange(event)}
@@ -316,15 +262,21 @@ class PetControl extends React.Component {
                         />
                     </form>
                     <Grid container direction="column" justify="center" alignItems="center">
-                        {this.state.didUploadPetImage &&
-                            <Grid item>
+                        <Grid item>
+                            {this.state.didUploadPetImage ?
                                 <Avatar
-                                    alt="Imagem do novo pet"
+                                    alt="Novo avatar"
                                     src={this.state.petImageAsURL}
                                     className={classNames(this.props.classes.avatar, this.props.classes.bigAvatar)}
                                 />
-                            </Grid>
-                        }
+                                : (this.props.dialogMode === "edit") &&
+                                <Avatar
+                                    alt="Imagem atual"
+                                    src={petData.localMedia ? require(`${petData.media}`) : petData.media}
+                                    className={classNames(this.props.classes.avatar, this.props.classes.bigAvatar)}
+                                />
+                            }
+                        </Grid>
                         <Grid item>
                             <input
                                 accept="image/*"
@@ -336,180 +288,57 @@ class PetControl extends React.Component {
                             />
                             <label htmlFor="image-file-upload">
                                 <Button variant="raised" component="span" className={this.props.classes.button}
-                                    disabled={this.state.willUploadPetImage}>
+                                    disabled={this.state.willUploadPetImage}
+                                >
                                     Escolher Imagem
                                     <FileUpload className={this.props.classes.rightIcon} />
                                 </Button>
                             </label>
                         </Grid>
                     </Grid>
-                </DialogContent>
+                </div>
             )
 
             dialogActions = (
-                <Button onClick={() => this.handleClickAddPet()} color="primary" disabled={this.state.willUploadPetImage}>
-                    Submeter
-                </Button>
-            )
-
-        // Dialog UI for editing an existing pet
-        } else if (this.props.dialogMode === "edit") {
-            // VERY NAUGHTY CODE AHEAD
-            // VERY NAUGHTY CODE AHEAD
-            // VERY NAUGHTY CODE AHEAD
-            let data = this.props
-                .customerData.find(customer => (customer.email === this.props.currentUserEmail))
-                .animals.find(animal => (animal.id === this.props.selectedId))
-
-            // Don't eplode the running UI
-            if (typeof (data) !== "undefined") {
-                dialogContent = (
-                    <DialogContent>
-                        <form className={this.props.classes.container} noValidate autoComplete="off">
-                            <TextField
-                                autoFocus
-                                fullWidth
-                                id="name"
-                                label="Nome"
-                                placeholder={data.name}
-                                className={this.props.classes.textField}
-                                value={this.state.petNameFieldValue}
-                                onChange={event => this.handlePetNameFieldChange(event)}
-                                margin="normal"
-                            />
-                            <TextField
-                                fullWidth
-                                id="race"
-                                label="Raça"
-                                placeholder={data.race}
-                                className={this.props.classes.textField}
-                                value={this.state.petRaceFieldValue}
-                                onChange={event => this.handlePetRaceFieldChange(event)}
-                                margin="normal"
-                            />
-                        </form>
-                        <Grid container direction="column" justify="center" alignItems="center">
-                            <Grid item>
-                                {this.state.didUploadPetImage ?
-                                    <Avatar
-                                        alt="Nova imagem"
-                                        src={this.state.petImageAsURL}
-                                        className={classNames(this.props.classes.avatar, this.props.classes.bigAvatar)}
-                                    />
-                                    :
-                                    <Avatar
-                                        alt="Imagem atual"
-                                        src={data.localMedia ? require(`${data.media}`) : data.media}
-                                        className={classNames(this.props.classes.avatar, this.props.classes.bigAvatar)}
-                                    />
-                                }
-                            </Grid>
-                            <Grid item>
-                                <input
-                                    accept="image/*"
-                                    className={this.props.classes.input}
-                                    id="image-file-upload"
-                                    multiple
-                                    type="file"
-                                    onChange={event => this.handleAddPetImagePathChange(event)}
-                                />
-                                <label htmlFor="image-file-upload">
-                                    <Button variant="raised" component="span" className={this.props.classes.button}
-                                        disabled={this.state.willUploadPetImage}>
-                                        Trocar Imagem
-                                        <FileUpload className={this.props.classes.rightIcon} />
-                                    </Button>
-                                </label>
-                            </Grid>
-                        </Grid>
-                    </DialogContent>
-                )
-
-                dialogActions = (
-                    <Button onClick={() => this.handleClickEditPet(data)} color="primary"
-                        disabled={this.state.willUploadPetImage}>
-                        Submeter
-                    </Button>
-                )
-            }
-
-        // Dialog UI for removing an existing pet
-        } else if (this.props.dialogMode === "remove") {
-            // VERY NAUGHTY CODE AHEAD
-            // VERY NAUGHTY CODE AHEAD
-            // VERY NAUGHTY CODE AHEAD
-            let data = this.props
-                .customerData.find(customer => (customer.email === this.props.currentUserEmail))
-                .animals.find(animal => (animal.id === this.props.selectedId))
-
-            // Don't explode the running UI
-            if (typeof (data) !== "undefined") {
-                dialogContent = (
-                    <DialogContent>
-                        <DialogContentText align="center">
-                            {"Tem certeza que deseja remover o pet " + data.name + "?"}
-                            <br />
-                            {"Ele será permanentemente excluído de nossos registros."}
-                        </DialogContentText>
-                        <br />
-                        <FormControlLabel
-                            control={<Checkbox checked={this.state.checkedAwareOfPetRemoval}
-                                onChange={() => this.handleToggleAwareOfPetRemoval()}
-                                color="secondary" />}
-                            label="Tenho noção de que o pet será permanentemente removido dos registros" />
-                    </DialogContent>
-                )
-
-                dialogActions = (
-                    <Button onClick={() => this.handleClickRemovePet()} color="secondary"
-                        disabled={!this.state.checkedAwareOfPetRemoval}>
+                <div>
+                    <Button 
+                        color="primary"
+                        disabled={this.state.willUploadPetImage}
+                        onClick={this.props.dialogMode === "registryAdd" ?
+                            () => this.handleClickAddPet()
+                            :
+                            () => this.handleClickEditPet(petData)
+                        }
+                    >
                         Confirmar
                     </Button>
-                )
-            }
+                    <Button onClick={() => this.handleCloseDialog()} color="secondary">
+                        Cancelar
+                    </Button>
+                </div>
+            )
         }
 
         return (
-            <div>
-                <Dialog open={this.props.dialogOpen} aria-labelledby="pet-control-dialog-title"
-                    onClose={() => this.handleCloseDialog()}>
-
-                    <DialogTitle id="pet-control-dialog-title">
-                        {(this.props.dialogMode === "add") &&
-                            "Adicionar Pet"
-                        }
-                        {(this.props.dialogMode === "edit") &&
-                            "Editar Dados do Pet"
-                        }
-                        {(this.props.dialogMode === "remove") &&
-                            "Remover Pet"
-                        }
-                    </DialogTitle>
-
-                    {dialogContent}
-
-                    {/* Depends only on errorStatus */}
-                    {this.state.errorStatus && <DialogContent>
-                        <DialogContentText align="center" color="secondary">
-                            {this.state.errorMessage}
-                        </DialogContentText>
-                    </DialogContent>}
-
-                    {/* Only main action changes */}
-                    <DialogActions>
-                        <Button onClick={() => this.handleCloseDialog()} color="primary">
-                            Cancelar
-                        </Button>
-                        {dialogActions}
-                    </DialogActions>
-                </Dialog>
-            </div>
+            <PetShopResponsiveDialog
+                isOpen={this.props.dialogOpen}
+                onClose={() => this.handleCloseDialog()}
+                ariaLabel="pet-control-dialog"
+                dialogTitle={dialogTitle}
+                dialogContent={dialogContent}
+                dialogActions={dialogActions}
+                errorStatus={this.state.errorStatus}
+                errorText={this.state.errorMessage}
+            />
         )
     }
 }
 
 PetControl.propTypes = {
+    // style
     classes: PropTypes.object.isRequired,
+
+    // state
     customerData: PropTypes.arrayOf(
         PropTypes.shape({
             email: PropTypes.string.isRequired,
@@ -519,10 +348,14 @@ PetControl.propTypes = {
         })
     ).isRequired,
     currentUserEmail: PropTypes.string.isRequired,
+
+    // dialog state
     dialogOpen: PropTypes.bool.isRequired,
     dialogMode: PropTypes.string.isRequired,
     selectedId: PropTypes.number.isRequired,
     onToggleDialog: PropTypes.func.isRequired,
+
+    // dialog actions
     onClickSubmitAddPet: PropTypes.func.isRequired,
     onClickSubmitEditPet: PropTypes.func.isRequired,
     onClickSubmitRemovePet: PropTypes.func.isRequired,
@@ -556,33 +389,72 @@ class CustomerPetViewBehavior extends React.Component {
     }
 
     render() {
+
+        const {
+            classes,
+            customerData,
+            currentUserEmail,
+            currentUserRights,
+            handleSubmitAddPet,
+            handleSubmitEditPet,
+            handleSubmitRemovePet,
+        } = this.props
+
+        // current user's pet information
+        const userPetArray = customerData.find(cust => (cust.email === currentUserEmail)).animals
+
         return (
             <div>
-                <PetList classes={this.props.classes}
-                    customerData={this.props.customerData}
-                    currentUserEmail={this.props.currentUserEmail}
-                    onToggleDialog={(open, mode) => this.handleToggleDialog(open, mode)}
-                    onSetSelected={id => this.handleSetSelected(id)} />
-                <PetControl classes={this.props.classes}
-                    customerData={this.props.customerData}
-                    currentUserEmail={this.props.currentUserEmail}
+                <PetShopPetList
+                    animalArray={userPetArray}
+                    currentUserRights={currentUserRights}
+                    onLaunchDialog={(open, mode) => this.handleToggleDialog(open, mode)}
+                    onSetSelected={(id) => this.handleSetSelected(id)}
+                />
+                <PetControl
+                    classes={classes}
+                    customerData={customerData}
+                    currentUserEmail={currentUserEmail}
                     onToggleDialog={(open, mode) => this.handleToggleDialog(open, mode)}
                     dialogOpen={this.state.dialogOpen}
                     dialogMode={this.state.dialogMode}
                     selectedId={this.state.selectedId}
-                    onClickSubmitAddPet={this.props.handleSubmitAddPet}
-                    onClickSubmitEditPet={this.props.handleSubmitEditPet}
-                    onClickSubmitRemovePet={this.props.handleSubmitRemovePet} />
+                    onClickSubmitAddPet={handleSubmitAddPet}
+                    onClickSubmitEditPet={handleSubmitEditPet}
+                    onClickSubmitRemovePet={handleSubmitRemovePet}
+                />
             </div>
         )
     }
+}
+
+CustomerPetViewBehavior.propTypes = {
+    // style
+    classes: PropTypes.object.isRequired,
+
+    // store state
+    customerData: PropTypes.arrayOf(
+        PropTypes.shape({
+            email: PropTypes.string.isRequired,
+            animals: PropTypes.arrayOf(PropTypes.object).isRequired,
+            appointments: PropTypes.arrayOf(PropTypes.object).isRequired,
+            shoppingCart: PropTypes.arrayOf(PropTypes.object).isRequired
+        })
+    ).isRequired,
+    currentUserEmail: PropTypes.string.isRequired,
+    currentUserRights: PropTypes.string.isRequired,
+
+    // store actions
+    handleSubmitAddPet: PropTypes.func.isRequired,
+    handleSubmitEditPet: PropTypes.func.isRequired,
+    handleSubmitRemovePet: PropTypes.func.isRequired,
 }
 
 function mapStateToProps(state) {
     return {
         //currentUserView: state.currentUserView,
         currentUserEmail: state.currentUserEmail,
-        //currentUserRights: state.currentUserRights,
+        currentUserRights: state.currentUserRights,
         //currentUserLoggedIn: state.currentUserLoggedIn,
         customerData: state.CustomerData,
         //siteData: state.SiteData

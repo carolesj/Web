@@ -1,3 +1,4 @@
+import Avatar from "@material-ui/core/Avatar"
 import Button from "@material-ui/core/Button"
 import Card from "@material-ui/core/Card"
 import CardActions from "@material-ui/core/CardActions"
@@ -17,9 +18,8 @@ import React from "react"
 import { connect } from "react-redux"
 import CustomerPetViewBehavior from "./CustomerPetViewBehavior"
 import CustomerServiceViewBehavior from "./CustomerServiceViewBehavior"
-import CustomerShopViewBehavior from "./CustomerShopViewBehavior"
-import Avatar from "@material-ui/core/Avatar"
-import { Paper } from "@material-ui/core"
+import { PetShopProductList } from "./PetShopCardViews"
+import ShopViewContainer from "./ShopViewContainer"
 
 const styles = theme => ({
     listRoot: {
@@ -35,7 +35,7 @@ const styles = theme => ({
     },
     maxMedia: {
         height: 0,
-        paddingTop: "56.25%", // 16:9
+        paddingTop: "50.25%", // 56.25 for 16:9
     },
 
     card: {  // DON'T FORGET to add this to <Card /> for dimension control
@@ -103,16 +103,10 @@ function CommonHomeScreenBehavior(props) {
             <Card className={classes.maxCard}>
                 <CardMedia
                     className={classes.maxMedia}
-                    image={require("./media/sampleBanner.jpg")}
+                    image={require("./media/tasteTheCommunism.png")}
                     title="Seu melhor amigo"
                 />
             </Card>
-            <Grid item>
-                <br />
-                <Typography color="textSecondary" align="center" variant="display3">
-                        Tudo para seu melhor amigo!
-                </Typography>
-            </Grid>
             <Grid item>
                 <br />
                 <Grid container justify="space-around" alignItems="center">
@@ -180,7 +174,7 @@ function CommonHomeScreenBehavior(props) {
 
 CommonHomeScreenBehavior.propTypes = {
     classes: PropTypes.object.isRequired,
-    userLoggedIn: PropTypes.bool.isRequired,
+    currentUserLoggedIn: PropTypes.bool.isRequired,
 }
 
 
@@ -336,27 +330,29 @@ class MainContent extends React.Component {
     }
 
     buildMainView() {
-        switch (this.props.userView) {
+        switch (this.props.currentUserView) {
         // Visitor options
         case "home":
             return <CommonHomeScreenBehavior classes={this.props.classes}
-                userLoggedIn={this.props.userLoggedIn} />
+                currentUserLoggedIn={this.props.currentUserLoggedIn} />
 
         case "shop":
-            switch (this.props.userRights) {
+            switch (this.props.currentUserRights) {
             case "customer":
-                return <CustomerShopViewBehavior />
+                return <ShopViewContainer />
             case "supervisor":
-                // TODO HERE
-                return <CommonShopViewBehavior classes={this.props.classes} siteData={this.props.siteData}
-                    onToggleDialog={(open) => this.handleToggleDialog(open)} />
+                return <ShopViewContainer />
             default:
-                return <CommonShopViewBehavior classes={this.props.classes} siteData={this.props.siteData}
-                    onToggleDialog={(open) => this.handleToggleDialog(open)} />
+                return <PetShopProductList
+                    productArray={this.props.siteData.products}
+                    currentUserRights={this.props.currentUserRights}
+                    onLaunchDialog={(open) => this.handleToggleDialog(open)}
+                    onChangeCurrentView={() => {}}
+                    onSetSelected={() => {}} />
             }
 
         case "services":
-            switch (this.props.userRights) {
+            switch (this.props.currentUserRights) {
             case "customer":
                 return <CustomerServiceViewBehavior />
             case "supervisor":
@@ -377,7 +373,7 @@ class MainContent extends React.Component {
             return null
 
         case "shoppingCart":
-            return <CustomerShopViewBehavior />
+            return <ShopViewContainer />
 
         case "appointments":
             return <CustomerServiceViewBehavior />
@@ -416,19 +412,19 @@ class MainContent extends React.Component {
 
 MainContent.propTypes = {
     classes: PropTypes.object.isRequired,
-    userView: PropTypes.string.isRequired,
-    userEmail: PropTypes.string.isRequired,
-    userRights: PropTypes.string.isRequired,
-    userLoggedIn: PropTypes.bool.isRequired,
     siteData: PropTypes.object.isRequired,
+    currentUserView: PropTypes.string.isRequired,
+    currentUserEmail: PropTypes.string.isRequired,
+    currentUserRights: PropTypes.string.isRequired,
+    currentUserLoggedIn: PropTypes.bool.isRequired,
 }
 
 function mapStateToProps(state) {
     return {
-        userView: state.currentUserView,
-        userEmail: state.currentUserEmail,
-        userRights: state.currentUserRights,
-        userLoggedIn: state.currentUserLoggedIn,
+        currentUserView: state.currentUserView,
+        currentUserEmail: state.currentUserEmail,
+        currentUserRights: state.currentUserRights,
+        currentUserLoggedIn: state.currentUserLoggedIn,
         customerData: state.CustomerData,
         siteData: state.SiteData
     }

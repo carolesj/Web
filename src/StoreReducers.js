@@ -1,23 +1,6 @@
 // Action types
 import { CommonActions, CustomerActions, SupervisorActions } from "./StoreActions"
 
-// UAC actions
-import { signUserIn, signUserUp, logUserOut, changeCurrentView } from "./StoreActions"
-
-// Customer actions
-import {
-    addPet, editPet, removePet,
-    addToCart, editCartItem, removeFromCart, commitOnPurchase,
-    addAppointment, removeAppointment
-} from "./StoreActions"
-
-// Supervisor actions
-import {
-    addUser, removeUser, changeUserRights, 
-    addProduct, editProduct, removeProduct, addStockRegistry,
-    sudoEditAppointment, sudoRemoveAppointment, addServiceRegistry
-} from "./StoreActions"
-
 let initialState = {
     // Current user
     currentUserView: "home",        // Any user starts at home page
@@ -236,6 +219,7 @@ function petShopApp(state, action) {
 
     case CustomerActions.STORE_ADD_TO_CART:
         return Object.assign({}, state, {
+            // Add item to user's cart
             CustomerData: state.CustomerData.map(customer => {
                 if (customer.email === action.payload.userEmail) {
                     return Object.assign({}, customer, {
@@ -252,11 +236,24 @@ function petShopApp(state, action) {
                 }
                 // Otherwise keep old state
                 return customer
+            }),
+            // Recalculate amount in store
+            SiteData: Object.assign({}, state.SiteData, {
+                products: state.SiteData.products.map(product => {
+                    if (product.id === action.payload.itemData.itemId) {
+                        return Object.assign({}, product, {
+                            amount: (product.amount - action.payload.itemData.itemAmount)
+                        })
+                    }
+                    // Otherwise keep old state
+                    return product
+                })
             })
         })
 
     case CustomerActions.STORE_EDIT_CART_ITEM:
         return Object.assign({}, state, {
+            // Add item to user's cart
             CustomerData: state.CustomerData.map(customer => {
                 if (customer.email === action.payload.userEmail) {
                     return Object.assign({}, customer, {
@@ -266,7 +263,7 @@ function petShopApp(state, action) {
                                     itemId: item.itemId,
                                     itemName: item.itemName,
                                     itemPrice: item.itemPrice,
-                                    itemAmount: action.payload.itemData.itemAmount,
+                                    itemAmount: (item.itemAmount + action.payload.itemData.itemAmount),
                                 })
                             }
                             // Otherwise keep old state
@@ -276,11 +273,24 @@ function petShopApp(state, action) {
                 }
                 // Otherwise keep old state
                 return customer
+            }),
+            // Recalculate amount in store
+            SiteData: Object.assign({}, state.SiteData, {
+                products: state.SiteData.products.map(product => {
+                    if (product.id === action.payload.itemData.itemId) {
+                        return Object.assign({}, product, {
+                            amount: (product.amount - action.payload.itemData.itemAmount)
+                        })
+                    }
+                    // Otherwise keep old state
+                    return product
+                })
             })
         })
 
     case CustomerActions.STORE_REMOVE_FROM_CART:
         return Object.assign({}, state, {
+            // Remove item from user's cart
             CustomerData: state.CustomerData.map(customer=> {
                 if (customer.email === action.payload.userEmail) {
                     return Object.assign({}, customer, {
@@ -291,25 +301,23 @@ function petShopApp(state, action) {
                 }
                 // Otherwise keep old state
                 return customer
+            }),
+            // Recalculate amount in store
+            SiteData: Object.assign({}, state.SiteData, {
+                products: state.SiteData.products.map(product => {
+                    if (product.id === action.payload.itemData.itemId) {
+                        return Object.assign({}, product, {
+                            amount: (product.amount + action.payload.itemData.itemAmount)
+                        })
+                    }
+                    // Otherwise keep old state
+                    return product
+                })
             })
         })
 
     case CustomerActions.STORE_COMMIT_ON_PURCHASE:
         return Object.assign({}, state, {
-            // Recalculate available amounts 
-            SiteData: Object.assign({}, state.SiteData, {
-                products: state.SiteData.products.map(product => {
-                    for (const item of action.payload.shoppingCart) {
-                        if (product.id === item.itemId) {
-                            return Object.assign({}, product, {
-                                amount: (product.amount - item.itemAmount)
-                            })
-                        }
-                    }
-                    // Otherwise keep old state
-                    return product
-                })
-            }),
             // Clear customer shopping cart
             CustomerData: state.CustomerData.map(customer => {
                 if (customer.email === action.payload.userEmail) {
@@ -363,7 +371,57 @@ function petShopApp(state, action) {
         })
 
     // Supervisor action reducers
-    // TODO HERE
+    // TODO TEST THIS
+    case SupervisorActions.STOCKCTL_REG_INCLUDE:
+        return Object.assign({}, state, {
+            SiteData: Object.assign({}, state.SiteData, {
+                products: [
+                    ...state.SiteData.products,
+                    {
+                        id: (state.SiteData.products.length > 0) ? (state.SiteData.products[state.SiteData.products.length-1].id + 1) : 0,
+                        name: action.payload.itemData.name,
+                        price: action.payload.itemData.price,
+                        amount: action.payload.itemData.amount,
+                        description: action.payload.itemData.description,
+                        media: action.payload.itemData.media,
+                        localMedia: action.payload.itemData.localMedia,
+                    }
+                ]
+            })
+        })
+
+    // TODO TEST THIS
+    case SupervisorActions.STOCKCTL_EDIT:
+        return Object.assign({}, state, {
+            SiteData: Object.assign({}, state.SiteData, {
+                products: state.SiteData.products.map(product => {
+                    if (product.id === action.payload.itemData.id) {
+                        return Object.assign({}, product, {
+                            name: action.payload.itemData.name,
+                            price: action.payload.itemData.price,
+                            amount: action.payload.itemData.amount,
+                            description: action.payload.itemData.description,
+                            media: action.payload.itemData.media,
+                            localMedia: action.payload.itemData.localMedia,
+                        })
+                    }
+                    // Otherwise keep old state
+                    return product
+                })
+            })
+        })
+
+    // TODO TEST THIS
+    case SupervisorActions.STOCKCTL_REMOVE:
+        return Object.assign({}, state, {
+            SiteData: Object.assign({}, state.SiteData, {
+                products: state.SiteData.products.filter(product => {
+                    return (product.id !== action.payload.itemData.id)
+                })
+            })
+        })
+
+    // TODO ADDITIONAL REDUCERS
 
     default:
         return state

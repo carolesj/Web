@@ -1,6 +1,6 @@
 import CssBaseline from "@material-ui/core/CssBaseline"
 import React from "react"
-import ActionBar from "./ActionBar"
+import PetShopActionBar from "./PetShopActionBar"
 import { MuiThemeProvider, createMuiTheme } from "@material-ui/core/styles"
 
 
@@ -98,7 +98,7 @@ class Application extends React.Component {
             <React.Fragment>
                 <CssBaseline />
                 <MuiThemeProvider theme={newTheme}>
-                    <ActionBar />
+                    <PetShopActionBar />
                 </MuiThemeProvider>
             </React.Fragment>
         )

@@ -42,7 +42,6 @@ export const SupervisorActions = {
     USERCTL_CHANGE_RIGHTS: "USERCTL_CHANGE_RIGHTS",
 
     // Stock control
-    STOCKCTL_ADD: "STOCKCTL_ADD",
     STOCKCTL_EDIT: "STOCKCTL_EDIT",
     STOCKCTL_REMOVE: "STOCKCTL_REMOVE",
     STOCKCTL_REG_INCLUDE: "STOCKCTL_REG_INCLUDE", // Register new product
@@ -185,29 +184,31 @@ export function changeUserRights(adminData, userData) {
     }
 }
 
+//---------------------------------------
 // TODO adminData might not be necessary
-export function addProduct(adminData, itemData) {
+export function addProduct(itemData) {
     return {
-        type: SupervisorActions.STOCKCTL_ADD,
-        payload: { adminData, itemData }
+        type: SupervisorActions.STOCKCTL_REG_INCLUDE,
+        payload: { itemData }
     }
 }
 
 // TODO adminData might not be necessary
-export function editProduct(adminData, itemData) {
+export function editProduct(itemData) {
     return {
         type: SupervisorActions.STOCKCTL_EDIT,
-        payload: { adminData, itemData }
+        payload: { itemData }
     }
 }
 
 // TODO adminData might not be necessary
-export function removeProduct(adminData, itemData) {
+export function removeProduct(itemData) {
     return {
         type: SupervisorActions.STOCKCTL_REMOVE,
-        payload: { adminData, itemData }
+        payload: { itemData }
     }
 }
+//---------------------------------------
 
 // TODO adminData might not be necessary
 export function addStockRegistry(adminData, newItem) {

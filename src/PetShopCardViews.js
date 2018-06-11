@@ -1,4 +1,4 @@
-import { withStyles } from "@material-ui/core"
+import { withStyles, Icon } from "@material-ui/core"
 import Button from "@material-ui/core/Button"
 import Card from "@material-ui/core/Card"
 import CardActions from "@material-ui/core/CardActions"
@@ -14,7 +14,7 @@ import React from "react"
 /*
     Style sheet for all lists
  */
-const style = theme => ({
+const styles = theme => ({
     // Service list
     root: {
         flexGrow: 1,
@@ -33,36 +33,34 @@ const style = theme => ({
     details: {
         alignItems: "center",
     },
+    fab: {
+        position: "fixed",
+        bottom: theme.spacing.unit * 2,
+        right: theme.spacing.unit * 2,
+    },
 })
 
 
 /*
     Pet card list for the pet shop app
  */
-const PetShopPetList = withStyles(style)(props => {
+const PetShopPetList = withStyles(styles)(props => {
 
     // Destructure props
     const {
         classes,
         animalArray,
         onSetSelected,
-        onLaunchDialog
+        onLaunchDialog,
+        currentUserRights
     } = props
 
     return (
         <div className={classes.root}>
-            <Grid container spacing={16} direction="column" justify="flex-start" alignItems="flex-end">
-                <Grid item>
-                    <Button variant="raised" color="primary"
-                        onClick={() => onLaunchDialog(true, "registryAdd")}>
-                        <AddIcon />
-                        Cadastrar Novo Pet
-                    </Button>
-                </Grid>
-            </Grid>
+            {/*Pretty card list*/}
             <Grid container spacing={24} justify="flex-start" alignItems="flex-start">
                 {animalArray.map((item, index) => (
-                    <Grid item key={index} xs={12} sm={6} md={4}>
+                    <Grid item key={index} xs={12} sm={6} md={4} lg={3}>
                         <Card>
                             <CardMedia
                                 className={classes.media}
@@ -95,24 +93,35 @@ const PetShopPetList = withStyles(style)(props => {
                     </Grid>
                 ))}
             </Grid>
+
+            {/*Floating action button*/}
+            {(currentUserRights === "customer") &&
+                <Button variant="fab" color="primary"
+                    onClick={() => onLaunchDialog(true, "registryAdd")}
+                    className={classes.fab}
+                >
+                    <AddIcon />
+                </Button>
+            }
         </div>
     )
 })
 
 PetShopPetList.propTypes = {
     // style
-    classes: PropTypes.object.isRequired,
+    classes: PropTypes.object,
 
     // state
     animalArray: PropTypes.arrayOf(
         PropTypes.shape({
-            id: PropTypes.string.isRequired,
+            id: PropTypes.number.isRequired,
             name: PropTypes.string.isRequired,
             race: PropTypes.string.isRequired,
             media: PropTypes.string.isRequired,
             localMedia: PropTypes.bool.isRequired,
         })
     ).isRequired,
+    currentUserRights: PropTypes.string.isRequired,
 
     // functions
     onLaunchDialog: PropTypes.func.isRequired,
@@ -123,7 +132,7 @@ PetShopPetList.propTypes = {
 /*
     Product card list for the pet shop app
  */
-const PetShopProductList = withStyles(style)(props => {
+const PetShopProductList = withStyles(styles)(props => {
 
     // Destructure props
     const {
@@ -131,25 +140,16 @@ const PetShopProductList = withStyles(style)(props => {
         productArray,
         onSetSelected,
         onLaunchDialog,
+        onChangeCurrentView,
         currentUserRights,
     } = props
 
     return (
         <div className={classes.root}>
-            {(currentUserRights === "supervisor") &&
-                <Grid container spacing={16} direction="column" justify="flex-start" alignItems="flex-end">
-                    <Grid item>
-                        <Button variant="raised" color="primary"
-                            onClick={() => onLaunchDialog(true, "registryAdd")}>
-                            <AddIcon />
-                            Cadastrar Novo Produto
-                        </Button>
-                    </Grid>
-                </Grid>
-            }
+            {/*Pretty card list*/}
             <Grid container spacing={24} justify="flex-start">
                 {productArray.map((item, index) => (
-                    <Grid item key={index} xs={12} sm={6} md={4}>
+                    <Grid item key={index} xs={12} sm={6} md={4} lg={3}>
                         <Card>
                             <CardMedia
                                 className={classes.media}
@@ -177,17 +177,32 @@ const PetShopProductList = withStyles(style)(props => {
                             </CardContent>
                             <CardActions>
                                 <Grid container justify="flex-end">
-                                    <Grid item>
-                                        {(item.amount > 0 && currentUserRights === "customer") ?
+                                    {(currentUserRights === "supervisor") &&
+                                        <Grid item>
                                             <Button size="small" color="primary"
-                                                onClick={() => { onSetSelected(item.id); onLaunchDialog(true, "add") }}>
-                                                Comprar
+                                                onClick={() => { onSetSelected(item.id); onLaunchDialog(true, "remove") }}
+                                            >
+                                                Remover
                                             </Button>
-                                            :
-                                            <Button disabled size="small" color="primary">
-                                                Comprar
-                                            </Button>
-                                        }
+                                        </Grid>
+                                    }
+                                    <Grid item>
+                                        <Button
+                                            size="small"
+                                            color="primary"
+                                            disabled={(currentUserRights !== "supervisor" && item.amount === 0)}
+                                            onClick={(currentUserRights === "supervisor") ?
+                                                () => { onSetSelected(item.id); onLaunchDialog(true, "edit") }
+                                                :
+                                                () => { onSetSelected(item.id); onLaunchDialog(true, "add") }
+                                            }
+                                        >
+                                            {(currentUserRights === "supervisor") ?
+                                                "Editar"
+                                                :
+                                                "Comprar"
+                                            }
+                                        </Button>
                                     </Grid>
                                 </Grid>
                             </CardActions>
@@ -195,29 +210,48 @@ const PetShopProductList = withStyles(style)(props => {
                     </Grid>
                 ))}
             </Grid>
+
+            {/*Floating action button*/}
+            {(currentUserRights === "supervisor") &&
+                <Button variant="fab" color="primary"
+                    onClick={() => onLaunchDialog(true, "registryAdd")}
+                    className={classes.fab}
+                >
+                    <AddIcon />
+                </Button>
+            }
+            {(currentUserRights === "customer") &&
+                <Button variant="fab" color="primary"
+                    onClick={() => onChangeCurrentView("shoppingCart")}
+                    className={classes.fab}
+                >
+                    <Icon>shopping_cart</Icon>
+                </Button>
+            }
         </div>
     )
 })
 
 PetShopProductList.propTypes = {
     // style
-    classes: PropTypes.object.isRequired,
+    classes: PropTypes.object,
 
     // state
     productArray: PropTypes.arrayOf(
         PropTypes.shape({
-            id: PropTypes.number,
+            id: PropTypes.number.isRequired,
             name: PropTypes.string.isRequired,
             description: PropTypes.string.isRequired,
             amount: PropTypes.number.isRequired,
             price: PropTypes.number.isRequired,
             media: PropTypes.string.isRequired,
-            localMedia: PropTypes.string.isRequired,
+            localMedia: PropTypes.bool.isRequired,
         })
     ).isRequired,
     currentUserRights: PropTypes.string.isRequired,
 
-    // functions
+    // actions
+    onChangeCurrentView: PropTypes.func.isRequired,
     onLaunchDialog: PropTypes.func.isRequired,
     onSetSelected: PropTypes.func.isRequired,
 }
@@ -226,7 +260,7 @@ PetShopProductList.propTypes = {
 /*
     Service card list for the pet shop app
  */
-const PetShopServiceList = withStyles(style)(props => {
+const PetShopServiceList = withStyles(styles)(props => {
 
     // Destructure props
     const {
@@ -239,18 +273,10 @@ const PetShopServiceList = withStyles(style)(props => {
 
     return (
         <div className={classes.root}>
-            <Grid container spacing={16} direction="column" justify="flex-start" alignItems="flex-end">
-                <Grid item>
-                    <Button variant="raised" color="primary"
-                        onClick={() => onLaunchDialog(true, "registryAdd")}>
-                        <AddIcon />
-                        Cadastrar Novo Serviço
-                    </Button>
-                </Grid>
-            </Grid>
+            {/*Pretty card list*/}
             <Grid container spacing={24} justify="flex-start">
                 {serviceArray.map((item, index) => (
-                    <Grid item key={index} xs={12} sm={6} md={4}>
+                    <Grid item key={index} xs={12} sm={6} md={4} lg={3}>
                         <Card>
                             <CardMedia
                                 className={classes.media}
@@ -296,18 +322,28 @@ const PetShopServiceList = withStyles(style)(props => {
                     </Grid>
                 ))}
             </Grid>
+
+            {/*Floating action button*/}
+            {(currentUserRights === "supervisor") &&
+                <Button variant="fab" color="primary"
+                    onClick={() => onLaunchDialog(true, "registryAdd")}
+                    className={classes.fab}
+                >
+                    <AddIcon />
+                </Button>
+            }
         </div>
     )
 })
 
 PetShopServiceList.propTypes = {
     // style
-    classes: PropTypes.object.isRequired,
+    classes: PropTypes.object,
 
     // state
-    serviceArray: PropTypes.object.arrayOf(
+    serviceArray: PropTypes.arrayOf(
         PropTypes.shape({
-            id: PropTypes.number,
+            id: PropTypes.number.isRequired,
             name: PropTypes.string.isRequired,
             description: PropTypes.string.isRequired,
             available: PropTypes.bool.isRequired,
@@ -319,7 +355,7 @@ PetShopServiceList.propTypes = {
 
     // functions
     onSetSelected: PropTypes.func.isRequired,
-    onLaunchDialog: PropTypes.func.isRequired,
+    onLaunchDialog: PropTypes.func,
 }
 
 export { PetShopPetList, PetShopProductList, PetShopServiceList }

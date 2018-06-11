@@ -11,7 +11,6 @@ import React from "react"
 import { connect } from "react-redux"
 import { logUserOut, signUserIn, signUserUp } from "./StoreActions"
 
-
 class UACDialog extends React.Component {
     constructor(props) {
         super(props)
@@ -196,13 +195,11 @@ class UACDialog extends React.Component {
 
             dialogContent = (
                 <DialogContent>
-                    {/*
                     <DialogContentText align="center">
                         <Button color="secondary" onClick={() => this.handleSwitchToSignup()}>
                             Fazer cadastro
                         </Button>
                     </DialogContentText>
-                    */}
                     <TextField
                         autoFocus
                         margin="dense"
@@ -236,13 +233,11 @@ class UACDialog extends React.Component {
 
             dialogContent = (
                 <DialogContent>
-                    {/*
                     <DialogContentText align="center">
                         <Button color="secondary" onClick={() => this.handleSwitchToSignin()}>
                             Voltar para login
                         </Button>
                     </DialogContentText>
-                    */}
                     <TextField
                         autoFocus
                         margin="dense"

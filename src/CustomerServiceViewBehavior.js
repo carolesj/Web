@@ -661,36 +661,74 @@ class CustomerServiceViewBehavior extends React.Component {
     }
 
     render() {
+
+        const {
+            classes,
+            siteData,
+            customerData,
+            currentUserView,
+            currentUserEmail,
+            handleConfirmAddAppointment,
+            handleConfirmRemoveAppointment,
+        } = this.props
+
+
         return (
             <div>
-                {(this.props.currentUserView === "services") &&
-                    <ServiceList classes={this.props.classes}
-                        siteData={this.props.siteData}
+                {(currentUserView === "services") &&
+                    <ServiceList
+                        classes={classes}
+                        siteData={siteData}
                         onToggleDialog={(open, mode) => this.handleToggleDialog(open, mode)}
-                        onSetSelected={id => this.handleSetSelected(id)} />
+                        onSetSelected={(id) => this.handleSetSelected(id)} />
                 }
-                {(this.props.currentUserView === "appointments") &&
-                    <AppointmentList classes={this.props.classes}
-                        customerData={this.props.customerData}
-                        currentUserEmail={this.props.currentUserEmail}
+                {(currentUserView === "appointments") &&
+                    <AppointmentList
+                        classes={classes}
+                        customerData={customerData}
+                        currentUserEmail={currentUserEmail}
                         onToggleDialog={(open, mode) => this.handleToggleDialog(open, mode)}
-                        onSetSelected={id => this.handleSetSelected(id)} />
+                        onSetSelected={(id) => this.handleSetSelected(id)} />
                 }
-                <AppointmentControl classes={this.props.classes}
-                    siteData={this.props.siteData}
-                    customerData={this.props.customerData}
-                    currentUserEmail={this.props.currentUserEmail}
+                <AppointmentControl 
+                    classes={classes}
+                    siteData={siteData}
+                    customerData={customerData}
+                    currentUserEmail={currentUserEmail}
                     dialogOpen={this.state.dialogOpen}
                     dialogMode={this.state.dialogMode}
                     selectedId={this.state.selectedId}
                     onToggleDialog={(open, mode) => this.handleToggleDialog(open, mode)}
                     onClickConfirmAddAppointment={(userEmail, appointData) =>
-                        this.props.onClickConfirmAddAppointment(userEmail, appointData)}
+                        handleConfirmAddAppointment(userEmail, appointData)}
                     onClickConfirmRemoveAppointment={(userEmail, appointData) =>
-                        this.props.onClickConfirmRemoveAppointment(userEmail, appointData)} />
+                        handleConfirmRemoveAppointment(userEmail, appointData)} />
             </div>
         )
     }
+}
+
+CustomerServiceViewBehavior.propTypes = {
+    // style
+    classes: PropTypes.object.isRequired,
+
+    // store state
+    siteData: PropTypes.object.isRequired,
+    customerData: PropTypes.arrayOf(
+        PropTypes.shape({
+            email: PropTypes.string.isRequired,
+            animals: PropTypes.arrayOf(PropTypes.object).isRequired,
+            appointments: PropTypes.arrayOf(PropTypes.object).isRequired,
+            shoppingCart: PropTypes.arrayOf(PropTypes.object).isRequired
+        })
+    ).isRequired,
+    currentUserView: PropTypes.string.isRequired,
+    currentUserEmail: PropTypes.string.isRequired,
+
+    // store actions
+    handleConfirmAddAppointment: PropTypes.func.isRequired,
+    handleConfirmRemoveAppointment: PropTypes.func.isRequired,
+
 }
 
 function mapStateToProps(state) {
@@ -706,10 +744,10 @@ function mapStateToProps(state) {
 
 function mapDispatchToProps(dispatch) {
     return {
-        onClickConfirmAddAppointment: (userEmail, appointData) => {
+        handleConfirmAddAppointment: (userEmail, appointData) => {
             dispatch(addAppointment(userEmail, appointData))
         },
-        onClickConfirmRemoveAppointment: (userEmail, appointData) => {
+        handleConfirmRemoveAppointment: (userEmail, appointData) => {
             dispatch(removeAppointment(userEmail, appointData))
         },
     }

@@ -1,26 +1,27 @@
+import { Grid, Icon } from "@material-ui/core"
 import AppBar from "@material-ui/core/AppBar"
 import Button from "@material-ui/core/Button"
 import Drawer from "@material-ui/core/Drawer"
 import IconButton from "@material-ui/core/IconButton"
+import List from "@material-ui/core/List"
+import ListItem from "@material-ui/core/ListItem"
+import ListItemText from "@material-ui/core/ListItemText"
 import Toolbar from "@material-ui/core/Toolbar"
 import Typography from "@material-ui/core/Typography"
 import { withStyles } from "@material-ui/core/styles"
 import MenuIcon from "@material-ui/icons/Menu"
+import classNames from "classnames"
 import PropTypes from "prop-types"
 import React from "react"
 import { connect } from "react-redux"
-import ActionList from "./ActionList"
-import UACDialog from "./UACDialog"
 import MainContent from "./MainContent"
-import AccountCircle from "@material-ui/icons/AccountCircle"
-import { Hidden, Grid, Divider, Icon, Menu, MenuItem } from "@material-ui/core"
 import { changeCurrentView } from "./StoreActions"
-import classNames from "classnames"
+import UACDialog from "./UACDialog"
 
-// How wide, son?
+/*
+    Style sheet for whole appbar
+ */
 const drawerWidth = 240
-
-// Local styles
 const styles = theme => ({
     // New AppBar
     root: {
@@ -32,6 +33,9 @@ const styles = theme => ({
         display: "flex",
         height: "100%",
         width: "100%",
+    },
+    logo: {
+        marginLeft: 2*theme.spacing.unit
     },
     appBar: {
         position: "absolute",
@@ -52,7 +56,6 @@ const styles = theme => ({
             display: "none",
         },
     },
-    toolbar: theme.mixins.toolbar,
     drawerPaper: {
         width: drawerWidth,
         [theme.breakpoints.up("md")]: {
@@ -62,23 +65,39 @@ const styles = theme => ({
     content: {
         flexGrow: 1,
         backgroundColor: theme.palette.background.default,
+        // TODO Remove this padding and set margin for all main content
         padding: theme.spacing.unit * 3, // PADDING FOR ALL CONTENT HERE!!!
     },
-
-    // Old AppBar
-    flex: {
-        flex: 1,
-    },
-    UACButton: {
-        marginRight: -14,
-    },
-    menuButton: {
-        marginLeft: -10,
-        marginRight: 20,
-    },
+    toolbar: theme.mixins.toolbar,
 })
 
-class ActionBar extends React.Component {
+
+/*
+    Option list for each user
+ */
+const visitorOptions = [
+    { control: "home", pt: "Início", st: "Página inicial" },
+    { control: "shop", pt: "Loja", st: "Consulte nosso catálogo" },
+    { control: "services", pt: "Serviços", st: "Consulte os serviços prestados" },
+]
+
+const customerOptions = [
+    { control: "home", pt: "Início", st: "Sua página inicial" },
+    { control: "shop", pt: "Loja", st: "Consulte nosso catálogo" },
+    { control: "pets", pt: "Meus Pets", st: "Controle sua lista de pets" },
+    { control: "services", pt: "Serviços", st: "Marque seus agendamentos" },
+    { control: "appointments", pt: "Agendamentos", st: "Controle suas requisições" },
+]
+
+const supervisorOptions = [
+    { control: "home", pt: "Início", st: "Sua página inicial" },
+    { control: "shop", pt: "Estoque", st: "Controle de catálogo da loja" },
+    { control: "users", pt: "Usuários", st: "Controle do cadastros de usuários" },
+    { control: "services", pt: "Serviços", st: "Controle de serviços e agendamentos" },
+]
+
+
+class PetShopActionBar extends React.Component {
     constructor(props) {
         super(props)
         this.state = {
@@ -89,6 +108,10 @@ class ActionBar extends React.Component {
         }
     }
 
+
+    /*
+        Local state handlers
+     */
     handleToggleDrawer(status) {
         this.setState({
             drawerOpen: status,
@@ -96,57 +119,48 @@ class ActionBar extends React.Component {
     }
 
     handleToggleDialog(status, mode) {
-        /*
-            Where "mode" must be either
-            "signin", "signup" or "logout".
-         */
         this.setState({
             dialogOpen: status,
             dialogMode: mode,
         })
-
-        if (!status) {
-            this.handleToggleAnchorMenu()
-        }
     }
 
-    handleToggleAnchorMenu(event=null) {
-        this.setState({
-            anchorEl: (event === null) ? null : event.currentTarget,
-        })
-    }
 
+    /*
+        Main render function
+     */
     render() {
-        // Get "classes" object from props
         const { classes, theme } = this.props
+
+        // Option list for current user
+        let optionList = visitorOptions
+        if (this.props.currentUserRights === "customer")
+            optionList = customerOptions
+        if (this.props.currentUserRights === "supervisor")
+            optionList = supervisorOptions
 
         return (
             <div className={classes.root}>
-                {/* Include UAC dialog */}
+
+                {/* Modals */}
                 <UACDialog
                     open={this.state.dialogOpen}
                     mode={this.state.dialogMode}
                     toggleDialog={(status, mode) => this.handleToggleDialog(status, mode)} />
 
-                {/* Main AppBar */}
+                {/* Application appbar */}
                 <AppBar className={classes.appBar}>
                     <Toolbar>
                         <Grid container justify="space-between" alignItems="center">
                             <Grid item>
                                 {/* Show this on small displays */}
-                                <Grid container direction="row" alignItems="center">
-                                    <IconButton
-                                        color="inherit"
-                                        aria-label="home-button"
-                                        onClick={() => this.handleToggleDrawer(true)}
-                                        className={classNames(classes.menuButton, classes.navIconHide)}>
-                                        <MenuIcon />
-                                    </IconButton>
-                                    <Typography variant="title" color="inherit"
-                                        className={classes.navIconHide}>
-                                    PetShopApp v0.0.1
-                                    </Typography>
-                                </Grid>
+                                <IconButton
+                                    color="inherit"
+                                    aria-label="home-button"
+                                    onClick={() => this.handleToggleDrawer(true)}
+                                    className={classNames(classes.menuButton, classes.navIconHide)}>
+                                    <MenuIcon />
+                                </IconButton>
 
                                 {/* Show this on bigger displays */}
                                 <IconButton
@@ -189,64 +203,34 @@ class ActionBar extends React.Component {
                             </Grid>
 
                             <Grid item>
-                                <div>
-                                    {(this.props.currentUserRights === "customer") &&
-                                    <IconButton
-                                        color="inherit"
-                                        aria-label="shopping-cart-button"
-                                        onClick={() => this.props.handleChangeCurrentView("shoppingCart")}
-                                    >
-                                        <Icon>shopping_cart</Icon>
-                                    </IconButton>
-                                    }
+                                <Typography variant="title" color="inherit"
+                                    className={classNames(classes.logo, classes.navIconHide)}>
+                                    PetClovis
+                                </Typography>
+                            </Grid>
 
-                                    <IconButton
-                                        aria-owns={this.state.anchorEl ? "menu-appbar" : null}
-                                        aria-haspopup="true"
-                                        color="inherit"
-                                        onClick={e => this.handleToggleAnchorMenu(e)}
-                                    >
-                                        <AccountCircle />
-                                    </IconButton>
 
-                                    <Menu
-                                        id="menu-appbar"
-                                        anchorEl={this.state.anchorEl}
-                                        anchorOrigin={{
-                                            vertical: "top",
-                                            horizontal: "right",
-                                        }}
-                                        transformOrigin={{
-                                            vertical: "top",
-                                            horizontal: "right",
-                                        }}
-                                        open={Boolean(this.state.anchorEl)}
-                                        onClose={() => this.handleToggleAnchorMenu()}
+                            {/* UAC Button */}
+                            <Grid item>
+                                {this.props.currentUserLoggedIn ?
+                                    <Button color="inherit"
+                                        onClick={() => this.handleToggleDialog(true, "logout")}
                                     >
-                                        {this.props.currentUserLoggedIn ?
-                                            <div>
-                                                <MenuItem onClick={() => {this.handleToggleDialog(true, "logout")}}>
-                                                    Sair
-                                                </MenuItem>
-                                            </div>
-                                            :
-                                            <div>
-                                                <MenuItem onClick={() => {this.handleToggleDialog(true, "signin")}}>
-                                                    Login
-                                                </MenuItem>
-                                                <MenuItem onClick={() => {this.handleToggleDialog(true, "signup")}}>
-                                                    Cadastro
-                                                </MenuItem>
-                                            </div>
-                                        }
-                                    </Menu>
-                                </div>
+                                        Sair
+                                    </Button>
+                                    :
+                                    <Button color="inherit"
+                                        onClick={() => this.handleToggleDialog(true, "signin")}
+                                    >
+                                        Entrar
+                                    </Button>
+                                }
                             </Grid>
                         </Grid>
                     </Toolbar>
                 </AppBar>
 
-                {/* Main Drawer */}
+                {/* Application drawer */}
                 <Drawer
                     variant="temporary"
                     anchor={theme.direction === "rtl" ? "right" : "left"}
@@ -256,13 +240,26 @@ class ActionBar extends React.Component {
                         paper: classes.drawerPaper,
                     }}
                     ModalProps={{
-                        keepMounted: true, // Better open performance on mobile.
-                    }}>
-                    <ActionList />
+                        keepMounted: true, // Better open performance on mobile. TODO Is it tho?
+                    }}
+                >
+
+                    <List component="nav">
+                        {
+                            optionList.map((item, index) => (
+                                <ListItem button key={index}
+                                    onClick={() => this.props.handleChangeCurrentView(item.control)}
+                                >
+                                    <ListItemText primary={item.pt} secondary={item.st} />
+                                </ListItem>
+                            ))
+                        }
+                    </List>
                 </Drawer>
 
+                {/* Content area */}
                 <main className={classes.content}>
-                    <div className={classes.toolbar} />
+                    <div className={classes.toolbar} /> {/*TODO Why do we need this here?*/}
                     <MainContent />
                 </main>
             </div>
@@ -270,17 +267,18 @@ class ActionBar extends React.Component {
     }
 }
 
-// Do typechecking
-ActionBar.propTypes = {
-    // From store state
+PetShopActionBar.propTypes = {
+    // style
+    theme: PropTypes.object.isRequired,
+    classes: PropTypes.object.isRequired,
+
+    // store state
     currentUserView: PropTypes.string.isRequired,
     currentUserRights: PropTypes.string.isRequired,
     currentUserLoggedIn: PropTypes.bool.isRequired,
-    handleChangeCurrentView: PropTypes.func.isRequired,
 
-    // From material-ui
-    classes: PropTypes.object.isRequired,
-    theme: PropTypes.object.isRequired,
+    // store actions
+    handleChangeCurrentView: PropTypes.func.isRequired,
 }
 
 function mapStateToProps(state) {
@@ -300,4 +298,4 @@ function mapDispatchToProps(dispatch) {
 }
 
 // Inject styles, connect mappers with the redux store and export symbol
-export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles, { withTheme: true })(ActionBar))
+export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles, { withTheme: true })(PetShopActionBar))
