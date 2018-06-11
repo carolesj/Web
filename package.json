@@ -4,9 +4,8 @@
   "private": true,
   "homepage": "https://dnery.github.io/pet-shop-app",
   "dependencies": {
-    "@material-ui/core": "^1.0.0",
-    "@material-ui/icons": "^1.0.0",
-    "date-fns": "^2.0.0-alpha.7",
+    "@material-ui/core": "^1.2.1",
+    "@material-ui/icons": "^1.1.0",
     "gh-pages": "^1.2.0",
     "material-ui-pickers": "^1.0.0-rc.9",
     "moment": "^2.22.2",
@@ -16,8 +15,7 @@
     "react-dom": "^16.4.0",
     "react-redux": "^5.0.7",
     "react-scripts": "1.1.4",
-    "redux": "^4.0.0",
-    "serve": "^7.2.0"
+    "redux": "^4.0.0"
   },
   "scripts": {
     "predeploy": "npm run build",

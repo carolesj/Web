@@ -94,10 +94,10 @@ const PetShopPetList = withStyles(styles)(props => {
                 ))}
             </Grid>
 
-            {/*Floating action button*/}
+            {/*Floating //action button*/}
             {(currentUserRights === "customer") &&
                 <Button variant="fab" color="primary"
-                    onClick={() => onLaunchDialog(true, "registryAdd")}
+                    onClick={() => {console.log("got called"); onLaunchDialog(true, "registryAdd")}} //eslint-disable-line no-console
                     className={classes.fab}
                 >
                     <AddIcon />

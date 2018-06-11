@@ -192,13 +192,15 @@ class PetControl extends React.Component {
         let dialogActions = null
 
         // Query pet data
-        let petData = this.props
-            .customerData.find(customer => (customer.email === this.props.currentUserEmail))
+        let petData = this.props.customerData.find(customer => (customer.email === this.props.currentUserEmail))
             .animals.find(animal => (animal.id === this.props.selectedId))
-        if (typeof(petData) === "undefined")
+
+        // Actually fail only if action depends on existing pet data
+        if (typeof(petData) === "undefined" && (this.props.dialogMode === "edit" || this.props.dialogMode === "remove"))
             return null
 
-        if (this.props.dialogMode === "remove") { // Dialog UI for removing an existing pet
+        // Dialog UI for removing an existing pet
+        if (this.props.dialogMode === "remove") {
             dialogTitle = "Remover Cadastro do Pet"
 
             dialogContent = (
@@ -231,7 +233,9 @@ class PetControl extends React.Component {
                 </div>
             )
 
-        } else { // Dialog UI for adding or editing a pet
+
+        // Dialog UI for adding a new pet or editing an existing one
+        } else {
             dialogTitle = (this.props.dialogMode === "registryAdd") ? "Cadastrar Novo Pet" : "Editar Dados do Pet"
 
             dialogContent = (
