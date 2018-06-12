@@ -1,6 +1,9 @@
 {
-  "main.js": "static/js/main.a1449d84.js",
-  "main.js.map": "static/js/main.a1449d84.js.map",
+  "main.js": "static/js/main.3d1b4b54.js",
+  "main.js.map": "static/js/main.3d1b4b54.js.map",
+  "static/media/bannerAppoints.png": "static/media/bannerAppoints.a010adfc.png",
+  "static/media/bannerHome.png": "static/media/bannerHome.44e153a1.png",
+  "static/media/bannerPets.png": "static/media/bannerPets.90e1da01.png",
   "static/media/cat1.jpg": "static/media/cat1.8c93f4f0.jpg",
   "static/media/cat2.jpg": "static/media/cat2.e53530a5.jpg",
   "static/media/dog1.jpg": "static/media/dog1.6fc71f44.jpg",
@@ -11,6 +14,7 @@
   "static/media/dog6.jpg": "static/media/dog6.edbe3144.jpg",
   "static/media/dog7.jpg": "static/media/dog7.794aaf94.jpg",
   "static/media/dog8.jpg": "static/media/dog8.b4569814.jpg",
+  "static/media/logo.png": "static/media/logo.b0627541.png",
   "static/media/logo.svg": "static/media/logo.5d5d9eef.svg",
   "static/media/product1.jpg": "static/media/product1.6f07c754.jpg",
   "static/media/product2.jpg": "static/media/product2.a1ef1ec8.jpg",
@@ -19,11 +23,9 @@
   "static/media/product5.JPG": "static/media/product5.8d07b2df.JPG",
   "static/media/product6.jpg": "static/media/product6.911f5982.jpg",
   "static/media/product7.jpg": "static/media/product7.cf415fe2.jpg",
-  "static/media/sampleBanner.jpg": "static/media/sampleBanner.136dba43.jpg",
   "static/media/sampleDog.png": "static/media/sampleDog.8b18b998.png",
   "static/media/service1.jpg": "static/media/service1.51af11c2.jpg",
   "static/media/service2.jpg": "static/media/service2.49885afd.jpg",
   "static/media/service3.jpg": "static/media/service3.35dac3c3.jpg",
-  "static/media/service4.jpg": "static/media/service4.21cf23a9.jpg",
-  "static/media/tasteTheCommunism.png": "static/media/tasteTheCommunism.e996fce2.png"
+  "static/media/service4.jpg": "static/media/service4.21cf23a9.jpg"
 }
