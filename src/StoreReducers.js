@@ -1,6 +1,8 @@
 // Action types
 import { CommonActions, CustomerActions, SupervisorActions } from "./StoreActions"
 
+import moment from "moment"
+
 let initialState = {
     // Current user
     currentUserView: "home",        // Any user starts at home page
@@ -58,14 +60,15 @@ let initialState = {
                 { id: 8, name: "Frederico", race: "Siamês", media: "./media/cat1.jpg", localMedia: true },
                 { id: 9, name: "Fofinho", race: "Maine Coon", media: "./media/cat2.jpg", localMedia: true }
             ],
+            // TODO remove this line
             appointments: [
                 // {id, serviceId, serviceName, animalId, animalName, date (as a Date object), status, message}
-                { id: 0, serviceId: 0, serviceName: "Banho", animalId: 6, animalName: "Sabrino", date: new Date("06/06/2018 14:00:00 GMT-3"), status: "pending", message: "" },
-                { id: 1, serviceId: 2, serviceName: "Massagem", animalId: 5, animalName: "Nerso", date: new Date("06/24/2019 14:00:00 GMT-3"), status: "approved", message: "Aprovado pelo supervisor (sujeito à mudanças)" },
-                { id: 2, serviceId: 1, serviceName: "Cortar Unha", animalId: 9, animalName: "Fofinho", date: new Date("08/06/2018 14:00:00 GMT-3"), status: "pending", message: "" },
-                { id: 3, serviceId: 3, serviceName: "Tosa", animalId: 0, animalName: "Felicloper", date: new Date("06/04/2018 14:00:00 GMT-3"), status: "revoked", message: "Requisição negada: emergência de plantão (nenhum doutor disponivel)" },
-                { id: 4, serviceId: 3, serviceName: "Tosa", animalId: 0, animalName: "Felicloper", date: new Date("06/09/2018 14:00:00 GMT-3"), status: "revoked", message: "Requisição negada: nenhum horário indisponível" },
-                { id: 1, serviceId: 0, serviceName: "Banho", animalId: 5, animalName: "Nerso", date: new Date("06/28/2019 14:00:00 GMT-3"), status: "approved", message: "Aprovado pelo supervisor (sujeito à mudanças)" },
+                { id: 0, serviceId: 0, serviceName: "Banho", animalId: 6, animalName: "Sabrino", date: moment(new Date("06/06/2018 14:00:00 GMT-3")), status: "pending", message: "" },
+                { id: 1, serviceId: 2, serviceName: "Massagem", animalId: 5, animalName: "Nerso", date: moment(new Date("06/24/2019 14:00:00 GMT-3")), status: "approved", message: "Aprovado pelo supervisor (sujeito à mudanças)" },
+                { id: 2, serviceId: 1, serviceName: "Cortar Unha", animalId: 9, animalName: "Fofinho", date: moment(new Date("08/06/2018 14:00:00 GMT-3")), status: "pending", message: "" },
+                { id: 3, serviceId: 3, serviceName: "Tosa", animalId: 0, animalName: "Felicloper", date: moment(new Date("06/04/2018 14:00:00 GMT-3")), status: "revoked", message: "Requisição negada: emergência de plantão (nenhum doutor disponivel)" },
+                { id: 4, serviceId: 3, serviceName: "Tosa", animalId: 0, animalName: "Felicloper", date: moment(new Date("06/09/2018 14:00:00 GMT-3")), status: "revoked", message: "Requisição negada: nenhum horário indisponível" },
+                { id: 1, serviceId: 0, serviceName: "Banho", animalId: 5, animalName: "Nerso", date: moment(new Date("06/28/2019 14:00:00 GMT-3")), status: "approved", message: "Aprovado pelo supervisor (sujeito à mudanças)" },
                 /*
                     status:
                         - pending: not yet processed
@@ -371,8 +374,7 @@ function petShopApp(state, action) {
         })
 
     // Supervisor action reducers
-    // TODO TEST THIS
-    case SupervisorActions.STOCKCTL_REG_INCLUDE:
+    case SupervisorActions.STOCKCTL_ADD:
         return Object.assign({}, state, {
             SiteData: Object.assign({}, state.SiteData, {
                 products: [
@@ -390,7 +392,6 @@ function petShopApp(state, action) {
             })
         })
 
-    // TODO TEST THIS
     case SupervisorActions.STOCKCTL_EDIT:
         return Object.assign({}, state, {
             SiteData: Object.assign({}, state.SiteData, {
@@ -411,13 +412,105 @@ function petShopApp(state, action) {
             })
         })
 
-    // TODO TEST THIS
     case SupervisorActions.STOCKCTL_REMOVE:
         return Object.assign({}, state, {
             SiteData: Object.assign({}, state.SiteData, {
                 products: state.SiteData.products.filter(product => {
                     return (product.id !== action.payload.itemData.id)
                 })
+            })
+        })
+
+    // TODO TEST THIS
+    // service: {id, name, description, media (relative to src folder), localMedia (is media locally imported by webpack?), available}
+    case SupervisorActions.SERVICECTL_REG_ADD:
+        return Object.assign({}, state, {
+            SiteData: Object.assign({}, state.SiteData, {
+                services: [
+                    ...state.SiteData.services,
+                    {
+                        id: (state.SiteData.services.length > 0) ? (state.SiteData.services[state.SiteData.services.length-1].id + 1) : 0,
+                        name: action.payload.serviceData.name,
+                        price: action.payload.serviceData.price,
+                        description: action.payload.serviceData.description,
+                        available: action.payload.serviceData.available,
+                        media: action.payload.serviceData.media,
+                        localMedia: action.payload.serviceData.localMedia,
+                    }
+                ]
+            })
+        })
+
+    // TODO TEST THIS
+    case SupervisorActions.SERVICECTL_REG_EDIT:
+        return Object.assign({}, state, {
+            SiteData: Object.assign({}, state.SiteData, {
+                services: state.SiteData.services.map(service => {
+                    if (service.id === action.payload.serviceData.id) {
+                        return Object.assign({}, service, {
+                            name: action.payload.serviceData.name,
+                            price: action.payload.serviceData.price,
+                            description: action.payload.serviceData.description,
+                            available: action.payload.serviceData.available,
+                            media: action.payload.serviceData.media,
+                            localMedia: action.payload.serviceData.localMedia,
+                        })
+                    }
+                    // Otherwise keep old state
+                    return service
+                })
+            })
+        })
+
+    // TODO TEST THIS
+    case SupervisorActions.SERVICECTL_REG_REMOVE:
+        return Object.assign({}, state, {
+            SiteData: Object.assign({}, state.SiteData, {
+                services: state.SiteData.services.filter(service => {
+                    return (service.id !== action.payload.serviceData.id)
+                })
+            })
+        })
+
+    // TODO TEST THIS
+    // appoint: {id, serviceId, serviceName, animalId, animalName, date (as a Date object), status, message}
+    case SupervisorActions.SERVICECTL_EDIT:
+        return Object.assign({}, state, {
+            CustomerData: state.CustomerData.map(customer => {
+                if (customer.email === action.payload.userEmail) {
+                    return Object.assign({}, customer, {
+                        appointments: customer.appointments.map(appoint => {
+                            if (appoint.id === action.payload.appointData.id) {
+                                // We don't want to give too much control to the supervisor
+                                return Object.assign({}, appoint, {
+                                    date: action.payload.appointData.date,
+                                    status: action.payload.appointData.status,
+                                    message: action.payload.appointData.message,
+                                })
+                            }
+                            // Otherwise keep old state
+                            return appoint
+                        })
+                    })
+                }
+                // Otherwise keep old state
+                return customer
+            })
+        })
+
+    // TODO TEST THIS
+    case SupervisorActions.SERVICECTL_REMOVE:
+        return Object.assign({}, state, {
+            CustomerData: state.CustomerData.map(customer => {
+                if (customer.email === action.payload.userEmail) {
+                    return Object.assign({}, customer, {
+                        appointments: customer.appointments.filter(appoint => {
+                            return (appoint.id !== action.payload.appointData.id)
+                        })
+                    })
+                }
+                // Otherwise keep old state
+                return customer
             })
         })
 

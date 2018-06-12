@@ -9,27 +9,30 @@ import { PropTypes } from "prop-types"
 import React from "react"
 import PetShopResponsiveDialog from "./PetShopResponsiveDialog"
 
-
 const styles = theme => ({
-    // Pet control
-    button: {
-        margin: theme.spacing.unit,
-    },
-    input: {
-        display: "none",
+    // visuals
+    container: {
+        display: "flex",
+        flexWrap: "wrap",
     },
     rightIcon: {
         marginLeft: theme.spacing.unit,
     },
-    container: {
-        display: "flex",
-        flexWrap: "wrap",
+    button: {
+        margin: theme.spacing.unit,
+    },
+
+    // inputs
+    input: {
+        display: "none",
     },
     textField: {
         marginLeft: theme.spacing.unit,
         marginRight: theme.spacing.unit,
         //width: 200,
     },
+
+    // images
     avatar: {
         margin: 10,
     },
@@ -40,9 +43,7 @@ const styles = theme => ({
 })
 
 
-/*
-    Pet control sub-component
- */
+
 class SupervisorShopControl extends React.Component {
     constructor(props) {
         super(props)
@@ -160,7 +161,7 @@ class SupervisorShopControl extends React.Component {
         }
 
         // DISPATCH ACTION
-        this.props.onClickSubmitAddItem({
+        this.props.onConfirmStockAddItem({
             name: stageItemName,
             price: stageItemPrice,
             amount: stageItemAmount,
@@ -211,7 +212,7 @@ class SupervisorShopControl extends React.Component {
         }
 
         // DISPATCH ACTION
-        this.props.onClickSubmitEditItem({
+        this.props.onConfirmStockEditItem({
             id: currentData.id,
             name: stageItemName,
             price: stageItemPrice,
@@ -226,7 +227,7 @@ class SupervisorShopControl extends React.Component {
     }
 
     handleClickRemoveItem() {
-        this.props.onClickSubmitRemoveItem({
+        this.props.onConfirmStockRemoveItem({
             id: this.props.selectedId,
         })
 
@@ -408,21 +409,19 @@ SupervisorShopControl.propTypes = {
     // style
     classes: PropTypes.object.isRequired,
 
-    // inherited
+    // inherited state (SUPPLY THESE)
+    siteData: PropTypes.object.isRequired,
+    currentUserEmail: PropTypes.string.isRequired,
+    currentUserRights: PropTypes.string.isRequired,
     dialogOpen: PropTypes.bool.isRequired,
     dialogMode: PropTypes.string.isRequired,
     selectedId: PropTypes.number.isRequired,
     onLaunchDialog: PropTypes.func.isRequired,
 
-    // store state
-    siteData: PropTypes.object.isRequired,
-    currentUserEmail: PropTypes.string.isRequired,
-    currentUserRights: PropTypes.string.isRequired,
-
-    // store actions
-    onClickSubmitAddItem: PropTypes.func.isRequired,
-    onClickSubmitEditItem: PropTypes.func.isRequired,
-    onClickSubmitRemoveItem: PropTypes.func.isRequired,
+    // inherited actions (SUPPLY THESE)
+    onConfirmStockAddItem: PropTypes.func.isRequired,
+    onConfirmStockEditItem: PropTypes.func.isRequired,
+    onConfirmStockRemoveItem: PropTypes.func.isRequired,
 }
 
 export default withStyles(styles)(SupervisorShopControl)

@@ -6,33 +6,7 @@ import { PropTypes } from "prop-types"
 import React from "react"
 import PetShopResponsiveDialog from "./PetShopResponsiveDialog"
 
-
 const styles = theme => ({
-    // Shopping cart
-    tableRoot: {
-        //width: "100%",
-        //marginTop: theme.spacing.unit * 3,
-        //marginLeft: theme.spacing.unit * 3,
-        //marginRight: theme.spacing.unit * 3,
-        marginTop: -1 * theme.spacing.unit,
-        marginLeft: -1 * theme.spacing.unit,
-        marginRight: -1 * theme.spacing.unit,
-        overflowX: "auto",
-    },
-    tableBody: {
-        minWidth: 500,
-    },
-    row: {
-        "&:nth-of-type(odd)": {
-            backgroundColor: theme.palette.background.default,
-        },
-    },
-    tableButton: {
-        marginRight: -15,
-    },
-    confirmButton: {
-        marginLeft: 3 * theme.spacing.unit,
-    },
     container: {
         display: "flex",
         flexWrap: "wrap",
@@ -45,9 +19,6 @@ const styles = theme => ({
 })
 
 
-/*
-    Shop control sub-component
- */
 class CustomerShopControl extends React.Component {
     constructor(props) {
         super(props)
@@ -84,7 +55,7 @@ class CustomerShopControl extends React.Component {
             itemAmountField: "0",
             itemAmountFIeldParsed: 0,
         })
-        this.props.onToggleDialog(false)
+        this.props.onLaunchDialog(false)
     }
 
 
@@ -108,7 +79,7 @@ class CustomerShopControl extends React.Component {
                 })
             } else {
                 // Dispatch edit cart
-                this.props.onClickConfirmEditItem(this.props.currentUserEmail, {
+                this.props.onConfirmEditItem(this.props.currentUserEmail, {
                     itemId: itemData.id,
                     itemName: itemData.name,
                     itemPrice: itemData.price,
@@ -126,7 +97,7 @@ class CustomerShopControl extends React.Component {
                 })
             } else {
                 // Dispatch add to cart
-                this.props.onClickConfirmAddItem(this.props.currentUserEmail, {
+                this.props.onConfirmAddItem(this.props.currentUserEmail, {
                     itemId: itemData.id,
                     itemName: itemData.name,
                     itemPrice: itemData.price,
@@ -146,7 +117,7 @@ class CustomerShopControl extends React.Component {
         let alreadyChosenData = userData.shoppingCart.find(item => (item.itemId === this.props.selectedId))
 
         // Dispatch remove from cart
-        this.props.onClickConfirmRemoveItem(this.props.currentUserEmail, {
+        this.props.onConfirmRemoveItem(this.props.currentUserEmail, {
             itemId: alreadyChosenData.itemId,
             itemAmount: alreadyChosenData.itemAmount,
         })
@@ -160,7 +131,7 @@ class CustomerShopControl extends React.Component {
         let userData = this.props.customerData.find(customer => (customer.email === this.props.currentUserEmail))
 
         // Dispatch commit purchase
-        this.props.onClickConfirmCommitPurchase(this.props.currentUserEmail, userData.shoppingCart)
+        this.props.onConfirmCommitPurchase(this.props.currentUserEmail, userData.shoppingCart)
 
         // Close dialog on success
         this.handleCloseDialog()
@@ -176,6 +147,7 @@ class CustomerShopControl extends React.Component {
         let dialogTitle = ""
         let dialogContent = <React.Fragment></React.Fragment>
         let dialogActions = <React.Fragment></React.Fragment>
+
 
         // Dialog UI for adding item to cart
         if (this.props.dialogMode === "add") {
@@ -277,13 +249,7 @@ CustomerShopControl.propTypes = {
     // style
     classes: PropTypes.object.isRequired,
 
-    // inherited
-    dialogOpen: PropTypes.bool.isRequired,
-    dialogMode: PropTypes.string.isRequired,
-    selectedId: PropTypes.number.isRequired,
-    onToggleDialog: PropTypes.func.isRequired,
-
-    // store state
+    // inherited state (SUPPLY THESE)
     siteData: PropTypes.object.isRequired,
     customerData: PropTypes.arrayOf(
         PropTypes.shape({
@@ -294,12 +260,16 @@ CustomerShopControl.propTypes = {
         })
     ).isRequired,
     currentUserEmail: PropTypes.string.isRequired,
+    dialogOpen: PropTypes.bool.isRequired,
+    dialogMode: PropTypes.string.isRequired,
+    selectedId: PropTypes.number.isRequired,
 
-    // store actions
-    onClickConfirmAddItem: PropTypes.func.isRequired,
-    onClickConfirmEditItem: PropTypes.func.isRequired,
-    onClickConfirmRemoveItem: PropTypes.func.isRequired,
-    onClickConfirmCommitPurchase: PropTypes.func.isRequired,
+    // inherited actions (SUPPLY THESE)
+    onLaunchDialog: PropTypes.func.isRequired,
+    onConfirmAddItem: PropTypes.func.isRequired,
+    onConfirmEditItem: PropTypes.func.isRequired,
+    onConfirmRemoveItem: PropTypes.func.isRequired,
+    onConfirmCommitPurchase: PropTypes.func.isRequired,
 }
 
 export default withStyles(styles)(CustomerShopControl)

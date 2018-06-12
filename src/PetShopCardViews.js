@@ -42,7 +42,7 @@ const styles = theme => ({
 
 
 /*
-    Pet card list for the pet shop app
+    Pet card list for the customer view
  */
 const PetShopPetList = withStyles(styles)(props => {
 
@@ -57,7 +57,7 @@ const PetShopPetList = withStyles(styles)(props => {
 
     return (
         <div className={classes.root}>
-            {/*Pretty card list*/}
+            {/* Pretty card list */}
             <Grid container spacing={24} justify="flex-start" alignItems="flex-start">
                 {animalArray.map((item, index) => (
                     <Grid item key={index} xs={12} sm={6} md={4} lg={3}>
@@ -94,10 +94,10 @@ const PetShopPetList = withStyles(styles)(props => {
                 ))}
             </Grid>
 
-            {/*Floating //action button*/}
-            {(currentUserRights === "customer") &&
+            {/* Floating action button */}
+            {(currentUserRights === "customer") &&  // Can it be any different, tho?
                 <Button variant="fab" color="primary"
-                    onClick={() => {console.log("got called"); onLaunchDialog(true, "registryAdd")}} //eslint-disable-line no-console
+                    onClick={() => onLaunchDialog(true, "registryAdd")}
                     className={classes.fab}
                 >
                     <AddIcon />
@@ -130,7 +130,7 @@ PetShopPetList.propTypes = {
 
 
 /*
-    Product card list for the pet shop app
+    Product card list for all user views
  */
 const PetShopProductList = withStyles(styles)(props => {
 
@@ -146,7 +146,7 @@ const PetShopProductList = withStyles(styles)(props => {
 
     return (
         <div className={classes.root}>
-            {/*Pretty card list*/}
+            {/* Pretty card list */}
             <Grid container spacing={24} justify="flex-start">
                 {productArray.map((item, index) => (
                     <Grid item key={index} xs={12} sm={6} md={4} lg={3}>
@@ -211,7 +211,7 @@ const PetShopProductList = withStyles(styles)(props => {
                 ))}
             </Grid>
 
-            {/*Floating action button*/}
+            {/* Floating action buttons */}
             {(currentUserRights === "supervisor") &&
                 <Button variant="fab" color="primary"
                     onClick={() => onLaunchDialog(true, "registryAdd")}
@@ -258,7 +258,7 @@ PetShopProductList.propTypes = {
 
 
 /*
-    Service card list for the pet shop app
+    Service card list for all user views
  */
 const PetShopServiceList = withStyles(styles)(props => {
 
@@ -269,11 +269,12 @@ const PetShopServiceList = withStyles(styles)(props => {
         onSetSelected,
         onLaunchDialog,
         currentUserRights,
+        onChangeCurrentView
     } = props
 
     return (
         <div className={classes.root}>
-            {/*Pretty card list*/}
+            {/* Pretty card list */}
             <Grid container spacing={24} justify="flex-start">
                 {serviceArray.map((item, index) => (
                     <Grid item key={index} xs={12} sm={6} md={4} lg={3}>
@@ -305,15 +306,27 @@ const PetShopServiceList = withStyles(styles)(props => {
                             <CardActions>
                                 <Grid container justify="flex-end">
                                     <Grid item>
-                                        {(item.available && currentUserRights === "customer") ?
-                                            <Button size="small" color="primary"
-                                                onClick={() => { onSetSelected(item.id); onLaunchDialog(true, "add") }}>
-                                                Contratar
-                                            </Button>
+                                        {(currentUserRights === "supervisor") ?
+                                            <div>
+                                                <Button size="small" color="secondary"
+                                                    onClick={() => { onSetSelected(item.id); onLaunchDialog(true, "remove") }}>
+                                                Remover
+                                                </Button>
+                                                <Button size="small" color="primary"
+                                                    onClick={() => { onSetSelected(item.id); onLaunchDialog(true, "remove") }}>
+                                                Editar
+                                                </Button>
+                                            </div>
                                             :
-                                            <Button disabled size="small" color="primary">
+                                            (item.available) ?
+                                                <Button size="small" color="primary"
+                                                    onClick={() => { onSetSelected(item.id); onLaunchDialog(true, "add") }}>
                                                 Contratar
-                                            </Button>
+                                                </Button>
+                                                :
+                                                <Button disabled size="small" color="primary">
+                                                Contratar
+                                                </Button>
                                         }
                                     </Grid>
                                 </Grid>
@@ -323,13 +336,21 @@ const PetShopServiceList = withStyles(styles)(props => {
                 ))}
             </Grid>
 
-            {/*Floating action button*/}
+            {/* Floating action buttons */}
             {(currentUserRights === "supervisor") &&
                 <Button variant="fab" color="primary"
                     onClick={() => onLaunchDialog(true, "registryAdd")}
                     className={classes.fab}
                 >
                     <AddIcon />
+                </Button>
+            }
+            {(currentUserRights === "customer") &&
+                <Button variant="fab" color="primary"
+                    onClick={() => onChangeCurrentView("appointments")}
+                    className={classes.fab}
+                >
+                    <Icon>schedule</Icon>
                 </Button>
             }
         </div>
@@ -354,8 +375,9 @@ PetShopServiceList.propTypes = {
     currentUserRights: PropTypes.string.isRequired,
 
     // functions
+    onChangeCurrentView: PropTypes.func.isRequired,
+    onLaunchDialog: PropTypes.func.isRequired,
     onSetSelected: PropTypes.func.isRequired,
-    onLaunchDialog: PropTypes.func,
 }
 
 export { PetShopPetList, PetShopProductList, PetShopServiceList }

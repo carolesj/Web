@@ -4,37 +4,37 @@ import Button from "@material-ui/core/Button"
 import DialogContentText from "@material-ui/core/DialogContentText"
 import Grid from "@material-ui/core/Grid"
 import TextField from "@material-ui/core/TextField"
-import { withStyles } from "@material-ui/core/styles"
-import FileUpload from "@material-ui/icons/FileUpload"
 import classNames from "classnames"
 import { PropTypes } from "prop-types"
-import React from "react"
-import { connect } from "react-redux"
-import { PetShopPetList } from "./PetShopCardViews"
+import { withStyles } from "@material-ui/core/styles"
+import FileUpload from "@material-ui/icons/FileUpload"
 import PetShopResponsiveDialog from "./PetShopResponsiveDialog"
-import { addPet, editPet, removePet } from "./StoreActions"
-
+import React from "react"
 
 const styles = theme => ({
-    // Pet control
+    // visuals
     button: {
         margin: theme.spacing.unit,
-    },
-    input: {
-        display: "none",
     },
     rightIcon: {
         marginLeft: theme.spacing.unit,
     },
+
+    // inputs
     container: {
         display: "flex",
         flexWrap: "wrap",
+    },
+    input: {
+        display: "none",
     },
     textField: {
         marginLeft: theme.spacing.unit,
         marginRight: theme.spacing.unit,
         //width: 200,
     },
+
+    // images
     avatar: {
         margin: 10,
     },
@@ -45,25 +45,21 @@ const styles = theme => ({
 })
 
 
-/*
-    Pet control sub-component
- */
-class PetControl extends React.Component {
+class CustomerPetControl extends React.Component {
     constructor(props) {
         super(props)
         this.state = {
+            // error reporting
             errorStatus: false,
             errorMessage: "",
-            petNameFieldValue: "",
-            petRaceFieldValue: "",
 
-            // Pet removal checker
-            checkedAwareOfPetRemoval: false,
-
-            // Pet image state
-            willUploadPetImage: false,
-            didUploadPetImage: false,
-            petImageAsURL: null,
+            // state controllers
+            petName: "",
+            petRace: "",
+            checkedPetRemoval: false,
+            willUploadImage: false,
+            didUploadImage: false,
+            imageAsURL: null,
         }
     }
 
@@ -71,16 +67,12 @@ class PetControl extends React.Component {
     /*
         LOCAL UI STATE CONTROLLERS
      */
-    handlePetNameFieldChange(event) {
-        this.setState({
-            petNameFieldValue: event.target.value,
-        })
-    }
-
-    handlePetRaceFieldChange(event) {
-        this.setState({
-            petRaceFieldValue: event.target.value,
-        })
+    handleChangeFieldValue(prop) {
+        if (prop === "checkedPetRemoval") {
+            return event => { this.setState({ [prop]: event.target.checked, }) }
+        } else {
+            return event => { this.setState({ [prop]: event.target.value, }) }
+        }
     }
 
     handleAddPetImagePathChange(event) {
@@ -89,40 +81,36 @@ class PetControl extends React.Component {
 
         // Start uploading image
         this.setState({  // TODO Not sure if this locks state for changing...
-            willUploadPetImage: true,
-            didUploadPetImage: false,
-            petImageAsURL: null,
+            willUploadImage: true,
+            didUploadImage: false,
+            imageAsURL: null,
         })
 
         // When done uploading image
         reader.onload = event => {
             this.setState({  // TODO Not sure if this locks state for changing...
-                willUploadPetImage: false,
-                didUploadPetImage: true,
-                petImageAsURL: event.target.result
+                willUploadImage: false,
+                didUploadImage: true,
+                imageAsURL: event.target.result
             })
         }
-
         // Begin op and trigger callback
         reader.readAsDataURL(media)
     }
 
-    handleToggleAwareOfPetRemoval() {
-        this.setState(state => ({
-            checkedAwareOfPetRemoval: !state.checkedAwareOfPetRemoval,
-        }))
-    }
-
     handleCloseDialog() {
         this.setState({
+            // error
             errorStatus: false,
             errorMessage: "",
-            petNameFieldValue: "",
-            petRaceFieldValue: "",
-            checkedAwareOfPetRemoval: false,
-            willUploadPetImage: false,
-            didUploadPetImage: false,
-            petImageAsURL: null,
+
+            // state
+            petName: "",
+            petRace: "",
+            checkedPetRemoval: false,
+            willUploadImage: false,
+            didUploadImage: false,
+            imageAsURL: null,
         })
         this.props.onToggleDialog(false)
     }
@@ -136,20 +124,19 @@ class PetControl extends React.Component {
      */
     handleClickAddPet() {
         // TODO Check all field values for validity
-        let stagePetName = this.state.petNameFieldValue
-        let stagePetRace = this.state.petRaceFieldValue
-        let stagePetMedia = this.state.didUploadPetImage ? this.state.petImageAsURL : "./media/sampleDog.png"
-        let stageLocalMedia = !this.state.didUploadPetImage
+        let stagePetName = this.state.petName
+        let stagePetRace = this.state.petRace
+        let stagePetMedia = this.state.didUploadImage ? this.state.imageAsURL : "./media/sampleDog.png"
+        let stageLocalMedia = !this.state.didUploadImage
 
         // Dispatch add pet store action
-        this.props.onClickSubmitAddPet(this.props.currentUserEmail, {
+        this.props.onConfirmAddPet(this.props.currentUserEmail, {
             // TODO Is there an easy way to know which of these need to be set?
             name: stagePetName,
             race: stagePetRace,
             media: stagePetMedia,
             localMedia: stageLocalMedia,
         })
-
         // Close dialog on success
         this.handleCloseDialog()
     }
@@ -157,28 +144,26 @@ class PetControl extends React.Component {
     handleClickEditPet(currentData) {
         // TODO Check all field values for validity
         let stagePetId = currentData.id
-        let stagePetName = this.state.petNameFieldValue
-        let stagePetRace = this.state.petRaceFieldValue
-        let stagePetMedia = this.state.didUploadPetImage ? this.state.petImageAsURL : currentData.media
-        let stageLocalMedia = this.state.didUploadPetImage ? false : currentData.localMedia
+        let stagePetName = this.state.petName
+        let stagePetRace = this.state.petRace
+        let stagePetMedia = this.state.didUploadImage ? this.state.imageAsURL : currentData.media
+        let stageLocalMedia = this.state.didUploadImage ? false : currentData.localMedia
 
-        this.props.onClickSubmitEditPet(this.props.currentUserEmail, {
+        this.props.onConfirmEditPet(this.props.currentUserEmail, {
             id: stagePetId,
             name: stagePetName,
             race: stagePetRace,
             media: stagePetMedia,
             localMedia: stageLocalMedia,
         })
-
         // Close dialog on success
         this.handleCloseDialog()
     }
 
     handleClickRemovePet() {
-        this.props.onClickSubmitRemovePet(this.props.currentUserEmail, {
+        this.props.onConfirmRemovePet(this.props.currentUserEmail, {
             id: this.props.selectedId,
         })
-
         // Close dialog on success
         this.handleCloseDialog()
     }
@@ -212,8 +197,8 @@ class PetControl extends React.Component {
                     </DialogContentText>
                     <br />
                     <FormControlLabel
-                        control={<Checkbox checked={this.state.checkedAwareOfPetRemoval}
-                            onChange={() => this.handleToggleAwareOfPetRemoval()}
+                        control={<Checkbox checked={this.state.checkedPetRemoval}
+                            onChange={this.handleChangeFieldValue("checkedPetRemoval")}
                             color="secondary" />}
                         label="Tenho noção de que o pet será permanentemente removido dos registros"
                     />
@@ -223,7 +208,7 @@ class PetControl extends React.Component {
             dialogActions = (
                 <div>
                     <Button onClick={() => this.handleClickRemovePet()} color="secondary"
-                        disabled={!this.state.checkedAwareOfPetRemoval}
+                        disabled={!this.state.checkedPetRemoval}
                     >
                             Confirmar
                     </Button>
@@ -249,8 +234,8 @@ class PetControl extends React.Component {
                             label="Nome"
                             placeholder={(this.props.dialogMode === "edit") ? petData.name : undefined}
                             className={this.props.classes.textField}
-                            value={this.state.petNameFieldValue}
-                            onChange={event => this.handlePetNameFieldChange(event)}
+                            value={this.state.petName}
+                            onChange={this.handleChangeFieldValue("petName")}
                             margin="normal"
                         />
                         <TextField
@@ -260,17 +245,17 @@ class PetControl extends React.Component {
                             label="Raça"
                             placeholder={(this.props.dialogMode === "edit") ? petData.race : undefined}
                             className={this.props.classes.textField}
-                            value={this.state.petRaceFieldValue}
-                            onChange={event => this.handlePetRaceFieldChange(event)}
+                            value={this.state.petRace}
+                            onChange={this.handleChangeFieldValue("petRace")}
                             margin="normal"
                         />
                     </form>
                     <Grid container direction="column" justify="center" alignItems="center">
                         <Grid item>
-                            {this.state.didUploadPetImage ?
+                            {this.state.didUploadImage ?
                                 <Avatar
                                     alt="Novo avatar"
-                                    src={this.state.petImageAsURL}
+                                    src={this.state.imageAsURL}
                                     className={classNames(this.props.classes.avatar, this.props.classes.bigAvatar)}
                                 />
                                 : (this.props.dialogMode === "edit") &&
@@ -292,7 +277,7 @@ class PetControl extends React.Component {
                             />
                             <label htmlFor="image-file-upload">
                                 <Button variant="raised" component="span" className={this.props.classes.button}
-                                    disabled={this.state.willUploadPetImage}
+                                    disabled={this.state.willUploadImage}
                                 >
                                     Escolher Imagem
                                     <FileUpload className={this.props.classes.rightIcon} />
@@ -307,7 +292,7 @@ class PetControl extends React.Component {
                 <div>
                     <Button 
                         color="primary"
-                        disabled={this.state.willUploadPetImage}
+                        disabled={this.state.willUploadImage}
                         onClick={this.props.dialogMode === "registryAdd" ?
                             () => this.handleClickAddPet()
                             :
@@ -338,11 +323,11 @@ class PetControl extends React.Component {
     }
 }
 
-PetControl.propTypes = {
+CustomerPetControl.propTypes = {
     // style
     classes: PropTypes.object.isRequired,
 
-    // state
+    // inherited state (SUPPLY THESE)
     customerData: PropTypes.arrayOf(
         PropTypes.shape({
             email: PropTypes.string.isRequired,
@@ -352,132 +337,15 @@ PetControl.propTypes = {
         })
     ).isRequired,
     currentUserEmail: PropTypes.string.isRequired,
-
-    // dialog state
     dialogOpen: PropTypes.bool.isRequired,
     dialogMode: PropTypes.string.isRequired,
     selectedId: PropTypes.number.isRequired,
+
+    // inherited actions (SUPPLY THESE)
     onToggleDialog: PropTypes.func.isRequired,
-
-    // dialog actions
-    onClickSubmitAddPet: PropTypes.func.isRequired,
-    onClickSubmitEditPet: PropTypes.func.isRequired,
-    onClickSubmitRemovePet: PropTypes.func.isRequired,
+    onConfirmAddPet: PropTypes.func.isRequired,
+    onConfirmEditPet: PropTypes.func.isRequired,
+    onConfirmRemovePet: PropTypes.func.isRequired,
 }
 
-
-/*
-    Exposed main component
- */
-class CustomerPetViewBehavior extends React.Component {
-    constructor(props) {
-        super(props)
-        this.state = {
-            dialogOpen: false,
-            dialogMode: "",    // Can be any of { "add", "edit", "remove" }
-            selectedId: 0,     // Id of pet selected for "edit" or "remove" operations
-        }
-    }
-
-    handleToggleDialog(open, mode = null) {
-        this.setState(state => ({
-            dialogOpen: open,
-            dialogMode: (mode !== null) ? mode : state.dialogMode,
-        }))
-    }
-
-    handleSetSelected(id) {
-        this.setState({
-            selectedId: id
-        })
-    }
-
-    render() {
-
-        const {
-            classes,
-            customerData,
-            currentUserEmail,
-            currentUserRights,
-            handleSubmitAddPet,
-            handleSubmitEditPet,
-            handleSubmitRemovePet,
-        } = this.props
-
-        // current user's pet information
-        const userPetArray = customerData.find(cust => (cust.email === currentUserEmail)).animals
-
-        return (
-            <div>
-                <PetShopPetList
-                    animalArray={userPetArray}
-                    currentUserRights={currentUserRights}
-                    onLaunchDialog={(open, mode) => this.handleToggleDialog(open, mode)}
-                    onSetSelected={(id) => this.handleSetSelected(id)}
-                />
-                <PetControl
-                    classes={classes}
-                    customerData={customerData}
-                    currentUserEmail={currentUserEmail}
-                    onToggleDialog={(open, mode) => this.handleToggleDialog(open, mode)}
-                    dialogOpen={this.state.dialogOpen}
-                    dialogMode={this.state.dialogMode}
-                    selectedId={this.state.selectedId}
-                    onClickSubmitAddPet={handleSubmitAddPet}
-                    onClickSubmitEditPet={handleSubmitEditPet}
-                    onClickSubmitRemovePet={handleSubmitRemovePet}
-                />
-            </div>
-        )
-    }
-}
-
-CustomerPetViewBehavior.propTypes = {
-    // style
-    classes: PropTypes.object.isRequired,
-
-    // store state
-    customerData: PropTypes.arrayOf(
-        PropTypes.shape({
-            email: PropTypes.string.isRequired,
-            animals: PropTypes.arrayOf(PropTypes.object).isRequired,
-            appointments: PropTypes.arrayOf(PropTypes.object).isRequired,
-            shoppingCart: PropTypes.arrayOf(PropTypes.object).isRequired
-        })
-    ).isRequired,
-    currentUserEmail: PropTypes.string.isRequired,
-    currentUserRights: PropTypes.string.isRequired,
-
-    // store actions
-    handleSubmitAddPet: PropTypes.func.isRequired,
-    handleSubmitEditPet: PropTypes.func.isRequired,
-    handleSubmitRemovePet: PropTypes.func.isRequired,
-}
-
-function mapStateToProps(state) {
-    return {
-        //currentUserView: state.currentUserView,
-        currentUserEmail: state.currentUserEmail,
-        currentUserRights: state.currentUserRights,
-        //currentUserLoggedIn: state.currentUserLoggedIn,
-        customerData: state.CustomerData,
-        //siteData: state.SiteData
-    }
-}
-
-function mapDispatchToProps(dispatch) {
-    return {
-        handleSubmitAddPet: (userEmail, petData) => {
-            dispatch(addPet(userEmail, petData))
-        },
-        handleSubmitEditPet: (userEmail, petData) => {
-            dispatch(editPet(userEmail, petData))
-        },
-        handleSubmitRemovePet: (userEmail, petData) => {
-            dispatch(removePet(userEmail, petData))
-        },
-    }
-}
-
-// Inject styles, connect mappers with the redux store and export symbol
-export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(CustomerPetViewBehavior))
+export default withStyles(styles)(CustomerPetControl)

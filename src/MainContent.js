@@ -16,11 +16,13 @@ import classNames from "classnames"
 import { PropTypes } from "prop-types"
 import React from "react"
 import { connect } from "react-redux"
-import CustomerPetViewBehavior from "./CustomerPetViewBehavior"
-import CustomerServiceViewBehavior from "./CustomerServiceViewBehavior"
-import { PetShopProductList } from "./PetShopCardViews"
-import ShopViewContainer from "./ShopViewContainer"
+import CustomerPetContainer from "./CustomerPetContainer"
+import CustomerServiceContainer from "./CustomerServiceContainer"
+import CustomerShopContainer from "./CustomerShopContainer"
+import { PetShopProductList, PetShopServiceList } from "./PetShopCardViews"
+import SupervisorShopContainer from "./SupervisorShopContainer"
 
+// TODO AAAAAALLL THIS NEEDS TO BEGONE FROM HERE!!!
 const styles = theme => ({
     listRoot: {
         flexGrow: 1,
@@ -179,73 +181,6 @@ CommonHomeScreenBehavior.propTypes = {
 
 
 /*
-    Common shop list view
- */
-function CommonShopViewBehavior(props) {
-    const { classes } = props
-
-    return (
-        <div className={classes.listRoot}>
-            <Grid container spacing={24} justify="flex-start">
-                {props.siteData.products.map((item, index) => (
-                    <Grid item key={index} xs={12} sm={6} md={4}>
-                        <Card>
-                            <CardMedia
-                                className={classes.media}
-                                image={item.localMedia ? require(`${item.media}`) : item.media}
-                                title={"Serviço de " + item.name}
-                            />
-                            <CardContent>
-                                <Typography gutterBottom variant="headline" component="h2">
-                                    {`${item.name} - R$${item.price}`}
-                                </Typography>
-                                <Typography gutterBottom component="p">
-                                    {item.description}
-                                </Typography>
-                                {item.amount > 0 ?
-                                    <Typography variant="body1" align="right">
-                                        <br />
-                                        {`Disponibilidade: ${item.amount} unidades`}
-                                    </Typography>
-                                    :
-                                    <Typography variant="body1" color="error" align="right">
-                                        <br />
-                                        Produto esgotado
-                                    </Typography>
-                                }
-                            </CardContent>
-                            <CardActions>
-                                <Grid container justify="flex-end">
-                                    <Grid item>
-                                        {item.amount > 0 ?
-                                            <Button size="small" color="primary"
-                                                onClick={() => { props.onToggleDialog(true) }}>
-                                        Comprar
-                                            </Button>
-                                            :
-                                            <Button disabled size="small" color="primary">
-                                        Comprar
-                                            </Button>
-                                        }
-                                    </Grid>
-                                </Grid>
-                            </CardActions>
-                        </Card>
-                    </Grid>
-                ))}
-            </Grid>
-        </div>
-    )
-}
-
-CommonShopViewBehavior.propTypes = {
-    classes: PropTypes.object.isRequired,
-    siteData: PropTypes.object.isRequired,
-    onToggleDialog: PropTypes.func.isRequired,
-}
-
-
-/*
     Service list sub-component
  */
 function CommonServiceViewBehavior(props) {
@@ -331,52 +266,56 @@ class MainContent extends React.Component {
 
     buildMainView() {
         switch (this.props.currentUserView) {
-        // Visitor options
         case "home":
+            // TODO Hmmm
             return <CommonHomeScreenBehavior classes={this.props.classes}
                 currentUserLoggedIn={this.props.currentUserLoggedIn} />
 
         case "shop":
             switch (this.props.currentUserRights) {
             case "customer":
-                return <ShopViewContainer />
+                return <CustomerShopContainer />
             case "supervisor":
-                return <ShopViewContainer />
+                return <SupervisorShopContainer />
             default:
+                // TODO Hmmm
                 return <PetShopProductList
                     productArray={this.props.siteData.products}
                     currentUserRights={this.props.currentUserRights}
-                    onLaunchDialog={(open) => this.handleToggleDialog(open)}
                     onChangeCurrentView={() => {}}
-                    onSetSelected={() => {}} />
+                    onSetSelected={() => {}}
+                    onLaunchDialog={(open) => this.handleToggleDialog(open)} />
             }
 
         case "services":
             switch (this.props.currentUserRights) {
             case "customer":
-                return <CustomerServiceViewBehavior />
+                return <CustomerServiceContainer />
             case "supervisor":
                 // TODO HERE
                 return <CommonServiceViewBehavior classes={this.props.classes} siteData={this.props.siteData}
                     onToggleDialog={(open) => this.handleToggleDialog(open)} />
             default:
-                return <CommonServiceViewBehavior classes={this.props.classes} siteData={this.props.siteData}
-                    onToggleDialog={(open) => this.handleToggleDialog(open)} />
+                return <PetShopServiceList
+                    serviceArray={this.props.siteData.services}
+                    currentUserRights={this.props.currentUserRights}
+                    onChangeCurrentView={() => {}}
+                    onSetSelected={() => {}}
+                    onLaunchDialog={(open) => this.handleToggleDialog(open)} />
             }
 
-        // Customer options
         case "pets":
-            return <CustomerPetViewBehavior />
+            return <CustomerPetContainer />
         
         case "users":
             // TODO HERE
             return null
 
         case "shoppingCart":
-            return <ShopViewContainer />
+            return <CustomerShopContainer />
 
         case "appointments":
-            return <CustomerServiceViewBehavior />
+            return <CustomerServiceContainer />
 
         default:
             return null

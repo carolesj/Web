@@ -42,14 +42,18 @@ export const SupervisorActions = {
     USERCTL_CHANGE_RIGHTS: "USERCTL_CHANGE_RIGHTS",
 
     // Stock control
+    STOCKCTL_ADD: "STOCKCTL_ADD",
     STOCKCTL_EDIT: "STOCKCTL_EDIT",
     STOCKCTL_REMOVE: "STOCKCTL_REMOVE",
-    STOCKCTL_REG_INCLUDE: "STOCKCTL_REG_INCLUDE", // Register new product
 
     // Service control
+    SERVICECTL_REG_ADD: "SERVICECTL_REG_ADD",
+    SERVICECTL_REG_EDIT: "SERVICECTL_REG_EDIT",
+    SERVICECTL_REG_REMOVE: "SERVICECTL_REG_REMOVE",
+
+    // Appointment control
     SERVICECTL_EDIT: "SERVICECTL_EDIT",
-    SERVICECTL_REMOVE: "SERVICECTL_REMOVE",
-    SERVICECTL_REG_INCLUDE: "SERVICECTL_REG_INCLUDE" // Register new service
+    SERVICECTL_REMOVE: "SERVICECTL_REMOVE"
 }
 
 /*
@@ -160,6 +164,7 @@ export function removeAppointment(userEmail, appointData) {
 /*
    Supervisor action creators
  */
+//---------------------------------------
 // TODO adminData might not be necessary
 export function addUser(adminData, userData) {
     return {
@@ -183,17 +188,16 @@ export function changeUserRights(adminData, userData) {
         payload: { adminData, userData }
     }
 }
-
 //---------------------------------------
-// TODO adminData might not be necessary
+
+
 export function addProduct(itemData) {
     return {
-        type: SupervisorActions.STOCKCTL_REG_INCLUDE,
+        type: SupervisorActions.STOCKCTL_ADD,
         payload: { itemData }
     }
 }
 
-// TODO adminData might not be necessary
 export function editProduct(itemData) {
     return {
         type: SupervisorActions.STOCKCTL_EDIT,
@@ -201,43 +205,47 @@ export function editProduct(itemData) {
     }
 }
 
-// TODO adminData might not be necessary
+
 export function removeProduct(itemData) {
     return {
         type: SupervisorActions.STOCKCTL_REMOVE,
         payload: { itemData }
     }
 }
+
 //---------------------------------------
-
-// TODO adminData might not be necessary
-export function addStockRegistry(adminData, newItem) {
-    return {
-        type: SupervisorActions.STOCKCTL_REG_INCLUDE,
-        payload: { adminData, newItem }
-    }
-}
-
-// TODO adminData might not be necessary
-export function sudoEditAppointment(adminData, appointData) {
+export function sudoEditAppointment(userEmail, appointData) {
     return {
         type: SupervisorActions.SERVICECTL_EDIT,
-        payload: { adminData, appointData }
+        payload: { userEmail, appointData }
     }
 }
 
-// TODO adminData might not be necessary
-export function sudoRemoveAppointment(adminData, appointData) {
+export function sudoRemoveAppointment(userEmail, appointData) {
     return {
         type: SupervisorActions.SERVICECTL_REMOVE,
-        payload: { adminData, appointData }
+        payload: { userEmail, appointData }
+    }
+}
+//---------------------------------------
+
+export function addService(serviceData) {
+    return {
+        type: SupervisorActions.SERVICECTL_REG_ADD,
+        payload: { serviceData }
     }
 }
 
-// TODO adminData might not be necessary
-export function addServiceRegistry(adminData, newService) {
+export function editService(serviceData) {
     return {
-        type: SupervisorActions.SERVICECTL_REG_INCLUDE,
-        payload: { adminData, newService }
+        type: SupervisorActions.SERVICECTL_REG_EDIT,
+        payload: { serviceData }
+    }
+}
+
+export function removeService(serviceData) {
+    return {
+        type: SupervisorActions.SERVICECTL_REG_REMOVE,
+        payload: { serviceData }
     }
 }
