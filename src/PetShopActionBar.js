@@ -86,7 +86,6 @@ const customerOptions = [
     { control: "shop", pt: "Loja", st: "Consulte nosso catálogo" },
     { control: "pets", pt: "Meus Pets", st: "Controle sua lista de pets" },
     { control: "services", pt: "Serviços", st: "Marque seus agendamentos" },
-    { control: "appointments", pt: "Agendamentos", st: "Controle suas requisições" },
 ]
 
 const supervisorOptions = [
@@ -184,12 +183,6 @@ class PetShopActionBar extends React.Component {
                                     <Button className={classes.navButtonHide} color="inherit"
                                         onClick={() => this.props.handleChangeCurrentView("pets")}>
                                         Meus Pets
-                                    </Button>
-                                }
-                                {(this.props.currentUserRights === "customer") &&
-                                    <Button className={classes.navButtonHide} color="inherit"
-                                        onClick={() => this.props.handleChangeCurrentView("appointments")}>
-                                        Agendamentos
                                     </Button>
                                 }
 

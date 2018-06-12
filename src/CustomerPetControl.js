@@ -181,7 +181,7 @@ class CustomerPetControl extends React.Component {
             .animals.find(animal => (animal.id === this.props.selectedId))
 
         // Actually fail only if action depends on existing pet data
-        if (typeof(petData) === "undefined" && (this.props.dialogMode === "edit" || this.props.dialogMode === "remove"))
+        if (typeof(petData) === "undefined" && this.props.dialogMode !== "add")
             return null
 
         // Dialog UI for removing an existing pet
@@ -221,7 +221,7 @@ class CustomerPetControl extends React.Component {
 
         // Dialog UI for adding a new pet or editing an existing one
         } else {
-            dialogTitle = (this.props.dialogMode === "registryAdd") ? "Cadastrar Novo Pet" : "Editar Dados do Pet"
+            dialogTitle = (this.props.dialogMode === "add") ? "Cadastrar Novo Pet" : "Editar Dados do Pet"
 
             dialogContent = (
                 <div>
@@ -293,7 +293,7 @@ class CustomerPetControl extends React.Component {
                     <Button 
                         color="primary"
                         disabled={this.state.willUploadImage}
-                        onClick={this.props.dialogMode === "registryAdd" ?
+                        onClick={this.props.dialogMode === "add" ?
                             () => this.handleClickAddPet()
                             :
                             () => this.handleClickEditPet(petData)

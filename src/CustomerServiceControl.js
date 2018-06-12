@@ -48,7 +48,7 @@ class CustomerServiceControl extends React.Component {
             errorStatus: false,
             errorMessage: "",
             // state trackers
-            dateTimePickerValue: new Date(),
+            dateTimePickerValue: moment(),
             servicePickerValue: "",
             petPickerValue: "",
         }
@@ -76,7 +76,7 @@ class CustomerServiceControl extends React.Component {
             errorStatus: false,
             errorMessage: "",
             // state
-            dateTimePickerValue: new Date(),
+            dateTimePickerValue: moment(),
             servicePickerValue: "",
             petPickerValue: "",
         })
@@ -90,12 +90,28 @@ class CustomerServiceControl extends React.Component {
     handleClickConfirmAddAppointment() {
         // Fetch service data
         let stageServiceId = this.state.servicePickerValue
-        let stageServiceName = this.props.siteData.services.find(service => (service.id === stageServiceId)).name
+        let stageService = this.props.siteData.services.find(service => (service.id === stageServiceId))
+        if (typeof(stageService) === "undefined") {
+            this.setState({
+                errorStatus: true,
+                errorMessage: "Por favor escolha um serviço"
+            })
+            return
+        }
+        let stageServiceName = stageService.name
 
         // Fetch customer pet data
         let stagePetId = this.state.petPickerValue
-        let stagePetName = this.props.customerData.find(customer => (customer.email === this.props.currentUserEmail))
-            .animals.find(pet => (pet.id === stagePetId)).name
+        let stagePet = this.props.customerData.find(customer => (customer.email === this.props.currentUserEmail))
+            .animals.find(pet => (pet.id === stagePetId))
+        if (typeof(stagePet) === "undefined") {
+            this.setState({
+                errorStatus: true,
+                errorMessage: "Por favor escolha um pet"
+            })
+            return
+        }
+        let stagePetName = stagePet.name
 
         // Prepare remaining data
         let stageDate = this.state.dateTimePickerValue

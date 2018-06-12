@@ -97,7 +97,7 @@ const PetShopPetList = withStyles(styles)(props => {
             {/* Floating action button */}
             {(currentUserRights === "customer") &&  // Can it be any different, tho?
                 <Button variant="fab" color="primary"
-                    onClick={() => onLaunchDialog(true, "registryAdd")}
+                    onClick={() => onLaunchDialog(true, "add")}
                     className={classes.fab}
                 >
                     <AddIcon />
@@ -214,7 +214,7 @@ const PetShopProductList = withStyles(styles)(props => {
             {/* Floating action buttons */}
             {(currentUserRights === "supervisor") &&
                 <Button variant="fab" color="primary"
-                    onClick={() => onLaunchDialog(true, "registryAdd")}
+                    onClick={() => onLaunchDialog(true, "add")}
                     className={classes.fab}
                 >
                     <AddIcon />
@@ -310,22 +310,22 @@ const PetShopServiceList = withStyles(styles)(props => {
                                             <div>
                                                 <Button size="small" color="secondary"
                                                     onClick={() => { onSetSelected(item.id); onLaunchDialog(true, "remove") }}>
-                                                Remover
+                                                    Remover
                                                 </Button>
                                                 <Button size="small" color="primary"
-                                                    onClick={() => { onSetSelected(item.id); onLaunchDialog(true, "remove") }}>
-                                                Editar
+                                                    onClick={() => { onSetSelected(item.id); onLaunchDialog(true, "edit") }}>
+                                                    Editar
                                                 </Button>
                                             </div>
                                             :
                                             (item.available) ?
                                                 <Button size="small" color="primary"
                                                     onClick={() => { onSetSelected(item.id); onLaunchDialog(true, "add") }}>
-                                                Contratar
+                                                    Contratar
                                                 </Button>
                                                 :
                                                 <Button disabled size="small" color="primary">
-                                                Contratar
+                                                    Contratar
                                                 </Button>
                                         }
                                     </Grid>
@@ -339,7 +339,7 @@ const PetShopServiceList = withStyles(styles)(props => {
             {/* Floating action buttons */}
             {(currentUserRights === "supervisor") &&
                 <Button variant="fab" color="primary"
-                    onClick={() => onLaunchDialog(true, "registryAdd")}
+                    onClick={() => onLaunchDialog(true, "add")}
                     className={classes.fab}
                 >
                     <AddIcon />

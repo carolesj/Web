@@ -1,4 +1,4 @@
-import { Avatar, FormControl, Input, InputAdornment, InputLabel, withStyles } from "@material-ui/core"
+import { Avatar, Checkbox, FormControlLabel, withStyles } from "@material-ui/core"
 import Button from "@material-ui/core/Button"
 import DialogContentText from "@material-ui/core/DialogContentText"
 import Grid from "@material-ui/core/Grid"
@@ -53,15 +53,13 @@ class SupervisorShopControl extends React.Component {
             errorMessage: "",
 
             // Dialog state
-            itemNameValue: "",
-            itemPriceValue: "",
-            itemAmountValue: "",
-            itemDescriptionValue: "",
+            serviceNameValue: "",
+            serviceDescriptionValue: "",
+            checkedServiceAvailable: true,
 
-            // Pet image state
-            willUploadItemImage: false,
-            didUploadItemImage: false,
-            itemImageAsURL: null,
+            willUploadImage: false,
+            didUploadImage: false,
+            imageAsURL: null,
         }
     }
 
@@ -70,10 +68,12 @@ class SupervisorShopControl extends React.Component {
         LOCAL UI STATE CONTROLLERS
      */
     handleChangeFieldValue(prop) {
-        return event => {
-            this.setState({
-                [prop]: event.target.value,
-            })
+        if (prop === "ImagePathValue") {
+            return this.handleChangeImagePath
+        } else if (prop === "checkedServiceAvailable") {
+            return event => { this.setState({ [prop]: event.target.checked, }) }
+        } else {
+            return event => { this.setState({ [prop]: event.target.value, }) }
         }
     }
 
@@ -83,17 +83,17 @@ class SupervisorShopControl extends React.Component {
 
         // Start uploading image
         this.setState({  // TODO Not sure if this locks state for changing...
-            willUploadItemImage: true,
-            didUploadItemImage: false,
-            itemImageAsURL: null,
+            willUploadImage: true,
+            didUploadImage: false,
+            imageAsURL: null,
         })
 
         // When done uploading image
         reader.onload = event => {
             this.setState({  // TODO Not sure if this locks state for changing...
-                willUploadItemImage: false,
-                didUploadItemImage: true,
-                itemImageAsURL: event.target.result,
+                willUploadImage: false,
+                didUploadImage: true,
+                imageAsURL: event.target.result,
             })
         }
 
@@ -105,13 +105,12 @@ class SupervisorShopControl extends React.Component {
         this.setState({
             errorStatus: false,
             errorMessage: "",
-            itemNameValue: "",
-            itemPriceValue: "",
-            itemAmountValue: "",
-            itemDescriptionValue: "",
-            willUploadItemImage: false,
-            didUploadItemImage: false,
-            itemImageAsURL: null,
+            serviceNameValue: "",
+            serviceDescriptionValue: "",
+            checkedServiceAvailable: true,
+            willUploadImage: false,
+            didUploadImage: false,
+            imageAsURL: null,
         })
         this.props.onLaunchDialog(false)
     }
@@ -123,114 +122,75 @@ class SupervisorShopControl extends React.Component {
         TODO These handlers need better names
         TODO Check handlers on other files as well
      */
-    handleClickAddItem() {
+    handleAddService() {
         // Text
-        let stageItemName = this.state.itemNameValue
-        let stageItemDescription = this.state.itemDescriptionValue
-
-        // Numbers
-        let stageItemPrice = parseFloat(this.state.itemPriceValue)
-        let stageItemAmount = parseInt(this.state.itemAmountValue, 10)
+        let stageServiceName = this.state.serviceNameValue
+        let stageServiceAvailable = this.state.checkedServiceAvailable
+        let stageServiceDescription = this.state.serviceDescriptionValue
 
         // Blob
-        let stageItemMedia = this.state.didUploadItemImage ? this.state.itemImageAsURL : "./media/sampleDog.png"
-        let stageLocalMedia = !this.state.didUploadItemImage
+        let stageServiceMedia = this.state.didUploadImage ? this.state.imageAsURL : "./media/sampleDog.png"
+        let stageLocalMedia = !this.state.didUploadImage
 
 
         // CHECK EVERYTHING
-        if (stageItemName === "") {
+        if (stageServiceName === "") {
             this.setState({
                 errorStatus: true,
-                errorMessage: "Nome do produto inválido!"
-            })
-            return
-        }
-        if (isNaN(stageItemPrice)) {
-            this.setState({
-                errorStatus: true,
-                errorMessage: "Preço do produto inválido!"
-            })
-            return
-        }
-        if (isNaN(stageItemAmount)) {
-            this.setState({
-                errorStatus: true,
-                errorMessage: "Quantidade em estoque do produto inválido!"
+                errorMessage: "Nome do serviço inválido!"
             })
             return
         }
 
         // DISPATCH ACTION
-        this.props.onConfirmStockAddItem({
-            name: stageItemName,
-            price: stageItemPrice,
-            amount: stageItemAmount,
-            description: stageItemDescription,
-            media: stageItemMedia,
+        this.props.onConfirmAddService({
+            name: stageServiceName,
+            available: stageServiceAvailable,
+            description: stageServiceDescription,
+            media: stageServiceMedia,
             localMedia: stageLocalMedia,
         })
-
         // Close dialog on success
         this.handleCloseDialog()
     }
 
-    handleClickEditItem(currentData) {
+    handleEditService(currentData) {
         // Text
-        let stageItemName = this.state.itemNameValue
-        let stageItemDescription = this.state.itemDescriptionValue
-
-        // Numbers
-        let stageItemPrice = parseFloat(this.state.itemPriceValue)
-        let stageItemAmount = parseInt(this.state.itemAmountValue, 10)
+        let stageServiceName = this.state.serviceNameValue
+        let stageServiceAvailable = this.state.checkedServiceAvailable
+        let stageServiceDescription = this.state.serviceDescriptionValue
 
         // Blob
-        let stageItemMedia = this.state.didUploadItemImage ? this.state.itemImageAsURL : currentData.media
-        let stageLocalMedia = this.state.didUploadItemImage ? false : currentData.localMedia
+        let stageServiceMedia = this.state.didUploadImage ? this.state.imageAsURL : currentData.media
+        let stageLocalMedia = this.state.didUploadImage ? false : currentData.localMedia
 
 
         // CHECK EVERYTHING
-        if (stageItemName === "") {
+        if (stageServiceName === "") {
             this.setState({
                 errorStatus: true,
-                errorMessage: "Nome do produto inválido!"
-            })
-            return
-        }
-        if (isNaN(stageItemPrice)) {
-            this.setState({
-                errorStatus: true,
-                errorMessage: "Preço do produto inválido!"
-            })
-            return
-        }
-        if (isNaN(stageItemAmount)) {
-            this.setState({
-                errorStatus: true,
-                errorMessage: "Quantidade em estoque do produto inválido!"
+                errorMessage: "Nome do serviço inválido!"
             })
             return
         }
 
         // DISPATCH ACTION
-        this.props.onConfirmStockEditItem({
+        this.props.onConfirmEditService({
             id: currentData.id,
-            name: stageItemName,
-            price: stageItemPrice,
-            amount: stageItemAmount,
-            description: stageItemDescription,
-            media: stageItemMedia,
+            name: stageServiceName,
+            available: stageServiceAvailable,
+            description: stageServiceDescription,
+            media: stageServiceMedia,
             localMedia: stageLocalMedia,
         })
-
         // Close dialog on success
         this.handleCloseDialog()
     }
 
-    handleClickRemoveItem() {
-        this.props.onConfirmStockRemoveItem({
+    handleRemoveService() {
+        this.props.onConfirmRemoveService({
             id: this.props.selectedId,
         })
-
         // Close dialog on success
         this.handleCloseDialog()
     }
@@ -244,11 +204,11 @@ class SupervisorShopControl extends React.Component {
         let dialogActions = <React.Fragment></React.Fragment>
 
         // Query item data
-        let itemData = this.props.siteData.products.find(product => (product.id === this.props.selectedId))
-        if (typeof(itemData) === "undefined" && this.props.dialogMode !== "add")
+        let serviceData = this.props.siteData.services.find(service => (service.id === this.props.selectedId))
+        if (typeof(serviceData) === "undefined" && this.props.dialogMode !== "add")
             return null
 
-        // Dialog UI for adding or editing a shop item
+        // Dialog UI for adding or editing a pet
         if (this.props.dialogMode !== "remove") {
             dialogTitle = (this.props.dialogMode === "add") ? "Cadastrar Novo Produto" : "Editar Dados do Produto"
 
@@ -260,37 +220,11 @@ class SupervisorShopControl extends React.Component {
                             required={(this.props.dialogMode === "add")}
                             fullWidth
                             id="name"
-                            label="Nome do item"
-                            placeholder={(this.props.dialogMode === "edit") ? itemData.name : undefined}
+                            label="Nome do serviço"
+                            placeholder={(this.props.dialogMode === "edit") ? serviceData.name : undefined}
                             className={this.props.classes.textField}
-                            value={this.state.itemNameValue}
-                            onChange={this.handleChangeFieldValue("itemNameValue")}
-                            margin="normal"
-                        />
-                        <FormControl fullWidth className={this.props.classes.textField}>
-                            <InputLabel htmlFor="price-adorned">Preço</InputLabel>
-                            <Input
-                                id="price-adorned"
-                                label="Preço do item"
-                                value={this.state.itemPriceValue}
-                                onChange={this.handleChangeFieldValue("itemPriceValue")}
-                                placeholder={(this.props.dialogMode === "edit") ? String(itemData.price) : undefined}
-                                startAdornment={<InputAdornment position="start">R$</InputAdornment>}
-                            />
-                        </FormControl>
-                        <TextField
-                            required={(this.props.dialogMode === "add")}
-                            fullWidth
-                            id="item-amount"
-                            label="Quantia em estoque"
-                            value={this.state.itemAmountValue}
-                            onChange={this.handleChangeFieldValue("itemAmountValue")}
-                            placeholder={(this.props.dialogMode === "edit") ? String(itemData.amount) : undefined}
-                            className={this.props.classes.textField}
-                            type="number"
-                            InputLabelProps={{
-                                shrink: true,
-                            }}
+                            value={this.state.serviceNameValue}
+                            onChange={this.handleChangeFieldValue("serviceNameValue")}
                             margin="normal"
                         />
                         <TextField
@@ -299,26 +233,33 @@ class SupervisorShopControl extends React.Component {
                             multiline
                             rowsMax="4"
                             id="description"
-                            label="Descrição do produto"
-                            placeholder={(this.props.dialogMode === "edit") ? itemData.description : undefined}
+                            label="Descrição do serviço"
+                            placeholder={(this.props.dialogMode === "edit") ? serviceData.description : undefined}
                             className={this.props.classes.textField}
-                            value={this.state.itemDescriptionValue}
-                            onChange={this.handleChangeFieldValue("itemDescriptionValue")}
+                            value={this.state.serviceDescriptionValue}
+                            onChange={this.handleChangeFieldValue("serviceDescriptionValue")}
                             margin="normal"
                         />
                     </form>
+                    <br />
+                    <FormControlLabel
+                        control={<Checkbox checked={this.state.checkedServiceAvailable}
+                            onChange={this.handleChangeFieldValue("checkedServiceAvailable")}
+                            color="secondary" />}
+                        label="Serviço disponível"
+                    />
                     <Grid container direction="column" justify="center" alignItems="center">
                         <Grid item>
-                            {this.state.didUploadItemImage ?
+                            {this.state.didUploadImage ?
                                 <Avatar
                                     alt="Nova imagem"
-                                    src={this.state.itemImageAsURL}
+                                    src={this.state.imageAsURL}
                                     className={classNames(this.props.classes.avatar, this.props.classes.bigAvatar)}
                                 />
                                 : (this.props.dialogMode === "edit") &&
                                 <Avatar
                                     alt="Imagem atual"
-                                    src={itemData.localMedia ? require(`${itemData.media}`) : itemData.media}
+                                    src={serviceData.localMedia ? require(`${serviceData.media}`) : serviceData.media}
                                     className={classNames(this.props.classes.avatar, this.props.classes.bigAvatar)}
                                 />
                             }
@@ -334,7 +275,7 @@ class SupervisorShopControl extends React.Component {
                             />
                             <label htmlFor="image-file-upload">
                                 <Button variant="raised" component="span" className={this.props.classes.button}
-                                    disabled={this.state.willUploadItemImage}
+                                    disabled={this.state.willUploadImage}
                                 >
                                     Escolher Imagem
                                     <FileUpload className={this.props.classes.rightIcon} />
@@ -352,11 +293,11 @@ class SupervisorShopControl extends React.Component {
                     </Button>
                     <Button 
                         color="primary"
-                        disabled={this.state.willUploadItemImage}
+                        disabled={this.state.willUploadImage}
                         onClick={this.props.dialogMode === "add" ?
-                            () => this.handleClickAddItem()
+                            () => this.handleAddService()
                             :
-                            () => this.handleClickEditItem(itemData)
+                            () => this.handleEditService(serviceData)
                         }
                     >
                         Confirmar
@@ -364,13 +305,13 @@ class SupervisorShopControl extends React.Component {
                 </div>
             )
 
-        // Dialog UI for removing an shop item
+        // Dialog UI for removing an existing pet
         } else {
-            dialogTitle = "Remover Registro do Produto"
+            dialogTitle = "Remover Registro do Serviço"
 
             dialogContent = (
                 <DialogContentText align="center">
-                    {"Tem certeza que deseja remover de circulação o item " + itemData.name + "?"}
+                    {"Tem certeza que deseja cancelar realização do serviço " + serviceData.name + "?"}
                     <br />
                     {"Ele será permanentemente excluído de nossos registros."}
                 </DialogContentText>
@@ -381,7 +322,7 @@ class SupervisorShopControl extends React.Component {
                     <Button onClick={() => this.handleCloseDialog()} color="primary">
                             Cancelar
                     </Button>
-                    <Button onClick={() => this.handleClickRemoveItem()} color="secondary">
+                    <Button onClick={() => this.handleRemoveService()} color="secondary">
                             Confirmar
                     </Button>
                 </div>
@@ -394,7 +335,7 @@ class SupervisorShopControl extends React.Component {
             <PetShopResponsiveDialog
                 isOpen={this.props.dialogOpen}
                 onClose={() => this.handleCloseDialog()}
-                ariaLabel="supervisor-shop-control-dialog"
+                ariaLabel="supervisor-service-control-dialog"
                 dialogTitle={dialogTitle}
                 dialogContent={dialogContent}
                 dialogActions={dialogActions}
@@ -411,17 +352,15 @@ SupervisorShopControl.propTypes = {
 
     // inherited state (SUPPLY THESE)
     siteData: PropTypes.object.isRequired,
-    currentUserEmail: PropTypes.string.isRequired,
-    currentUserRights: PropTypes.string.isRequired,
     dialogOpen: PropTypes.bool.isRequired,
     dialogMode: PropTypes.string.isRequired,
     selectedId: PropTypes.number.isRequired,
     onLaunchDialog: PropTypes.func.isRequired,
 
     // inherited actions (SUPPLY THESE)
-    onConfirmStockAddItem: PropTypes.func.isRequired,
-    onConfirmStockEditItem: PropTypes.func.isRequired,
-    onConfirmStockRemoveItem: PropTypes.func.isRequired,
+    onConfirmAddService: PropTypes.func.isRequired,
+    onConfirmEditService: PropTypes.func.isRequired,
+    onConfirmRemoveService: PropTypes.func.isRequired,
 }
 
 export default withStyles(styles)(SupervisorShopControl)

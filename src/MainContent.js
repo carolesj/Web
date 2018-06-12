@@ -21,6 +21,7 @@ import CustomerServiceContainer from "./CustomerServiceContainer"
 import CustomerShopContainer from "./CustomerShopContainer"
 import { PetShopProductList, PetShopServiceList } from "./PetShopCardViews"
 import SupervisorShopContainer from "./SupervisorShopContainer"
+import SupervisorServiceContainer from "./SupervisorServiceContainer"
 
 // TODO AAAAAALLL THIS NEEDS TO BEGONE FROM HERE!!!
 const styles = theme => ({
@@ -292,9 +293,7 @@ class MainContent extends React.Component {
             case "customer":
                 return <CustomerServiceContainer />
             case "supervisor":
-                // TODO HERE
-                return <CommonServiceViewBehavior classes={this.props.classes} siteData={this.props.siteData}
-                    onToggleDialog={(open) => this.handleToggleDialog(open)} />
+                return <SupervisorServiceContainer />
             default:
                 return <PetShopServiceList
                     serviceArray={this.props.siteData.services}

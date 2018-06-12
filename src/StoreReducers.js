@@ -68,7 +68,7 @@ let initialState = {
                 { id: 2, serviceId: 1, serviceName: "Cortar Unha", animalId: 9, animalName: "Fofinho", date: moment(new Date("08/06/2018 14:00:00 GMT-3")), status: "pending", message: "" },
                 { id: 3, serviceId: 3, serviceName: "Tosa", animalId: 0, animalName: "Felicloper", date: moment(new Date("06/04/2018 14:00:00 GMT-3")), status: "revoked", message: "Requisição negada: emergência de plantão (nenhum doutor disponivel)" },
                 { id: 4, serviceId: 3, serviceName: "Tosa", animalId: 0, animalName: "Felicloper", date: moment(new Date("06/09/2018 14:00:00 GMT-3")), status: "revoked", message: "Requisição negada: nenhum horário indisponível" },
-                { id: 1, serviceId: 0, serviceName: "Banho", animalId: 5, animalName: "Nerso", date: moment(new Date("06/28/2019 14:00:00 GMT-3")), status: "approved", message: "Aprovado pelo supervisor (sujeito à mudanças)" },
+                { id: 5, serviceId: 0, serviceName: "Banho", animalId: 5, animalName: "Nerso", date: moment(new Date("06/28/2019 14:00:00 GMT-3")), status: "approved", message: "Aprovado pelo supervisor (sujeito à mudanças)" },
                 /*
                     status:
                         - pending: not yet processed

@@ -230,10 +230,13 @@ const PetShopAppointmentList = withStyles(styles)(props => {
         // Find corresponding item in siteData
         let itemInfo = props.animalArray.find(pet => pet.id === item.animalId)
         // Reassign object in original array
-        return Object.assign({}, item, {
-            media: itemInfo.media,
-            localMedia: itemInfo.localMedia
-        })
+        if (typeof(itemInfo) !== "undefined") {
+            return Object.assign({}, item, {
+                media: itemInfo.media,
+                localMedia: itemInfo.localMedia
+            })
+        }
+        return item
     })
 
     return (
