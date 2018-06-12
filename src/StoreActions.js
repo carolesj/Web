@@ -38,8 +38,8 @@ export const CustomerActions = {
 export const SupervisorActions = {
     // User control
     USERCTL_ADD: "USERCTL_ADD",
+    USERCTL_EDIT: "USERCTL_EDIT",
     USERCTL_REMOVE: "USERCTL_REMOVE",
-    USERCTL_CHANGE_RIGHTS: "USERCTL_CHANGE_RIGHTS",
 
     // Stock control
     STOCKCTL_ADD: "STOCKCTL_ADD",
@@ -164,31 +164,27 @@ export function removeAppointment(userEmail, appointData) {
 /*
    Supervisor action creators
  */
-//---------------------------------------
-// TODO adminData might not be necessary
-export function addUser(adminData, userData) {
+export function addUser(userData) {
     return {
         type: SupervisorActions.USERCTL_ADD,
-        payload: { adminData, userData }
+        payload: { userData }
     }
 }
 
-// TODO adminData might not be necessary
-export function removeUser(adminData, userData) {
-    return {
-        type: SupervisorActions.USERCTL_REMOVE,
-        payload: { adminData, userData }
-    }
-}
-
-// TODO adminData might not be necessary
-export function changeUserRights(adminData, userData) {
+export function editUser(userData) {
     return {
         type: SupervisorActions.USERCTL_EDIT,
-        payload: { adminData, userData }
+        payload: { userData }
     }
 }
-//---------------------------------------
+
+export function removeUser(userData) {
+    return {
+        type: SupervisorActions.USERCTL_REMOVE,
+        payload: { userData }
+    }
+}
+
 
 
 export function addProduct(itemData) {
@@ -213,7 +209,8 @@ export function removeProduct(itemData) {
     }
 }
 
-//---------------------------------------
+
+
 export function sudoEditAppointment(userEmail, appointData) {
     return {
         type: SupervisorActions.SERVICECTL_EDIT,
@@ -227,7 +224,8 @@ export function sudoRemoveAppointment(userEmail, appointData) {
         payload: { userEmail, appointData }
     }
 }
-//---------------------------------------
+
+
 
 export function addService(serviceData) {
     return {

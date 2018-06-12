@@ -141,7 +141,7 @@ class UACDialog extends React.Component {
         if (stagePassword.length < 6) {
             this.setState({
                 errorStatus: true,
-                errorText: "A senha deve ter no minimo 6 caracteres!"
+                errorText: "A senha deve ter no minimo 6 caracteres"
             })
         } else if (stagePassword !== stagePasswordConf) {
             this.setState({

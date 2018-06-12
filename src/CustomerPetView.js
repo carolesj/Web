@@ -7,18 +7,21 @@ function CustomerPetView(props) {
     // current user's pet information (at this point it WILL EXIST)
     const userPetArray = props.customerData.find(cust => (cust.email === props.currentUserEmail)).animals
 
-    return ((userPetArray.length > 0) ? 
-        <PetShopPetList
-            animalArray={userPetArray}
-            currentUserRights={"customer"} // Encapsulated in this module
-            onLaunchDialog={(open, mode) => props.onLaunchDialog(open, mode)}
-            onSetSelected={(id) => props.onSetSelected(id)}
-        />
-        :
+    return (
+        <div>
+            <PetShopPetList
+                animalArray={userPetArray}
+                currentUserRights={"customer"} // Encapsulated in this module
+                onLaunchDialog={(open, mode) => props.onLaunchDialog(open, mode)}
+                onSetSelected={(id) => props.onSetSelected(id)}
+            />
+            {(userPetArray.length === 0) &&
         <Typography variant="title" align="center" color="primary">
             <br />
             Você não possui pets cadastrados :(
         </Typography>
+            }
+        </div>
     )
 }
 

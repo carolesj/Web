@@ -22,6 +22,7 @@ import CustomerShopContainer from "./CustomerShopContainer"
 import { PetShopProductList, PetShopServiceList } from "./PetShopCardViews"
 import SupervisorShopContainer from "./SupervisorShopContainer"
 import SupervisorServiceContainer from "./SupervisorServiceContainer"
+import SupervisorUserContainer from "./SupervisorUserContainer";
 
 // TODO AAAAAALLL THIS NEEDS TO BEGONE FROM HERE!!!
 const styles = theme => ({
@@ -106,7 +107,7 @@ function CommonHomeScreenBehavior(props) {
             <Card className={classes.maxCard}>
                 <CardMedia
                     className={classes.maxMedia}
-                    image={require("./media/tasteTheCommunism.png")}
+                    image={require("./media/bannerHome.png")}
                     title="Seu melhor amigo"
                 />
             </Card>
@@ -307,8 +308,7 @@ class MainContent extends React.Component {
             return <CustomerPetContainer />
         
         case "users":
-            // TODO HERE
-            return null
+            return <SupervisorUserContainer />
 
         case "shoppingCart":
             return <CustomerShopContainer />

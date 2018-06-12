@@ -40,7 +40,15 @@ let initialState = {
     },
 
     // Customer specific
+    // {name, email, animals, appointments, shoppingCart}
     CustomerData: [
+        {
+            name: "Administrador Exemplo",
+            email: "admin@example.com",
+            animals: [],
+            appointments: [],
+            shoppingCart: []
+        },
         {
             // Personal data
             name: "Cliente Exemplo",
@@ -421,8 +429,6 @@ function petShopApp(state, action) {
             })
         })
 
-    // TODO TEST THIS
-    // service: {id, name, description, media (relative to src folder), localMedia (is media locally imported by webpack?), available}
     case SupervisorActions.SERVICECTL_REG_ADD:
         return Object.assign({}, state, {
             SiteData: Object.assign({}, state.SiteData, {
@@ -441,7 +447,6 @@ function petShopApp(state, action) {
             })
         })
 
-    // TODO TEST THIS
     case SupervisorActions.SERVICECTL_REG_EDIT:
         return Object.assign({}, state, {
             SiteData: Object.assign({}, state.SiteData, {
@@ -462,7 +467,6 @@ function petShopApp(state, action) {
             })
         })
 
-    // TODO TEST THIS
     case SupervisorActions.SERVICECTL_REG_REMOVE:
         return Object.assign({}, state, {
             SiteData: Object.assign({}, state.SiteData, {
@@ -514,7 +518,66 @@ function petShopApp(state, action) {
             })
         })
 
-    // TODO ADDITIONAL REDUCERS
+    // UACData: {email, password (as plain text, no need to be serious here), rights (as in usage rights)}
+    // CustomerData: {name, email, animals, appointments, shoppingCart}
+    // TODO TEST THIS
+    case SupervisorActions.USERCTL_ADD:
+        return Object.assign({}, state, {
+            UACData: [
+                ...state.UACData,
+                {
+                    email: action.payload.userData.email,
+                    rights: action.payload.userData.rights,
+                    password: action.payload.userData.password,
+                }
+            ],
+            CustomerData: [
+                ...state.CustomerData,
+                {
+                    name: action.payload.userData.name,
+                    email: action.payload.userData.email,
+                    animals: [],
+                    appointments: [],
+                    shoppingCart: [],
+                }
+            ]
+        })
+
+    // TODO TEST THIS
+    case SupervisorActions.USERCTL_EDIT:
+        return Object.assign({}, state, {
+            UACData: state.UACData.map(user => {
+                if (user.email === action.payload.userData.emailToBeReplaced) {
+                    return Object.assign({}, user, {
+                        email: action.payload.userData.email,
+                        rights: action.payload.userData.rights,
+                    })
+                }
+                // Otherwise keep old state
+                return user
+            }),
+            CustomerData: state.CustomerData.map(customer => {
+                if (customer.email === action.payload.userData.emailToBeReplaced) {
+                    return Object.assign({}, customer, {
+                        name: action.payload.userData.name,
+                        email: action.payload.userData.email,
+                    })
+                }
+                // Otherwise keep old state
+                return customer
+            })
+        })
+
+    // TODO TEST THIS
+    case SupervisorActions.USERCTL_REMOVE:
+        return Object.assign({}, state, {
+            UACData: state.UACData.filter(user => {
+                return (user.email !== action.payload.userData.email)
+            }),
+            CustomerData: state.CustomerData.map(customer => {
+                return (customer.email !== action.payload.userData.email)
+            })
+        })
 
     default:
         return state

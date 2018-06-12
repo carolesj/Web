@@ -448,7 +448,7 @@ PetShopUserList.propTypes = {
     ).isRequired,
     customerData: PropTypes.arrayOf(
         PropTypes.shape({
-            name: PropTypes.number.isRequired,
+            name: PropTypes.string.isRequired,
             email: PropTypes.string.isRequired,
             animals: PropTypes.arrayOf(PropTypes.object),
             appointments: PropTypes.arrayOf(PropTypes.object),
