@@ -7,6 +7,7 @@ import { PropTypes } from "prop-types"
 import React from "react"
 import PetShopResponsiveDialog from "./PetShopResponsiveDialog"
 
+
 const styles = theme => ({
     // visuals
     button: {
@@ -55,6 +56,7 @@ class SupervisorUserControl extends React.Component {
             userPassword: "",
             userPasswordConfirm: "",
             userWantsAdminRights: false,
+            checkedUserRemoval: false,
         }
     }
 
@@ -63,7 +65,7 @@ class SupervisorUserControl extends React.Component {
         LOCAL UI STATE CONTROLLERS
      */
     handleChangeFieldValue(prop) {
-        if (prop === "userWantsAdminRights") {
+        if (prop === "userWantsAdminRights" || prop === "checkedUserRemoval") {
             return event => { this.setState({ [prop]: event.target.checked }) }
         } else {
             return event => { this.setState({ [prop]: event.target.value }) }
@@ -82,6 +84,7 @@ class SupervisorUserControl extends React.Component {
             userPassword: "",
             userPasswordConfirm: "",
             userWantsAdminRights: false,
+            checkedUserRemoval: false,
         })
         this.props.onLaunchDialog(false)
     }
@@ -170,6 +173,7 @@ class SupervisorUserControl extends React.Component {
     }
 
     handleRemoveUser() {
+        // Dispatch remove user action
         this.props.onConfirmRemoveUser({
             email: this.props.selectedEmail,
         })
@@ -194,22 +198,31 @@ class SupervisorUserControl extends React.Component {
         if (typeof (userData) === "undefined" && this.props.dialogMode !== "add")
             return null
 
-        // Dialog UI for removing an existing pet
+        // Dialog UI for removing an existing user
         if (this.props.dialogMode === "remove") {
-            dialogTitle = "Remover Cadastro do Pet"
+            dialogTitle = "Remover Cadastro do Usuário"
 
             dialogContent = (
-                <DialogContentText align="center">
-                    {"Tem certeza que deseja remover o usuário " + userData.name + "?"}
+                <div>
+                    <DialogContentText align="center">
+                        {"Tem certeza que deseja remover o usuário " + userData.name + "?"}
+                        <br />
+                        {"Ele será permanentemente excluído de nossos registros."}
+                    </DialogContentText>
                     <br />
-                    {"Ele será permanentemente excluído de nossos registros."}
-                </DialogContentText>
+                    <FormControlLabel
+                        control={<Checkbox checked={this.state.checkedUserRemoval}
+                            onChange={this.handleChangeFieldValue("checkedUserRemoval")}
+                            color="secondary" />}
+                        label="Tenho noção de que o usuário será permanentemente removido dos registros"
+                    />
+                </div>
             )
 
             dialogActions = (
                 <div>
                     <Button onClick={() => this.handleRemoveUser()} color="secondary"
-                        disabled={!this.state.checkedPetRemoval}
+                        disabled={!this.state.checkedUserRemoval}
                     >
                         Confirmar
                     </Button>
@@ -220,7 +233,7 @@ class SupervisorUserControl extends React.Component {
             )
 
 
-            // Dialog UI for adding a new pet or editing an existing one
+        // Dialog UI for adding a new user or editing an existing one
         } else {
             dialogTitle = (this.props.dialogMode === "add") ? "Cadastrar Novo Usuário" : "Editar Dados do Usuário"
 
@@ -294,7 +307,6 @@ class SupervisorUserControl extends React.Component {
                     </Button>
                     <Button
                         color="primary"
-                        disabled={this.state.willUploadImage}
                         onClick={this.props.dialogMode === "add" ?
                             () => this.handleAddUser()
                             :

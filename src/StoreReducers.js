@@ -26,7 +26,7 @@ let initialState = {
             { id: 1, name: "Bola de Tênis", description: "Bola verde que quica", price: 10.0, media: "./media/product2.jpg", localMedia: true, amount: 1000 },
             { id: 2, name: "Coleira", description: "Coleira de couro sintético", price: 10.0, media: "./media/product3.jpg", localMedia: true, amount: 1000 },
             { id: 3, name: "Erva de Gato", description: "Erva recreativa ressequida para gatos", price: 10.0, media: "./media/product4.jpg", localMedia: true, amount: 0 },
-            { id: 4, name: "Guia", description: "Guia para coleiras padrão", price: 10.0, media: "./media/product5.JPG", localMedia: true, amount: 1000 },
+            { id: 4, name: "Guia", description: "Guia para coleiras padrão", price: 10.0, media: "./media/product5.jpg", localMedia: true, amount: 1000 },
             { id: 5, name: "Petisco de Gato", description: "Deliciosos agrados de qualidade para gatos", price: 10.0, media: "./media/product6.jpg", localMedia: true, amount: 1000 },
             { id: 6, name: "Ração", description: "Ração de primeira qualidade", price: 10.0, media: "./media/product7.jpg", localMedia: true, amount: 1000 }
         ],

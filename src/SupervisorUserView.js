@@ -7,6 +7,7 @@ function SupervisorUserView(props) {
         <PetShopUserList
             UACData={props.UACData}
             customerData={props.customerData}
+            currentUserEmail={props.currentUserEmail}
             onLaunchDialog={(open, mode) => props.onLaunchDialog(open, mode)}
             onSetSelected={(email) => props.onSetSelected(email)}
         />
@@ -31,6 +32,7 @@ SupervisorUserView.propTypes = {
             shoppingCart: PropTypes.arrayOf(PropTypes.object).isRequired
         })
     ).isRequired,
+    currentUserEmail: PropTypes.string.isRequired,
 
     // inherited actions (SUPPLY THESE)
     onSetSelected: PropTypes.func.isRequired,

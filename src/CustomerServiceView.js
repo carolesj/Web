@@ -19,7 +19,7 @@ function CustomerServiceView(props) {
             onSetSelected={(id) => props.onSetSelected(id)}
         />
         :
-        (currentUserData.appointments.length > 0) ?
+        <div>
             <PetShopAppointmentList
                 animalArray={currentUserData.animals}
                 appointmentArray={currentUserData.appointments}
@@ -29,11 +29,13 @@ function CustomerServiceView(props) {
                 onLaunchDialog={(open, mode) => props.onLaunchDialog(open, mode)}
                 onSetSelected={(id) => props.onSetSelected(id)}
             />
-            :
+            {(currentUserData.appointments.length === 0) &&
             <Typography variant="title" align="center" color="primary">
                 <br />
                 Você não possui agendamentos no momento :(
             </Typography>
+            }
+        </div>
     )
 }
 

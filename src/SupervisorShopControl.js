@@ -9,6 +9,7 @@ import { PropTypes } from "prop-types"
 import React from "react"
 import PetShopResponsiveDialog from "./PetShopResponsiveDialog"
 
+
 const styles = theme => ({
     // visuals
     container: {
@@ -103,8 +104,11 @@ class SupervisorShopControl extends React.Component {
 
     handleCloseDialog() {
         this.setState({
+            // error
             errorStatus: false,
             errorMessage: "",
+
+            // state
             itemNameValue: "",
             itemPriceValue: "",
             itemAmountValue: "",
@@ -227,6 +231,7 @@ class SupervisorShopControl extends React.Component {
     }
 
     handleClickRemoveItem() {
+        // DISPATCH ACTION
         this.props.onConfirmStockRemoveItem({
             id: this.props.selectedId,
         })

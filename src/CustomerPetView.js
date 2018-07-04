@@ -16,10 +16,10 @@ function CustomerPetView(props) {
                 onSetSelected={(id) => props.onSetSelected(id)}
             />
             {(userPetArray.length === 0) &&
-        <Typography variant="title" align="center" color="primary">
-            <br />
-            Você não possui pets cadastrados :(
-        </Typography>
+            <Typography variant="title" align="center" color="primary">
+                <br />
+                Você não possui pets cadastrados :(
+            </Typography>
             }
         </div>
     )

@@ -9,6 +9,7 @@ import { PropTypes } from "prop-types"
 import React from "react"
 import PetShopResponsiveDialog from "./PetShopResponsiveDialog"
 
+
 const styles = theme => ({
     // visuals
     container: {
@@ -57,6 +58,7 @@ class SupervisorShopControl extends React.Component {
             serviceDescriptionValue: "",
             checkedServiceAvailable: true,
 
+            // Service image state
             willUploadImage: false,
             didUploadImage: false,
             imageAsURL: null,
@@ -103,8 +105,11 @@ class SupervisorShopControl extends React.Component {
 
     handleCloseDialog() {
         this.setState({
+            // error
             errorStatus: false,
             errorMessage: "",
+
+            // state
             serviceNameValue: "",
             serviceDescriptionValue: "",
             checkedServiceAvailable: true,
@@ -188,6 +193,7 @@ class SupervisorShopControl extends React.Component {
     }
 
     handleRemoveService() {
+        // DISPATCH ACTION
         this.props.onConfirmRemoveService({
             id: this.props.selectedId,
         })

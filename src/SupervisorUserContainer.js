@@ -32,6 +32,7 @@ class SupervisorUserContainer extends React.Component {
         const {
             UACData,
             customerData,
+            currentUserEmail,
             handleConfirmAddUser,
             handleConfirmEditUser,
             handleConfirmRemoveUser,
@@ -43,6 +44,7 @@ class SupervisorUserContainer extends React.Component {
                 <SupervisorUserView
                     UACData={UACData}
                     customerData={customerData}
+                    currentUserEmail={currentUserEmail}
                     onSetSelected={(email) => this.handleSetSelected(email)}
                     onLaunchDialog={(open, mode) => this.handleLaunchDialog(open, mode)}
                 />
@@ -80,6 +82,7 @@ SupervisorUserContainer.propTypes = {
             shoppingCart: PropTypes.arrayOf(PropTypes.object).isRequired
         })
     ).isRequired,
+    currentUserEmail: PropTypes.string.isRequired,
 
     // store actions
     handleConfirmAddUser: PropTypes.func.isRequired,
@@ -92,6 +95,7 @@ function mapStateToProps(state) {
     return {
         UACData: state.UACData,
         customerData: state.CustomerData,
+        currentUserEmail: state.currentUserEmail,
     }
 }
 

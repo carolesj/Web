@@ -183,6 +183,14 @@ PetShopShoppingCart.propTypes = {
     classes: PropTypes.object,
 
     // inherited state (SUPPLY THESE)
+    cartItemArray: PropTypes.arrayOf(
+        PropTypes.shape({
+            itemId: PropTypes.number.isRequired,
+            itemName: PropTypes.string.isRequired,
+            itemPrice: PropTypes.number.isRequired,
+            itemAmount: PropTypes.number.isRequired,
+        })
+    ).isRequired,
     productArray: PropTypes.arrayOf(
         PropTypes.shape({
             id: PropTypes.number.isRequired,
@@ -192,14 +200,6 @@ PetShopShoppingCart.propTypes = {
             price: PropTypes.number.isRequired,
             media: PropTypes.string.isRequired,
             localMedia: PropTypes.bool.isRequired,
-        })
-    ).isRequired,
-    cartItemArray: PropTypes.arrayOf(
-        PropTypes.shape({
-            itemId: PropTypes.number.isRequired,
-            itemName: PropTypes.string.isRequired,
-            itemPrice: PropTypes.number.isRequired,
-            itemAmount: PropTypes.number.isRequired,
         })
     ).isRequired,
 
@@ -397,20 +397,22 @@ const PetShopUserList = withStyles(styles)(props => {
                     </TableHead>
                     <TableBody>
                         {fullCustomerInfo.map((customer, index) => {
+                            const isMe = (customer.email === props.currentUserEmail)
+                            const isMeString = isMe ? " (você)" : ""
                             return (
                                 <TableRow className={props.classes.row} key={index}>
                                     <CustomTableCell component="th" scope="row">
-                                        {customer.name}
+                                        {customer.name + isMeString}
                                     </CustomTableCell>
                                     <CustomTableCell numeric>{customer.email}</CustomTableCell>
                                     <CustomTableCell numeric>{customer.rights}</CustomTableCell>
                                     <CustomTableCell numeric>
-                                        <Button color="primary" className={props.classes.tButton}
+                                        <Button color="primary" className={props.classes.tButton} disabled={isMe}
                                             onClick={() => { props.onSetSelected(customer.email); props.onLaunchDialog(true, "edit") }}
                                         >
                                             Editar
                                         </Button>
-                                        <Button color="secondary" className={props.classes.tButton}
+                                        <Button color="secondary" className={props.classes.tButton} disabled={isMe}
                                             onClick={() => { props.onSetSelected(customer.email); props.onLaunchDialog(true, "remove") }}
                                         >
                                             Remover
@@ -457,6 +459,7 @@ PetShopUserList.propTypes = {
     ).isRequired,
 
     // inherited actions (SUPPLY THESE)
+    currentUserEmail: PropTypes.string.isRequired, // TODO Pass this
     onLaunchDialog: PropTypes.func.isRequired,
     onSetSelected: PropTypes.func.isRequired, // <<<<<<<< SETS A STRING, NOT A NUMBER!!!! >>>>>>>>
 }

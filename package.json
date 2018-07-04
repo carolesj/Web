@@ -3,16 +3,17 @@
   "version": "0.1.0",
   "private": true,
   "homepage": "https://dnery.github.io/pet-shop-app",
+  "description": "Front-end stack for the pet-shop project",
   "dependencies": {
-    "@material-ui/core": "^1.2.1",
+    "@material-ui/core": "^1.3.1",
     "@material-ui/icons": "^1.1.0",
     "gh-pages": "^1.2.0",
-    "material-ui-pickers": "^1.0.0-rc.9",
+    "material-ui-pickers": "^1.0.0-rc.11",
     "moment": "^2.22.2",
-    "moment-timezone": "^0.5.17",
-    "prop-types": "^15.6.1",
-    "react": "^16.4.0",
-    "react-dom": "^16.4.0",
+    "moment-timezone": "^0.5.21",
+    "prop-types": "^15.6.2",
+    "react": "^16.4.1",
+    "react-dom": "^16.4.1",
     "react-redux": "^5.0.7",
     "react-scripts": "1.1.4",
     "redux": "^4.0.0"
@@ -27,7 +28,7 @@
   },
   "devDependencies": {
     "eslint": "^4.19.1",
-    "eslint-plugin-react": "^7.9.1",
+    "eslint-plugin-react": "^7.10.0",
     "eslint-plugin-react-redux": "^2.3.0",
     "redux-devtools": "^3.4.1"
   }

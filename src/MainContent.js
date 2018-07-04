@@ -22,7 +22,7 @@ import CustomerShopContainer from "./CustomerShopContainer"
 import { PetShopProductList, PetShopServiceList } from "./PetShopCardViews"
 import SupervisorShopContainer from "./SupervisorShopContainer"
 import SupervisorServiceContainer from "./SupervisorServiceContainer"
-import SupervisorUserContainer from "./SupervisorUserContainer";
+import SupervisorUserContainer from "./SupervisorUserContainer"
 
 // TODO AAAAAALLL THIS NEEDS TO BEGONE FROM HERE!!!
 const styles = theme => ({
