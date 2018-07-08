@@ -1,28 +1,34 @@
 import { Checkbox, FormControlLabel } from "@material-ui/core"
 import Button from "@material-ui/core/Button"
-import Dialog from "@material-ui/core/Dialog"
-import DialogActions from "@material-ui/core/DialogActions"
 import DialogContent from "@material-ui/core/DialogContent"
 import DialogContentText from "@material-ui/core/DialogContentText"
-import DialogTitle from "@material-ui/core/DialogTitle"
 import TextField from "@material-ui/core/TextField"
+import Axios from "axios"
 import PropTypes from "prop-types"
 import React from "react"
 import { connect } from "react-redux"
+import PetShopResponsiveDialog from "./PetShopResponsiveDialog"
 import { logUserOut, signUserIn, signUserUp } from "./StoreActions"
+import Root from "./remote"
 
 class UACDialog extends React.Component {
     constructor(props) {
         super(props)
 
         this.state = {
+            // error
             errorText: "",
             errorStatus: false,
+
+            // form
             userNameFieldValue: "",
             userEmailFieldValue: "",
             userPasswordFieldValue: "",
             userPasswordConfFieldValue: "",
             userWantsAdminChecked: false,
+
+            // remote
+            doingRemoteRequest: false,
         }
     }
 
@@ -69,7 +75,7 @@ class UACDialog extends React.Component {
             errorStatus: false,
         })
         // Just change mode to "signin"
-        this.props.toggleDialog(this.props.open, "signin")
+        this.props.toggleDialog(this.props.dialogOpen, "signin")
     }
 
     handleSwitchToSignup() {
@@ -77,19 +83,21 @@ class UACDialog extends React.Component {
             errorStatus: false,
         })
         // Just change mode to "signup"
-        this.props.toggleDialog(this.props.open, "signup")
+        this.props.toggleDialog(this.props.dialogOpen, "signup")
     }
 
     handleCloseDialog() {
         this.setState({
+            errorText: "",
             errorStatus: false,
             userEmailFieldValue: "",
             userPasswordFieldValue: "",
             userPasswordConfFieldValue: "",
             userWantsAdminChecked: false,
+            doingRemoteRequest: false,
         })
         // Just set the "dialogOpen" state to false
-        this.props.toggleDialog(false, this.props.mode)
+        this.props.toggleDialog(false, this.props.dialogMode)
     }
 
     /*
@@ -102,33 +110,48 @@ class UACDialog extends React.Component {
         to sateToProps and dispatchToProps mappers.
      */
     handleSigninRequest() {
-        let stageEmail = this.state.userEmailFieldValue
-        let stagePassword = this.state.userPasswordFieldValue
-
-        // """authenticate"""
-        let authorization = "visitor"
-        for (const user of this.props.UACData) {
-            if (user.email === stageEmail && user.password === stagePassword) {
-                authorization = user.rights
+        // Remotely request access
+        this.setState({
+            doingRemoteRequest: true,
+        })
+        const requestData = {
+            user: this.state.userEmailFieldValue,
+            pass: this.state.userPasswordFieldValue
+        }
+        const requestConfig = {
+            // responseType is already application/json
+            headers: {
+                "Content-Type": "application/json"
             }
         }
 
-        if (authorization !== "visitor") {
-            // Dispatch user sign in action
-            this.props.onSigninClick({
-                nextView: "home",
-                userEmail: stageEmail,
-                userRights: authorization,
-            })
+        Axios.post(Root + "/UAC", requestData, requestConfig)
+            .then(response => {  // Request succeeded
+                // User was logged in
+                if (response.data.ok) {
+                    this.props.onSigninClick({
+                        nextView: "home",
+                        userEmail: response.data.email,
+                        userRights: response.data.rights,
+                    })
+                    this.handleCloseDialog()
 
-            // Close dialog on success
-            this.handleCloseDialog()
-        } else {
-            this.setState({
-                errorStatus: true,
-                errorText: "Endereço de e-mail não cadastrado"
+                    // User was rejected
+                } else {
+                    this.setState({
+                        errorText: response.data.error,
+                        errorStatus: true,
+                        doingRemoteRequest: false,
+                    })
+                }
             })
-        }
+            .catch(error => { // Request failed
+                this.setState({
+                    errorText: error.message,
+                    errorStatus: true,
+                    doingRemoteRequest: false,
+                })
+            })
     }
 
     handleSignupRequest() {
@@ -138,34 +161,73 @@ class UACDialog extends React.Component {
         let stagePasswordConf = this.state.userPasswordConfFieldValue
         let validateEmail = (/^([A-Za-z0-9_\-.])+@([A-Za-z0-9_\-.])+\.([A-Za-z]{2,4})$/).test(stageEmail)
 
-        if (stagePassword.length < 6) {
+        // Do client-side checks
+        if (stagePassword.length < 4) {
             this.setState({
                 errorStatus: true,
-                errorText: "A senha deve ter no minimo 6 caracteres"
+                errorText: "A senha deve ter no minimo 4 caracteres"
             })
-        } else if (stagePassword !== stagePasswordConf) {
+            return
+        }
+        if (stagePassword !== stagePasswordConf) {
             this.setState({
                 errorStatus: true,
                 errorText: "A senha de confirmação difere da original"
             })
-        } else if (validateEmail === false) {
+            return
+        }
+        if (validateEmail === false) {
             this.setState({
                 errorStatus: true,
                 errorText: "Por favor forneça um e-mail válido"
             })
-        } else {
-            // Dispatch user sign up action
-            this.props.onSignupClick({
-                nextView: "home",
-                userName: stageName,
-                userEmail: stageEmail,
-                userRights: "customer",
-                userPassword: stagePassword,
-            })
-
-            // Pass control and log in
-            this.handleCloseDialog()
+            return
         }
+
+        // Remotely request signup
+        this.setState({
+            doingRemoteRequest: true,
+        })
+        const requestData = {
+            name: stageName,
+            user: stageEmail,
+            pass: stagePassword
+        }
+        const requestConfig = {
+            // responseType is already application/json
+            headers: {
+                "Content-Type": "application/json",
+                "Access-Control-Allow-Origin": "*"
+            }
+        }
+
+        Axios.put(Root + "/UAC", requestData, requestConfig)
+            .then(response => {
+                if (response.data.ok) {
+                    // User was signed up
+                    this.props.onSignupClick({
+                        nextView: "home",
+                        userName: response.data.name,
+                        userEmail: response.data.email,
+                        userRights: response.data.rights,
+                    })
+                    this.handleCloseDialog()
+                    // User was rejected
+                } else {
+                    this.setState({
+                        errorText: response.data.error,
+                        errorStatus: true,
+                        doingRemoteRequest: false,
+                    })
+                }
+            })
+            .catch(error => {
+                this.setState({
+                    errorText: error.message,
+                    errorStatus: true,
+                    doingRemoteRequest: false,
+                })
+            })
     }
 
     handleLogoutRequest() {
@@ -181,9 +243,9 @@ class UACDialog extends React.Component {
     }
 
     render() {
-        let wantsSignin = (this.props.mode === "signin")
-        let wantsSignup = (this.props.mode === "signup")
-        let wantsLogout = (this.props.mode === "logout")
+        let wantsSignin = (this.props.dialogMode === "signin")
+        let wantsSignup = (this.props.dialogMode === "signup")
+        let wantsLogout = (this.props.dialogMode === "logout")
         let wantsAdmin = this.state.userWantsAdminChecked ? true : false
 
         let dialogTitle = null
@@ -223,9 +285,16 @@ class UACDialog extends React.Component {
             )
 
             dialogActions = (
-                <Button onClick={() => this.handleSigninRequest()} color="primary">
+                <div>
+                    <Button onClick={() => this.handleCloseDialog()} color="primary">
+                        Cancelar
+                    </Button>
+                    <Button disabled={this.state.doingRemoteRequest}
+                        onClick={() => this.handleSigninRequest()} color="primary"
+                    >
                     Submeter
-                </Button>
+                    </Button>
+                </div>
             )
 
         } else if (wantsSignup) {
@@ -287,9 +356,16 @@ class UACDialog extends React.Component {
             )
 
             dialogActions = (
-                <Button onClick={() => this.handleSignupRequest()} color="primary">
-                    Submeter
-                </Button>
+                <div>
+                    <Button onClick={() => this.handleCloseDialog()} color="primary">
+                        Cancelar
+                    </Button>
+                    <Button disabled={this.state.doingRemoteRequest}
+                        onClick={() => this.handleSignupRequest()} color="primary"
+                    >
+                        Submeter
+                    </Button>
+                </div>
             )
 
         } else if (wantsLogout) {
@@ -304,9 +380,14 @@ class UACDialog extends React.Component {
             )
 
             dialogActions = (
-                <Button onClick={() => this.handleLogoutRequest()} color="primary">
-                    Sair
-                </Button>
+                <div>
+                    <Button onClick={() => this.handleCloseDialog()} color="primary">
+                        Cancelar
+                    </Button>
+                    <Button onClick={() => this.handleLogoutRequest()} color="primary">
+                        Sair
+                    </Button>
+                </div>
             )
         }
 
@@ -338,53 +419,29 @@ class UACDialog extends React.Component {
             https://medium.com/@cowi4030/optimizing-conditional-rendering-in-react-3fee6b197a20
          */
         return (
-            <div>
-                <Dialog open={this.props.open} aria-labelledby="form-dialog-title"
-                    onClose={() => this.handleCloseDialog()}>
-
-                    {/* Only the text changes */}
-                    <DialogTitle id="form-dialog-title">
-                        {dialogTitle}
-                    </DialogTitle>
-
-                    {dialogContent}
-
-                    {/* Depends only on errorStatus */}
-                    {this.state.errorStatus && <DialogContent>
-                        <DialogContentText align="center" color="secondary">
-                            {this.state.errorText}
-                        </DialogContentText>
-                    </DialogContent>}
-
-                    {/* Only main action changes */}
-                    <DialogActions>
-                        <Button onClick={() => this.handleCloseDialog()} color="primary">
-                            Cancelar
-                        </Button>
-                        {dialogActions}
-                    </DialogActions>
-                </Dialog>
-            </div>
+            <PetShopResponsiveDialog
+                isOpen={this.props.dialogOpen}
+                onClose={() => this.handleCloseDialog()}
+                ariaLabel="user-account-control-dialog"
+                dialogTitle={dialogTitle}
+                dialogContent={dialogContent}
+                dialogActions={dialogActions}
+                errorStatus={this.state.errorStatus}
+                errorText={this.state.errorText}
+            />
         )
     }
 }
 
 UACDialog.propTypes = {
     // From parent
-    open: PropTypes.bool.isRequired,
-    mode: PropTypes.string.isRequired,
+    dialogOpen: PropTypes.bool.isRequired,
+    dialogMode: PropTypes.string.isRequired,
     toggleDialog: PropTypes.func.isRequired,
 
     // From store state
     userLoggedIn: PropTypes.bool.isRequired,
     userRights: PropTypes.string.isRequired,
-    UACData: PropTypes.arrayOf(
-        PropTypes.shape({
-            email: PropTypes.string.isRequired,
-            password: PropTypes.string.isRequired,
-            rights: PropTypes.string.isRequired
-        })
-    ).isRequired,
 
     // From store actions
     onSigninClick: PropTypes.func.isRequired,
@@ -394,9 +451,8 @@ UACDialog.propTypes = {
 
 function mapStateToProps(state) {
     return {
-        userLoggedIn: state.currentUserLoggedIn,
         userRights: state.currentUserRights,
-        UACData: state.UACData,
+        userLoggedIn: state.currentUserLoggedIn,
     }
 }
 

@@ -4,19 +4,13 @@ import { CommonActions, CustomerActions, SupervisorActions } from "./StoreAction
 import moment from "moment"
 
 let initialState = {
+    synced: false,                  // Up to data with server
+
     // Current user
     currentUserView: "home",        // Any user starts at home page
     currentUserEmail: "none",       // No sense in tracking a visitors e-mail
     currentUserRights: "visitor",   // Any user starts browsing as a visitor
     currentUserLoggedIn: false,     // Any user starts as not logged in
-
-    // Credentials
-    UACData: [
-        // {email, password (as plain text, no need to be serious here), rights (as in usage rights)}
-        { email: "user@example.com", password: "user", rights: "customer" },
-        { email: "admin@example.com", password: "admin", rights: "supervisor" },
-        // email IS PRIMARY KEY ALWAYS
-    ],
 
     // Static site
     SiteData: {
@@ -40,7 +34,6 @@ let initialState = {
     },
 
     // Customer specific
-    // {name, email, animals, appointments, shoppingCart}
     CustomerData: [
         {
             name: "Administrador Exemplo",
@@ -52,11 +45,10 @@ let initialState = {
         {
             // Personal data
             name: "Cliente Exemplo",
-            email: "user@example.com", // Primary identifier
+            email: "user@example.com",
 
             // State trackers
             animals: [
-                // {id, name, race, media (relative to src folder), localMedia (is media locally imported by webpack?)}
                 { id: 0, name: "Felicloper", race: "Bernese", media: "./media/dog1.jpg", localMedia: true },
                 { id: 1, name: "Glauber", race: "McNab", media: "./media/dog2.jpg", localMedia: true },
                 { id: 2, name: "Gustavo", race: "Buldogue", media: "./media/dog3.jpg", localMedia: true },
@@ -68,9 +60,7 @@ let initialState = {
                 { id: 8, name: "Frederico", race: "Siamês", media: "./media/cat1.jpg", localMedia: true },
                 { id: 9, name: "Fofinho", race: "Maine Coon", media: "./media/cat2.jpg", localMedia: true }
             ],
-            // TODO remove this line
             appointments: [
-                // {id, serviceId, serviceName, animalId, animalName, date (as a Date object), status, message}
                 { id: 0, serviceId: 0, serviceName: "Banho", animalId: 6, animalName: "Sabrino", date: moment(new Date("06/06/2018 14:00:00 GMT-3")), status: "pending", message: "" },
                 { id: 1, serviceId: 2, serviceName: "Massagem", animalId: 5, animalName: "Nerso", date: moment(new Date("06/24/2019 14:00:00 GMT-3")), status: "approved", message: "Aprovado pelo supervisor (sujeito à mudanças)" },
                 { id: 2, serviceId: 1, serviceName: "Cortar Unha", animalId: 9, animalName: "Fofinho", date: moment(new Date("08/06/2018 14:00:00 GMT-3")), status: "pending", message: "" },
@@ -86,7 +76,6 @@ let initialState = {
                  */
             ],
             shoppingCart: [
-                // {itemId, itemName, itemPrice, itemAmount}
                 { itemId: 1, itemName: "Bola de Tênis", itemPrice: 10.0, itemAmount: 3 },
                 { itemId: 6, itemName: "Ração", itemPrice: 10.0, itemAmount: 15 },
                 { itemId: 2, itemName: "Coleira", itemPrice: 10.0, itemAmount: 1 },
@@ -119,10 +108,6 @@ function petShopApp(state, action) {
             currentUserEmail: action.payload.userData.userEmail,
             currentUserRights: action.payload.userData.userRights,
             currentUserLoggedIn: true,
-            UACData: [
-                ...state.UACData,
-                { email: action.payload.userData.userEmail, password: action.payload.userData.userPassword, rights: action.payload.userData.userRights }
-            ],
             CustomerData: [
                 ...state.CustomerData,
                 { name: action.payload.userData.userName, email: action.payload.userData.userEmail, animals: [], appointments: [], shoppingCart: [] }
@@ -143,28 +128,6 @@ function petShopApp(state, action) {
         })
 
     // Customer action reducers
-    case CustomerActions.PROFILE_EDIT:
-        return Object.assign({}, state, {
-            UACData: state.UACData.map(user => {
-                if (user.email === action.payload.userData.userEmail) {
-                    return Object.assign({}, user, {
-                        email: action.payload.userData.userEmail,
-                        password: action.payload.userData.userPassword,
-                    })
-                }
-                return user
-            }),
-            CustomerData: state.CustomerData.map(customer => {
-                if (customer.email === action.payload.userData.userEmail) {
-                    return Object.assign({}, customer, {
-                        name: action.payload.userData.userName,
-                        email: action.payload.userData.userEmail,
-                    })
-                }
-                return customer
-            })
-        })
-
     case CustomerActions.PET_ADD:
         return Object.assign({}, state, {
             CustomerData: state.CustomerData.map(customer => {
@@ -476,8 +439,6 @@ function petShopApp(state, action) {
             })
         })
 
-    // TODO TEST THIS
-    // appoint: {id, serviceId, serviceName, animalId, animalName, date (as a Date object), status, message}
     case SupervisorActions.SERVICECTL_EDIT:
         return Object.assign({}, state, {
             CustomerData: state.CustomerData.map(customer => {
@@ -502,7 +463,6 @@ function petShopApp(state, action) {
             })
         })
 
-    // TODO TEST THIS
     case SupervisorActions.SERVICECTL_REMOVE:
         return Object.assign({}, state, {
             CustomerData: state.CustomerData.map(customer => {
@@ -518,19 +478,16 @@ function petShopApp(state, action) {
             })
         })
 
-    // UACData: {email, password (as plain text, no need to be serious here), rights (as in usage rights)}
-    // CustomerData: {name, email, animals, appointments, shoppingCart}
-    // TODO TEST THIS
     case SupervisorActions.USERCTL_ADD:
         return Object.assign({}, state, {
-            UACData: [
-                ...state.UACData,
-                {
-                    email: action.payload.userData.email,
-                    rights: action.payload.userData.rights,
-                    password: action.payload.userData.password,
-                }
-            ],
+            //UACData: [
+            //    ...state.UACData,
+            //    {
+            //        email: action.payload.userData.email,
+            //        rights: action.payload.userData.rights,
+            //        password: action.payload.userData.password,
+            //    }
+            //],
             CustomerData: [
                 ...state.CustomerData,
                 {
@@ -543,19 +500,18 @@ function petShopApp(state, action) {
             ]
         })
 
-    // TODO TEST THIS
     case SupervisorActions.USERCTL_EDIT:
         return Object.assign({}, state, {
-            UACData: state.UACData.map(user => {
-                if (user.email === action.payload.userData.emailToBeReplaced) {
-                    return Object.assign({}, user, {
-                        email: action.payload.userData.email,
-                        rights: action.payload.userData.rights,
-                    })
-                }
-                // Otherwise keep old state
-                return user
-            }),
+            //UACData: state.UACData.map(user => {
+            //    if (user.email === action.payload.userData.emailToBeReplaced) {
+            //        return Object.assign({}, user, {
+            //            email: action.payload.userData.email,
+            //            rights: action.payload.userData.rights,
+            //        })
+            //    }
+            //    // Otherwise keep old state
+            //    return user
+            //}),
             CustomerData: state.CustomerData.map(customer => {
                 if (customer.email === action.payload.userData.emailToBeReplaced) {
                     return Object.assign({}, customer, {
@@ -568,12 +524,11 @@ function petShopApp(state, action) {
             })
         })
 
-    // TODO TEST THIS
     case SupervisorActions.USERCTL_REMOVE:
         return Object.assign({}, state, {
-            UACData: state.UACData.filter(user => {
-                return (user.email !== action.payload.userData.email)
-            }),
+            //UACData: state.UACData.filter(user => {
+            //    return (user.email !== action.payload.userData.email)
+            //}),
             CustomerData: state.CustomerData.map(customer => {
                 return (customer.email !== action.payload.userData.email)
             })

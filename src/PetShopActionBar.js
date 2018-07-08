@@ -143,8 +143,8 @@ class PetShopActionBar extends React.Component {
 
                 {/* Modals */}
                 <UACDialog
-                    open={this.state.dialogOpen}
-                    mode={this.state.dialogMode}
+                    dialogOpen={this.state.dialogOpen}
+                    dialogMode={this.state.dialogMode}
                     toggleDialog={(status, mode) => this.handleToggleDialog(status, mode)} />
 
                 {/* Application appbar */}

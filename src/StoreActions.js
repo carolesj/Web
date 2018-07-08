@@ -18,9 +18,6 @@ export const CustomerActions = {
     PET_EDIT: "PET_EDIT",
     PET_REMOVE: "PET_REMOVE",
 
-    // Edit profile
-    PROFILE_EDIT: "PROFILE_EDIT",
-
     // Store interaction
     STORE_ADD_TO_CART: "STORE_ADD_TO_CART",
     STORE_EDIT_CART_ITEM: "STORE_EDIT_CART_ITEM",
@@ -91,13 +88,6 @@ export function changeCurrentView(nextView) {
 /*
    Customer action creators
  */
-export function editUserProfile(userData) {
-    return {
-        type: CustomerActions.PROFILE_EDIT,
-        payload: { userData }
-    }
-}
-
 export function addPet(userEmail, petData) {
     return {
         type: CustomerActions.PET_ADD,
