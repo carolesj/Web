@@ -92,6 +92,58 @@ function petShopApp(state, action) {
     }
 
     switch (action.type) {
+    // Common data retrievers
+    case CommonActions.RETRIEVE_PRODUCTS:
+        return Object.assign({}, state, {
+            SiteData: Object.assign({}, state.SiteData, {
+                products: action.payload.products
+            })
+        })
+
+    case CommonActions.RETRIEVE_SERVICES:
+        return Object.assign({}, state, {
+            SiteData: Object.assign({}, state.SiteData, {
+                services: action.payload.services
+            })
+        })
+
+    case CommonActions.RETRIEVE_USER_ANIMALS:
+        return Object.assign({}, state, {
+            CustomerData: state.CustomerData.map(customer => {
+                if (customer.email === state.currentUserEmail) {
+                    return Object.assign({}, customer, {
+                        animals: action.payload.animals
+                    })
+                }
+                return customer
+            })
+        })
+
+    case CommonActions.RETRIEVE_USER_APPOINTMENTS:
+        console.log("this just in")
+        return Object.assign({}, state, {
+            CustomerData: state.CustomerData.map(customer => {
+                if (customer.email === state.currentUserEmail) {
+                    return Object.assign({}, customer, {
+                        appointments: action.payload.appointments
+                    })
+                }
+                return customer
+            })
+        })
+
+    case CommonActions.RETRIEVE_USER_SHOPPING_CART:
+        console.log("this just in")
+        return Object.assign({}, state, {
+            CustomerData: state.CustomerData.map(customer => {
+                if (customer.email === state.currentUserEmail) {
+                    return Object.assign({}, customer, {
+                        shoppingCart: action.payload.shoppingCart
+                    })
+                }
+                return customer
+            })
+        })
 
     // Common action reducers
     case CommonActions.USER_SIGNIN:
@@ -100,6 +152,10 @@ function petShopApp(state, action) {
             currentUserEmail: action.payload.userData.userEmail,
             currentUserRights: action.payload.userData.userRights,
             currentUserLoggedIn: true,
+            CustomerData: [
+                // OVERRIDE
+                { name: action.payload.userData.userName, email: action.payload.userData.userEmail, animals: [], appointments: [], shoppingCart: [] }
+            ]
         })
 
     case CommonActions.USER_SIGNUP:
@@ -109,7 +165,7 @@ function petShopApp(state, action) {
             currentUserRights: action.payload.userData.userRights,
             currentUserLoggedIn: true,
             CustomerData: [
-                ...state.CustomerData,
+                // OVERRIDE
                 { name: action.payload.userData.userName, email: action.payload.userData.userEmail, animals: [], appointments: [], shoppingCart: [] }
             ]
         })
@@ -120,6 +176,7 @@ function petShopApp(state, action) {
             currentUserEmail: action.payload.userData.userEmail,
             currentUserRights: action.payload.userData.userRights,
             currentUserLoggedIn: false,
+            CustomerData: []
         })
 
     case CommonActions.CHANGE_CURRENT_VIEW:
@@ -140,7 +197,7 @@ function petShopApp(state, action) {
                                 name: action.payload.petData.name,
                                 race: action.payload.petData.race,
                                 media: action.payload.petData.media,
-                                localMedia: action.payload.petData.localMedia,
+                                localMedia: false,
                             }
                         ]
                     })
@@ -159,11 +216,9 @@ function petShopApp(state, action) {
                         animals: customer.animals.map(animal => {
                             if (animal.id === action.payload.petData.id) {
                                 return Object.assign({}, animal, {
-                                    id: action.payload.petData.id,
                                     name: action.payload.petData.name,
                                     race: action.payload.petData.race,
                                     media: action.payload.petData.media,
-                                    localMedia: action.payload.petData.localMedia,
                                 })
                             }
                             // Otherwise keep old state

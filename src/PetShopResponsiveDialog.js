@@ -6,6 +6,7 @@ import DialogTitle from "@material-ui/core/DialogTitle"
 import withMobileDialog from "@material-ui/core/withMobileDialog"
 import PropTypes from "prop-types"
 import React from "react"
+import { Grid, CircularProgress } from "@material-ui/core"
 
 function PetShopResponsiveDialog(props) {
     return (
@@ -21,10 +22,16 @@ function PetShopResponsiveDialog(props) {
 
             <DialogContent>
                 {props.dialogContent}
+                <br />
                 {props.errorStatus &&
                     <DialogContentText align="center" color="primary">
                         {props.errorText}
                     </DialogContentText>
+                }
+                {props.isLoading &&
+                    <Grid container justify="center">
+                        <CircularProgress />
+                    </Grid>
                 }
             </DialogContent>
 
@@ -42,6 +49,7 @@ PetShopResponsiveDialog.propTypes = {
     // inherited state
     isOpen: PropTypes.bool.isRequired,
     onClose: PropTypes.func.isRequired,
+    isLoading: PropTypes.bool,
 
     // inherited elements
     ariaLabel: PropTypes.string.isRequired,
@@ -50,8 +58,8 @@ PetShopResponsiveDialog.propTypes = {
     dialogActions: PropTypes.element.isRequired,
 
     // error related
-    errorStatus: PropTypes.bool.isRequired,
-    errorText: PropTypes.string.isRequired,
+    errorStatus: PropTypes.bool,
+    errorText: PropTypes.string,
 }
 
 export default withMobileDialog()(PetShopResponsiveDialog)

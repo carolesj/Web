@@ -131,6 +131,7 @@ class UACDialog extends React.Component {
                 if (response.data.ok) {
                     this.props.onSigninClick({
                         nextView: "home",
+                        userName: response.data.name,
                         userEmail: response.data.email,
                         userRights: response.data.rights,
                     })
@@ -197,14 +198,13 @@ class UACDialog extends React.Component {
             // responseType is already application/json
             headers: {
                 "Content-Type": "application/json",
-                "Access-Control-Allow-Origin": "*"
             }
         }
 
         Axios.put(Root + "/UAC", requestData, requestConfig)
             .then(response => {
                 if (response.data.ok) {
-                    // User was signed up
+                    // Request succeeded
                     this.props.onSignupClick({
                         nextView: "home",
                         userName: response.data.name,
@@ -212,7 +212,6 @@ class UACDialog extends React.Component {
                         userRights: response.data.rights,
                     })
                     this.handleCloseDialog()
-                    // User was rejected
                 } else {
                     this.setState({
                         errorText: response.data.error,
@@ -422,6 +421,7 @@ class UACDialog extends React.Component {
             <PetShopResponsiveDialog
                 isOpen={this.props.dialogOpen}
                 onClose={() => this.handleCloseDialog()}
+                isLoading={this.state.doingRemoteRequest}
                 ariaLabel="user-account-control-dialog"
                 dialogTitle={dialogTitle}
                 dialogContent={dialogContent}

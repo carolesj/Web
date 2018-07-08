@@ -1,17 +1,13 @@
+import { CircularProgress } from "@material-ui/core"
 import Avatar from "@material-ui/core/Avatar"
 import Button from "@material-ui/core/Button"
 import Card from "@material-ui/core/Card"
-import CardActions from "@material-ui/core/CardActions"
-import CardContent from "@material-ui/core/CardContent"
 import CardMedia from "@material-ui/core/CardMedia"
-import Dialog from "@material-ui/core/Dialog"
-import DialogActions from "@material-ui/core/DialogActions"
-import DialogContent from "@material-ui/core/DialogContent"
 import DialogContentText from "@material-ui/core/DialogContentText"
-import DialogTitle from "@material-ui/core/DialogTitle"
 import Grid from "@material-ui/core/Grid"
-import Typography from "@material-ui/core/Typography"
 import { withStyles } from "@material-ui/core/styles"
+import Typography from "@material-ui/core/Typography"
+import Axios from "axios"
 import classNames from "classnames"
 import { PropTypes } from "prop-types"
 import React from "react"
@@ -20,8 +16,11 @@ import CustomerPetContainer from "./CustomerPetContainer"
 import CustomerServiceContainer from "./CustomerServiceContainer"
 import CustomerShopContainer from "./CustomerShopContainer"
 import { PetShopProductList, PetShopServiceList } from "./PetShopCardViews"
-import SupervisorShopContainer from "./SupervisorShopContainer"
+import PetShopResponsiveDialog from "./PetShopResponsiveDialog"
+import Root from "./remote"
+import { getProducts, getServices } from "./StoreActions"
 import SupervisorServiceContainer from "./SupervisorServiceContainer"
+import SupervisorShopContainer from "./SupervisorShopContainer"
 import SupervisorUserContainer from "./SupervisorUserContainer"
 
 // TODO AAAAAALLL THIS NEEDS TO BEGONE FROM HERE!!!
@@ -93,13 +92,15 @@ const styles = theme => ({
         width: 150,
         height: 150,
     },
+    progress: {
+        margin: theme.spacing.unit * 2,
+    },
 })
 
 /*
-    DATA VIEW BUILDERS
+    Home view common component
  */
-// TODO HERE
-function CommonHomeScreenBehavior(props) {
+function CommonHomeContainer(props) {
     const {classes} = props
 
     let content = (
@@ -175,79 +176,222 @@ function CommonHomeScreenBehavior(props) {
         </div>
     )
 }
-
-CommonHomeScreenBehavior.propTypes = {
+CommonHomeContainer.propTypes = {
+    // style
     classes: PropTypes.object.isRequired,
+
+    // state
     currentUserLoggedIn: PropTypes.bool.isRequired,
 }
 
 
 /*
-    Service list sub-component
- */
-function CommonServiceViewBehavior(props) {
-    const { classes } = props
+    Shop view common component
+*/
+class CommonShopContainer extends React.Component {
+    constructor(props) {
+        super(props)
+        this.state = {
+            errorStatus: false,
+            errorMessage: "none",
+            doingRemoteRequest: false
+        }
+    }
 
-    return (
-        <div className={classes.listRoot}>
-            <Grid container spacing={24} justify="flex-start">
-                {props.siteData.services.map((item, index) => (
-                    <Grid item key={index} xs={12} sm={6} md={4}>
-                        <Card>
-                            <CardMedia
-                                className={classes.media}
-                                image={require(`${item.media}`)}
-                                title={"Serviço de " + item.name}
-                            />
-                            <CardContent>
-                                <Typography gutterBottom variant="headline" component="h2">
-                                    {item.name}
-                                </Typography>
-                                <Typography gutterBottom component="p">
-                                    {item.description}
-                                </Typography>
-                                {item.available ?
-                                    <Typography variant="body1" align="right">
-                                        <br />
-                                        Disponível para agendamento
-                                    </Typography>
-                                    :
-                                    <Typography variant="body1" color="error" align="right">
-                                        <br />
-                                        Serviço indisponível
-                                    </Typography>
-                                }
-                            </CardContent>
-                            <CardActions>
-                                <Grid container justify="flex-end">
-                                    <Grid item>
-                                        {item.available ?
-                                            <Button size="small" color="primary"
-                                                onClick={() => { props.onToggleDialog(true) }}>
-                                                Contratar
-                                            </Button>
-                                            :
-                                            <Button disabled size="small" color="primary">
-                                                Contratar
-                                            </Button>
-                                        }
-                                    </Grid>
-                                </Grid>
-                            </CardActions>
-                        </Card>
-                    </Grid>
-                ))}
+    componentDidMount() {
+        // Begin remote request
+        this.setState({
+            doingRemoteRequest: true,
+        })
+        Axios.get(Root + "/products")
+            .then(response => {
+                if (response.data.ok) {
+                    this.setState({
+                        errorStatus: false,
+                        errorMessage: "none",
+                        doingRemoteRequest: false
+                    })
+                    this.props.onGetProducts(response.data.products)
+                } else {
+                    this.setState({
+                        errorStatus: true,
+                        errorMessage: response.data.error,
+                        doingRemoteRequest: false
+                    })
+                }
+            })
+            .catch(error => {
+                this.setState({
+                    errorStatus: true,
+                    errorMessage: error.message,
+                    doingRemoteRequest: false
+                })
+            })
+    }
+
+    render() {
+        let shopContainer = null
+        switch (this.props.currentUserRights) {
+        case "customer":
+            shopContainer =  <CustomerShopContainer />
+            break
+        case "supervisor":
+            shopContainer = <SupervisorShopContainer />
+            break
+        default:
+            shopContainer = <PetShopProductList
+                productArray={this.props.productArray}
+                currentUserRights={this.props.currentUserRights}
+                onChangeCurrentView={() => {}}
+                onLaunchDialog={(open) => this.props.onLaunchDialog(open)}
+                onSetSelected={() => {}}
+            />
+
+        }
+        return (this.state.doingRemoteRequest ?
+            <Grid container justify="center">
+                <CircularProgress className={this.props.classes.progress} size={50} />
             </Grid>
-        </div>
-    )
+            :
+            (this.state.errorStatus ?
+                <Typography variant="title" align="center" color="primary">
+                    <br />
+                    Erro de servidor :(
+                    <br />
+                    {this.state.errorMessage}
+                </Typography>
+                :
+                shopContainer
+            )
+        )
+    }
+}
+CommonShopContainer.propTypes = {
+    // style
+    classes: PropTypes.object,
+
+    // state
+    productArray: PropTypes.arrayOf(
+        PropTypes.shape({
+            id: PropTypes.number.isRequired,
+            name: PropTypes.string.isRequired,
+            description: PropTypes.string.isRequired,
+            amount: PropTypes.number.isRequired,
+            price: PropTypes.number.isRequired,
+            media: PropTypes.string.isRequired,
+            localMedia: PropTypes.bool.isRequired,
+        })
+    ).isRequired,
+    currentUserRights: PropTypes.string.isRequired,
+
+    // actions
+    onLaunchDialog: PropTypes.func.isRequired,
+    onGetProducts: PropTypes.func.isRequired,
 }
 
-CommonServiceViewBehavior.propTypes = {
-    classes: PropTypes.object.isRequired,
-    siteData: PropTypes.object.isRequired,
-    onToggleDialog: PropTypes.func.isRequired,
-}
 
+/*
+    Service view common component
+*/
+class CommonServiceContainer extends React.Component {
+    constructor(props) {
+        super(props)
+        this.state = {
+            errorStatus: false,
+            errorMessage: "none",
+            doingRemoteRequest: false
+        }
+    }
+
+    componentDidMount() {
+        // Begin remote request
+        this.setState({
+            doingRemoteRequest: true,
+        })
+        Axios.get(Root + "/services")
+            .then(response => {
+                if (response.data.ok) {
+                    this.setState({
+                        errorStatus: false,
+                        errorMessage: "none",
+                        doingRemoteRequest: false
+                    })
+                    this.props.onGetServices(response.data.services)
+                } else {
+                    this.setState({
+                        errorStatus: true,
+                        errorMessage: response.data.error,
+                        doingRemoteRequest: false
+                    })
+                }
+            })
+            .catch(error => {
+                this.setState({
+                    errorStatus: true,
+                    errorMessage: error.message,
+                    doingRemoteRequest: false
+                })
+            })
+    }
+
+    render() {
+        let serviceContainer = null
+        switch (this.props.currentUserRights) {
+        case "customer":
+            serviceContainer =  <CustomerServiceContainer />
+            break
+        case "supervisor":
+            serviceContainer = <SupervisorServiceContainer />
+            break
+        default:
+            serviceContainer = <PetShopServiceList
+                serviceArray={this.props.serviceArray}
+                currentUserRights={this.props.currentUserRights}
+                onChangeCurrentView={() => {}}
+                onLaunchDialog={(open) => this.props.onLaunchDialog(open)}
+                onSetSelected={() => {}}
+            />
+        }
+
+        return (this.state.doingRemoteRequest ?
+            <Grid container justify="center">
+                <CircularProgress className={this.props.classes.progress} size={50} />
+            </Grid>
+            :
+            (this.state.errorStatus ?
+                <Typography variant="title" align="center" color="primary">
+                    <br />
+                    Erro de servidor :(
+                    <br />
+                    {this.state.errorMessage}
+                </Typography>
+                :
+                serviceContainer
+            )
+        )
+    }
+}
+CommonServiceContainer.propTypes = {
+    // style
+    classes: PropTypes.object,
+
+    // state
+    serviceArray: PropTypes.arrayOf(
+        PropTypes.shape({
+            id: PropTypes.number.isRequired,
+            name: PropTypes.string.isRequired,
+            description: PropTypes.string.isRequired,
+            available: PropTypes.bool.isRequired,
+            media: PropTypes.string.isRequired,
+            localMedia: PropTypes.bool.isRequired,
+        })
+    ).isRequired,
+    currentUserRights: PropTypes.string.isRequired,
+
+    // actions
+    onLaunchDialog: PropTypes.func.isRequired,
+    onGetServices: PropTypes.func.isRequired,
+}
 
 /*
     MAIN COMPONENT CLASS
@@ -266,95 +410,93 @@ class MainContent extends React.Component {
         })
     }
 
-    buildMainView() {
+    render() {
+        // Application content
+        let mainContent = null
         switch (this.props.currentUserView) {
         case "home":
-            // TODO Hmmm
-            return <CommonHomeScreenBehavior classes={this.props.classes}
-                currentUserLoggedIn={this.props.currentUserLoggedIn} />
-
+            mainContent = <CommonHomeContainer
+                classes={this.props.classes}
+                currentUserLoggedIn={this.props.currentUserLoggedIn}
+            />
+            break
         case "shop":
-            switch (this.props.currentUserRights) {
-            case "customer":
-                return <CustomerShopContainer />
-            case "supervisor":
-                return <SupervisorShopContainer />
-            default:
-                // TODO Hmmm
-                return <PetShopProductList
-                    productArray={this.props.siteData.products}
-                    currentUserRights={this.props.currentUserRights}
-                    onChangeCurrentView={() => {}}
-                    onSetSelected={() => {}}
-                    onLaunchDialog={(open) => this.handleToggleDialog(open)} />
-            }
-
+            mainContent = <CommonShopContainer
+                classes={this.props.classes}
+                productArray={this.props.siteData.products}
+                currentUserRights={this.props.currentUserRights}
+                onLaunchDialog={(open) => this.handleToggleDialog(open)}
+                onGetProducts={(products) => this.props.onGetProducts(products)}
+            />
+            break
         case "services":
-            switch (this.props.currentUserRights) {
-            case "customer":
-                return <CustomerServiceContainer />
-            case "supervisor":
-                return <SupervisorServiceContainer />
-            default:
-                return <PetShopServiceList
-                    serviceArray={this.props.siteData.services}
-                    currentUserRights={this.props.currentUserRights}
-                    onChangeCurrentView={() => {}}
-                    onSetSelected={() => {}}
-                    onLaunchDialog={(open) => this.handleToggleDialog(open)} />
-            }
-
+            mainContent = <CommonServiceContainer
+                classes={this.props.classes}
+                serviceArray={this.props.siteData.services}
+                currentUserRights={this.props.currentUserRights}
+                onLaunchDialog={(open) => this.handleToggleDialog(open)}
+                onGetServices={(services) => this.props.onGetServices(services)}
+            />
+            break
         case "pets":
-            return <CustomerPetContainer />
-        
+            mainContent = <CustomerPetContainer />
+            break
         case "users":
-            return <SupervisorUserContainer />
-
+            mainContent = <SupervisorUserContainer />
+            break
         case "shoppingCart":
-            return <CustomerShopContainer />
-
+            mainContent = <CustomerShopContainer />
+            break
         case "appointments":
-            return <CustomerServiceContainer />
-
+            mainContent = <CustomerServiceContainer />
+            break
         default:
-            return null
+            mainContent = null
+            break
         }
-    }
 
-    render() {
+        // Default popup for visitors
+        const dialogTitle = "Operação Inválida"
+        const dialogContent = (
+            <DialogContentText align="center" color="secondary">
+                Faça login ou cadastre-se para acessar os serviços
+            </DialogContentText>
+        )
+        const dialogActions = (
+            <Button onClick={() => this.handleToggleDialog(false)} color="primary">
+                Ok
+            </Button>
+        )
+
         return (
             <div>
-                <Dialog open={this.state.dialogOpen} aria-labelledby="visitor-dialog-title"
-                    onClose={() => this.handleToggleDialog(false)}>
-
-                    <DialogTitle id="visitor-dialog-title">
-                        Operação Inválida
-                    </DialogTitle>
-                    <DialogContent>
-                        <DialogContentText align="center" color="secondary">
-                            Faça login ou cadastre-se para acessar os serviços
-                        </DialogContentText>
-                    </DialogContent>
-                    <DialogActions>
-                        <Button onClick={() => this.handleToggleDialog(false)} color="primary">
-                            Ok
-                        </Button>
-                    </DialogActions>
-                </Dialog>
-
-                {this.buildMainView()}
+                <PetShopResponsiveDialog
+                    isOpen={this.state.dialogOpen}
+                    onClose={() => this.handleToggleDialog(false)}
+                    ariaLabel="visitor-prompt-dialog"
+                    dialogTitle={dialogTitle}
+                    dialogContent={dialogContent}
+                    dialogActions={dialogActions}
+                />
+                {mainContent}
             </div>
         )
     }
 }
-
 MainContent.propTypes = {
+    // style
     classes: PropTypes.object.isRequired,
+
+    // store state
     siteData: PropTypes.object.isRequired,
     currentUserView: PropTypes.string.isRequired,
     currentUserEmail: PropTypes.string.isRequired,
     currentUserRights: PropTypes.string.isRequired,
     currentUserLoggedIn: PropTypes.bool.isRequired,
+
+    // store actions
+    onGetProducts: PropTypes.func.isRequired,
+    onGetServices: PropTypes.func.isRequired
 }
 
 function mapStateToProps(state) {
@@ -368,5 +510,16 @@ function mapStateToProps(state) {
     }
 }
 
+function mapDispatchToProps(dispatch) {
+    return {
+        onGetProducts: products => {
+            dispatch(getProducts(products))
+        },
+        onGetServices: services => {
+            dispatch(getServices(services))
+        }
+    }
+}
+
 // Inject styles, connect mappers with the redux store and export symbol
-export default connect(mapStateToProps)(withStyles(styles)(MainContent))
+export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(MainContent))

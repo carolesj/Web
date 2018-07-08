@@ -3,10 +3,21 @@ import { SupervisorActions } from './StoreActions';
    UAC action types
  */
 export const CommonActions = {
+    // User account control
     USER_SIGNIN: "USER_SIGNIN",
     USER_SIGNUP: "USER_SIGNUP",
     USER_LOGOUT: "USER_LOGOUT",
-    CHANGE_CURRENT_VIEW: "CHANGE_CURRENT_VIEW"
+
+    // Site navigation (all users)
+    CHANGE_CURRENT_VIEW: "CHANGE_CURRENT_VIEW",
+
+    // Remote data retrieval (all users)
+    RETRIEVE_PRODUCTS: "RETRIEVE_PRODUCTS",
+    RETRIEVE_SERVICES: "RETRIEVE_SERVICES",
+    RETRIEVE_USER_ANIMALS: "RETRIEVE_USER_ANIMALS",
+    RETRIEVE_USER_APPOINTMENTS: "RETRIEVE_USER_APPOINTMENTS",
+    RETRIEVE_USER_SHOPPING_CART: "RETRIEVE_USER_SHOPPING_CART",
+    RETRIEVE_SUPERVISOR_USER_LIST: "RETRIEVE_SUPERVISOR_USER_LIST"
 }
 
 /*
@@ -51,6 +62,45 @@ export const SupervisorActions = {
     // Appointment control
     SERVICECTL_EDIT: "SERVICECTL_EDIT",
     SERVICECTL_REMOVE: "SERVICECTL_REMOVE"
+}
+
+/*
+    Retrieval action creators
+*/
+
+export function getProducts(products) {
+    return {
+        type: CommonActions.RETRIEVE_PRODUCTS,
+        payload: { products }
+    }
+}
+
+export function getServices(services) {
+    return {
+        type: CommonActions.RETRIEVE_SERVICES,
+        payload: { services }
+    }
+}
+
+export function getUserAnimals(animals) {
+    return {
+        type: CommonActions.RETRIEVE_USER_ANIMALS,
+        payload: { animals }
+    }
+}
+
+export function getUserAppointments(appointments) {
+    return {
+        type: CommonActions.RETRIEVE_USER_APPOINTMENTS,
+        payload: { appointments }
+    }
+}
+
+export function getUserShoppingCart(shoppingCart) {
+    return {
+        type: CommonActions.RETRIEVE_USER_SHOPPING_CART,
+        payload: { shoppingCart }
+    }
 }
 
 /*

@@ -10,6 +10,8 @@ import { withStyles } from "@material-ui/core/styles"
 import FileUpload from "@material-ui/icons/FileUpload"
 import PetShopResponsiveDialog from "./PetShopResponsiveDialog"
 import React from "react"
+import Axios from "axios"
+import Root from "./remote"
 
 const styles = theme => ({
     // visuals
@@ -60,6 +62,9 @@ class CustomerPetControl extends React.Component {
             willUploadImage: false,
             didUploadImage: false,
             imageAsURL: null,
+
+            // remote tracker
+            doingRemoteRequest: false,
         }
     }
 
@@ -111,6 +116,9 @@ class CustomerPetControl extends React.Component {
             willUploadImage: false,
             didUploadImage: false,
             imageAsURL: null,
+
+            // remote
+            doingRemoteRequest: false,
         })
         this.props.onToggleDialog(false)
     }
@@ -123,49 +131,165 @@ class CustomerPetControl extends React.Component {
         TODO Check handlers on other files as well
      */
     handleClickAddPet() {
-        // TODO Check all field values for validity
-        let stagePetName = this.state.petName
-        let stagePetRace = this.state.petRace
-        let stagePetMedia = this.state.didUploadImage ? this.state.imageAsURL : "./media/sampleDog.png"
-        let stageLocalMedia = !this.state.didUploadImage
+        // Stage data
+        const requestData = {
+            name: this.state.petName,
+            race: this.state.petRace,
+            media: this.state.imageAsURL
+        }
+        const requestConfig = {
+            headers: {
+                "Content-Type": "application/json",
+            }
+        }
 
-        // Dispatch add pet store action
-        this.props.onConfirmAddPet(this.props.currentUserEmail, {
-            // TODO Is there an easy way to know which of these need to be set?
-            name: stagePetName,
-            race: stagePetRace,
-            media: stagePetMedia,
-            localMedia: stageLocalMedia,
+        // Check validity
+        if (!this.state.didUploadImage) {
+            this.setState({
+                errorStatus: true,
+                errorMessage: "Escolha uma imagem para o pet :)"
+            })
+            return
+        }
+        if (requestData.name.length < 4) {
+            this.setState({
+                errorStatus: true,
+                errorMessage: "Nome deve conter no mínimo 4 letras"
+            })
+            return
+        }
+        if (requestData.race.length < 4) {
+            this.setState({
+                errorStatus: true,
+                errorMessage: "Raça deve conter no mínimo 4 letras"
+            })
+            return
+        }
+
+        // Perform request
+        this.setState({
+            doingRemoteRequest: true,
         })
-        // Close dialog on success
-        this.handleCloseDialog()
+        Axios.put(Root + "/" + this.props.currentUserEmail + "/pets", requestData, requestConfig)
+            .then(response => {
+                if (response.data.ok) {
+                    // Request succeeded
+                    this.props.onConfirmAddPet(this.props.currentUserEmail, {
+                        name: requestData.name,
+                        race: requestData.race,
+                        media: requestData.media,
+                    })
+                    this.handleCloseDialog()
+                } else {
+                    this.setState({
+                        errorStatus: true,
+                        errorMessage: response.data.error,
+                        doingRemoteRequest: false,
+                    })
+                }
+            })
+            .catch(error => {
+                this.setState({
+                    errorStatus: true,
+                    errorMessage: error.message,
+                    doingRemoteRequest: false,
+                })
+            })
     }
 
     handleClickEditPet(currentData) {
-        // TODO Check all field values for validity
-        let stagePetId = currentData.id
-        let stagePetName = this.state.petName
-        let stagePetRace = this.state.petRace
-        let stagePetMedia = this.state.didUploadImage ? this.state.imageAsURL : currentData.media
-        let stageLocalMedia = this.state.didUploadImage ? false : currentData.localMedia
+        // Stage data
+        const requestData = {
+            id: currentData.id,
+            name: this.state.petName,
+            race: this.state.petRace,
+            media: this.state.didUploadImage ? this.state.imageAsURL : currentData.media
+        }
+        const requestConfig = {
+            headers: {
+                "Content-Type": "application/json",
+            }
+        }
 
-        this.props.onConfirmEditPet(this.props.currentUserEmail, {
-            id: stagePetId,
-            name: stagePetName,
-            race: stagePetRace,
-            media: stagePetMedia,
-            localMedia: stageLocalMedia,
+        // Check validity
+        if (requestData.name.length < 4) {
+            this.setState({
+                errorStatus: true,
+                errorMessage: "Nome deve conter no mínimo 4 letras"
+            })
+            return
+        }
+        if (requestData.race.length < 4) {
+            this.setState({
+                errorStatus: true,
+                errorMessage: "Raça deve conter no mínimo 4 letras"
+            })
+            return
+        }
+
+        // Perform request
+        this.setState({
+            doingRemoteRequest: true,
         })
-        // Close dialog on success
-        this.handleCloseDialog()
+        Axios.post(Root + "/" + this.props.currentUserEmail + "/pets", requestData, requestConfig)
+            .then(response => {
+                if (response.data.ok) {
+                    // Request succeeded
+                    this.props.onConfirmEditPet(this.props.currentUserEmail, {
+                        id: requestData.id,
+                        name: requestData.name,
+                        race: requestData.race,
+                        media: requestData.media,
+                    })
+                    this.handleCloseDialog()
+                } else {
+                    this.setState({
+                        errorStatus: true,
+                        errorMessage: response.data.error,
+                        doingRemoteRequest: false,
+                    })
+                }
+            })
+            .catch(error => {
+                this.setState({
+                    errorStatus: true,
+                    errorMessage: error.message,
+                    doingRemoteRequest: false,
+                })
+            })
     }
 
     handleClickRemovePet() {
-        this.props.onConfirmRemovePet(this.props.currentUserEmail, {
-            id: this.props.selectedId,
+        // Stage data
+        const requestId = this.props.selectedId
+
+        // Perform request
+        this.setState({
+            doingRemoteRequest: true,
         })
-        // Close dialog on success
-        this.handleCloseDialog()
+        Axios.delete(Root + "/" + this.props.currentUserEmail + "/pets/" + String(requestId))
+            .then(response => {
+                if (response.data.ok) {
+                    // Request succeeded
+                    this.props.onConfirmRemovePet(this.props.currentUserEmail, {
+                        id: requestId,
+                    })
+                    this.handleCloseDialog()
+                } else {
+                    this.setState({
+                        errorStatus: true,
+                        errorMessage: response.data.error,
+                        doingRemoteRequest: false,
+                    })
+                }
+            })
+            .catch(error => {
+                this.setState({
+                    errorStatus: true,
+                    errorMessage: error.message,
+                    doingRemoteRequest: false,
+                })
+            })
     }
 
     /*
@@ -292,7 +416,7 @@ class CustomerPetControl extends React.Component {
                 <div>
                     <Button 
                         color="primary"
-                        disabled={this.state.willUploadImage}
+                        disabled={this.state.willUploadImage || this.state.doingRemoteRequest}
                         onClick={this.props.dialogMode === "add" ?
                             () => this.handleClickAddPet()
                             :
@@ -312,6 +436,7 @@ class CustomerPetControl extends React.Component {
             <PetShopResponsiveDialog
                 isOpen={this.props.dialogOpen}
                 onClose={() => this.handleCloseDialog()}
+                isLoading={this.state.doingRemoteRequest}
                 ariaLabel="pet-control-dialog"
                 dialogTitle={dialogTitle}
                 dialogContent={dialogContent}
