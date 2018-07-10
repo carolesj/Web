@@ -31,8 +31,12 @@ class CustomerPetContainer extends React.Component {
         Axios.get(Root + "/" + this.props.currentUserEmail + "/pets")
             .then(response => {
                 if (response.data.ok) {
+                    this.setState({
+                        errorText: "",
+                        errorStatus: false,
+                        doingRemoteRequest: false,
+                    })
                     this.props.onGetUserAnimals(response.data.animals)
-                    this.handleToggleDialog(false)
                 } else {
                     this.setState({
                         errorStatus: true,

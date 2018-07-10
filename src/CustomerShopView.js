@@ -1,4 +1,3 @@
-import Typography from "@material-ui/core/Typography"
 import { PropTypes } from "prop-types"
 import React from "react"
 import { PetShopProductList } from "./PetShopCardViews"
@@ -24,16 +23,13 @@ function CustomerShopView(props) {
             <PetShopShoppingCart
                 cartItemArray={itemArray}
                 productArray={props.siteData.products}
+                currentUserEmail={props.currentUserEmail}
+                onGetProductList={props.onGetProductList}
+                onGetUserShoppingCart={props.onGetUserShoppingCart}
                 onChangeCurrentView={(nextView) => props.onChangeCurrentView(nextView)}
                 onLaunchDialog={(open, mode) => props.onLaunchDialog(open, mode)}
                 onSetSelected={(id) => props.onSetSelected(id)}
             />
-            {(itemArray.length === 0) &&
-            <Typography variant="title" align="center" color="primary">
-                <br />
-                Seu carrinho de compras está vazio :(
-            </Typography>
-            }
         </div>
     )
 }
@@ -56,6 +52,8 @@ CustomerShopView.propTypes = {
     onSetSelected: PropTypes.func.isRequired,
     onLaunchDialog: PropTypes.func.isRequired,
     onChangeCurrentView: PropTypes.func.isRequired,
+    onGetUserShoppingCart: PropTypes.func.isRequired,
+    onGetProductList: PropTypes.func.isRequired,
 }
 
 export default CustomerShopView

@@ -125,7 +125,7 @@ class UACDialog extends React.Component {
             }
         }
 
-        Axios.post(Root + "/UAC", requestData, requestConfig)
+        Axios.post(Root + "/uac", requestData, requestConfig)
             .then(response => {  // Request succeeded
                 // User was logged in
                 if (response.data.ok) {
@@ -201,7 +201,7 @@ class UACDialog extends React.Component {
             }
         }
 
-        Axios.put(Root + "/UAC", requestData, requestConfig)
+        Axios.put(Root + "/uac", requestData, requestConfig)
             .then(response => {
                 if (response.data.ok) {
                     // Request succeeded

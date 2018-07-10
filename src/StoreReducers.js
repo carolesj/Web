@@ -12,7 +12,10 @@ let initialState = {
     currentUserRights: "visitor",   // Any user starts browsing as a visitor
     currentUserLoggedIn: false,     // Any user starts as not logged in
 
-    // Static site
+    // Account control information
+    UacData: [],
+
+    // Globally available information
     SiteData: {
         products: [
             // {id, name, description, price, media (relative to src folder), localMedia (is media locally imported by webpack?), amount}
@@ -33,7 +36,7 @@ let initialState = {
         ],
     },
 
-    // Customer specific
+    // Per-customer specific information
     CustomerData: [
         {
             name: "Administrador Exemplo",
@@ -143,6 +146,12 @@ function petShopApp(state, action) {
                 }
                 return customer
             })
+        })
+
+    case CommonActions.RETRIEVE_SUPERVISOR_USER_LIST:
+        console.log("this just in")
+        return Object.assign({}, state, {
+            UacData: action.payload.UserInfo
         })
 
     // Common action reducers

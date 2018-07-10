@@ -1,4 +1,3 @@
-import Typography from "@material-ui/core/Typography"
 import { PropTypes } from "prop-types"
 import React from "react"
 import { PetShopServiceList } from "./PetShopCardViews"
@@ -24,17 +23,12 @@ function CustomerServiceView(props) {
                 animalArray={currentUserData.animals}
                 appointmentArray={currentUserData.appointments}
                 currentUserEmail={props.currentUserEmail}
-                currentUserRights={"customer"}
+                onGetUserAppointments={(appointments) => props.onGetUserAppointments(appointments)}
+                onGetUserAnimals={(animals) => props.onGetUserAnimals(animals)}
                 onChangeCurrentView={(nextView) => props.onChangeCurrentView(nextView)}
                 onLaunchDialog={(open, mode) => props.onLaunchDialog(open, mode)}
                 onSetSelected={(id) => props.onSetSelected(id)}
             />
-            {(currentUserData.appointments.length === 0) &&
-            <Typography variant="title" align="center" color="primary">
-                <br />
-                Você não possui agendamentos no momento :(
-            </Typography>
-            }
         </div>
     )
 }
@@ -54,6 +48,8 @@ CustomerServiceView.propTypes = {
     currentUserEmail: PropTypes.string.isRequired,
 
     // inherited actions (SUPPLY THESE)
+    onGetUserAppointments: PropTypes.func.isRequired,
+    onGetUserAnimals: PropTypes.func.isRequired,
     onChangeCurrentView: PropTypes.func.isRequired,
     onLaunchDialog: PropTypes.func.isRequired,
     onSetSelected: PropTypes.func.isRequired,

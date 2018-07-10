@@ -26,6 +26,7 @@ function PetShopResponsiveDialog(props) {
                 {props.errorStatus &&
                     <DialogContentText align="center" color="primary">
                         {props.errorText}
+                        <br />
                     </DialogContentText>
                 }
                 {props.isLoading &&

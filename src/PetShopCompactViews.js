@@ -1,19 +1,22 @@
-import { Icon } from "@material-ui/core"
+import { CircularProgress, Grid, Icon } from "@material-ui/core"
 import Avatar from "@material-ui/core/Avatar"
 import Button from "@material-ui/core/Button"
 import Chip from "@material-ui/core/Chip"
 import Paper from "@material-ui/core/Paper"
+import { withStyles } from "@material-ui/core/styles"
+import spacing from "@material-ui/core/styles/spacing"
 import Table from "@material-ui/core/Table"
 import TableBody from "@material-ui/core/TableBody"
 import TableCell from "@material-ui/core/TableCell"
 import TableHead from "@material-ui/core/TableHead"
 import TableRow from "@material-ui/core/TableRow"
-import AddIcon from "@material-ui/icons/Add"
 import Typography from "@material-ui/core/Typography"
-import { withStyles } from "@material-ui/core/styles"
+import AddIcon from "@material-ui/icons/Add"
+import Axios from "axios"
+import moment from "moment"
 import { PropTypes } from "prop-types"
 import React from "react"
-import moment from "moment"
+import Root from "./remote"
 
 const styles = theme => ({
     // table
@@ -74,111 +77,187 @@ const styles = theme => ({
 /*
     Shopping cart table list for the customer view
  */
-const PetShopShoppingCart = withStyles(styles)(props => {
-    // Just inline this I don't care
-    const CustomTableCell = withStyles(theme => ({
-        head: {
-            backgroundColor: theme.palette.common.black,
-            color: theme.palette.common.white,
-        },
-        body: {
-            fontSize: 14,
-        },
-    }))(TableCell)
+//const PetShopShoppingCart = withStyles(styles)(props => {
+class WrappedShoppingCart extends React.Component {
+    constructor(props) {
+        super(props)
+        this.state = {
+            errorText: "",
+            errorStatus: false,
+            doingRemoteRequest: false,
+        }
+    }
 
-    // Inject media information in cart item array
-    let cartItemsWithMedia = props.cartItemArray.map(item => {
-        // Find corresponding item in siteData
-        let itemInfo = props.productArray.find(prod => prod.id === item.itemId)
-        // Reassign object in original array
-        return Object.assign({}, item, {
-            media: itemInfo.media,
-            localMedia: itemInfo.localMedia
+    componentDidMount() {
+        // Begin remote request
+        this.setState({
+            doingRemoteRequest: true,
         })
-    })
 
-    // Track total bill
-    let subTotal = 0.0
+        // Actually just query the user shopping cart, products are given
+        Axios.get(Root + "/" + this.props.currentUserEmail + "/shoppingCart")
+            .then(response => {
+                if (response.data.ok) {
+                    this.setState({
+                        errorText: "",
+                        errorStatus: false,
+                        doingRemoteRequest: false,
+                    })
+                    this.props.onGetUserShoppingCart(response.data.shoppingCart)
+                } else {
+                    this.setState({
+                        errorStatus: true,
+                        errorText: response.data.error,
+                        doingRemoteRequest: false,
+                    })
+                }
+            })
+            .catch(error => {
+                this.setState({
+                    errorStatus: true,
+                    errorText: error.message,
+                    doingRemoteRequest: false,
+                })
+            })
+    }
 
-    return (
-        <div>
-            {/* Table */}
-            <Paper className={props.classes.root}>
-                <Table className={props.classes.table}>
-                    <TableHead>
-                        <TableRow>
-                            <CustomTableCell>Item da loja</CustomTableCell>
-                            <CustomTableCell numeric>Unidades</CustomTableCell>
-                            <CustomTableCell numeric>Preço (R$)</CustomTableCell>
-                            <CustomTableCell numeric>Ação</CustomTableCell>
-                        </TableRow>
-                    </TableHead>
-                    <TableBody>
-                        {cartItemsWithMedia.map((item, index) => {
-                            subTotal = subTotal + parseFloat(item.itemPrice) * parseInt(item.itemAmount, 10)
+    render () {
+        const {
+            classes,
+            productArray,
+            cartItemArray,
+            onChangeCurrentView,
+            onLaunchDialog,
+            onSetSelected
+        } = this.props
 
-                            return (
-                                <TableRow className={props.classes.row} key={index}>
-                                    <CustomTableCell component="th" scope="row">
-                                        {/* <div className={props.classes.chipRoot}> */}
-                                        <Chip
-                                            avatar={
-                                                <Avatar
-                                                    alt="Imagem do produto"
-                                                    src={item.localMedia ? require(`${item.media}`) : item.media}
-                                                    className={props.classes.bigAvatar}
-                                                />}
-                                            label={item.itemName}
-                                            className={props.classes.chip}
-                                        />
-                                        {/* </div> */}
-                                    </CustomTableCell>
-                                    <CustomTableCell numeric>{item.itemAmount}</CustomTableCell>
-                                    <CustomTableCell numeric>{parseFloat(item.itemPrice) * parseInt(item.itemAmount, 10)}</CustomTableCell>
-                                    <CustomTableCell numeric>
-                                        <Button color="secondary" className={props.classes.tButton}
-                                            onClick={() => { props.onSetSelected(item.itemId); props.onLaunchDialog(true, "remove") }}>
+        // Just inline this I don't care
+        const CustomTableCell = withStyles(theme => ({
+            head: {
+                backgroundColor: theme.palette.common.black,
+                color: theme.palette.common.white,
+            },
+            body: {
+                fontSize: 14,
+            },
+        }))(TableCell)
+
+        // Inject media information in cart item array
+        let cartItemsWithMedia = cartItemArray.map(item => {
+            // Find corresponding item in siteData
+            let itemInfo = productArray.find(prod => prod.id === item.itemId)
+            // Reassign object in original array
+            if (typeof (itemInfo) !== "undefined") {
+                return Object.assign({}, item, {
+                    media: itemInfo.media,
+                    localMedia: itemInfo.localMedia
+                })
+            }
+            return item
+        })
+
+        // Track total bill
+        let subTotal = 0.0
+
+        return (this.state.doingRemoteRequest ?
+            <Grid container justify="center">
+                <CircularProgress style={{ margin: spacing.unit * 2 }} size={50} />
+            </Grid>
+            : (this.state.errorStatus ?
+                <Typography variant="title" align="center" color="primary">
+                    <br />
+                        Erro de servidor :(
+                    <br />
+                    {this.state.errorText}
+                </Typography>
+                :
+                <div>
+                    {/* Table */}
+                    <Paper className={classes.root}>
+                        <Table className={classes.table}>
+                            <TableHead>
+                                <TableRow>
+                                    <CustomTableCell>Item da loja</CustomTableCell>
+                                    <CustomTableCell numeric>Unidades</CustomTableCell>
+                                    <CustomTableCell numeric>Preço (R$)</CustomTableCell>
+                                    <CustomTableCell numeric>Ação</CustomTableCell>
+                                </TableRow>
+                            </TableHead>
+                            <TableBody>
+                                {cartItemsWithMedia.map((item, index) => {
+                                    subTotal = subTotal + parseFloat(item.itemPrice) * parseInt(item.itemAmount, 10)
+
+                                    return (
+                                        <TableRow className={classes.row} key={index}>
+                                            <CustomTableCell component="th" scope="row">
+                                                {/* <div className={classes.chipRoot}> */}
+                                                <Chip
+                                                    avatar={
+                                                        <Avatar
+                                                            alt="Imagem do produto"
+                                                            src={item.localMedia ? require(`${item.media}`) : item.media}
+                                                            className={classes.bigAvatar}
+                                                        />}
+                                                    label={item.itemName}
+                                                    className={classes.chip}
+                                                />
+                                                {/* </div> */}
+                                            </CustomTableCell>
+                                            <CustomTableCell numeric>{item.itemAmount}</CustomTableCell>
+                                            <CustomTableCell numeric>{parseFloat(item.itemPrice) * parseInt(item.itemAmount, 10)}</CustomTableCell>
+                                            <CustomTableCell numeric>
+                                                <Button color="secondary" className={classes.tButton}
+                                                    onClick={() => { onSetSelected(item.itemId); onLaunchDialog(true, "remove") }}>
                                                 Remover
+                                                </Button>
+                                            </CustomTableCell>
+                                        </TableRow>
+                                    )
+                                })}
+                                <TableRow className={classes.row}>
+                                    <CustomTableCell component="th" scope="row">
+                                        <Typography variant="body2">
+                                    Subtotal
+                                        </Typography>
+                                    </CustomTableCell>
+                                    <CustomTableCell numeric></CustomTableCell>
+                                    <CustomTableCell numeric>
+                                        <Typography variant="body2">
+                                            {`R$ ${subTotal}`}
+                                        </Typography>
+                                    </CustomTableCell>
+                                    <CustomTableCell numeric>
+                                        <Button color="primary" className={classes.tButton}
+                                            onClick={() => { onLaunchDialog(true, "commit") }}>
+                                        Finalizar Compra
                                         </Button>
                                     </CustomTableCell>
                                 </TableRow>
-                            )
-                        })}
-                        <TableRow className={props.classes.row}>
-                            <CustomTableCell component="th" scope="row">
-                                <Typography variant="body2">
-                                    Subtotal
-                                </Typography>
-                            </CustomTableCell>
-                            <CustomTableCell numeric></CustomTableCell>
-                            <CustomTableCell numeric>
-                                <Typography variant="body2">
-                                    {`R$ ${subTotal}`}
-                                </Typography>
-                            </CustomTableCell>
-                            <CustomTableCell numeric>
-                                <Button color="primary" className={props.classes.tButton}
-                                    onClick={() => { props.onLaunchDialog(true, "commit") }}>
-                                        Finalizar Compra
-                                </Button>
-                            </CustomTableCell>
-                        </TableRow>
-                    </TableBody>
-                </Table>
-            </Paper>
+                            </TableBody>
+                        </Table>
+                    </Paper>
 
-            {/* Floating return button */}
-            <Button variant="fab" color="primary"
-                onClick={() => props.onChangeCurrentView("shop")}
-                className={props.classes.fab}
-            >
-                <Icon>arrow_back</Icon>
-            </Button>
-        </div>
-    )
-})
+                    {/* In case of empty list */}
+                    {(cartItemArray.length === 0) &&
+                        <Typography variant="title" align="center" color="primary">
+                            <br />
+                            Seu carrinho de compras está vazio :(
+                        </Typography>
+                    }
 
-PetShopShoppingCart.propTypes = {
+                    {/* Floating return button */}
+                    <Button variant="fab" color="primary"
+                        onClick={() => onChangeCurrentView("shop")}
+                        className={classes.fab}
+                    >
+                        <Icon>arrow_back</Icon>
+                    </Button>
+                </div>
+            )
+        )
+    }
+}
+const ShoppingCartPropTypes = {
     // style
     classes: PropTypes.object,
 
@@ -202,126 +281,234 @@ PetShopShoppingCart.propTypes = {
             localMedia: PropTypes.bool.isRequired,
         })
     ).isRequired,
+    currentUserEmail: PropTypes.string.isRequired,
 
     // inherited actions (SUPPLY THESE)
     onChangeCurrentView: PropTypes.func.isRequired,
+    onGetUserShoppingCart: PropTypes.func.isRequired,
+    onGetProductList: PropTypes.func.isRequired, // TODO DITCH THIS!!!
     onLaunchDialog: PropTypes.func.isRequired,
     onSetSelected: PropTypes.func.isRequired,
 }
+const PetShopShoppingCart = withStyles(styles)(WrappedShoppingCart)
+WrappedShoppingCart.propTypes = ShoppingCartPropTypes
+PetShopShoppingCart.propTypes = ShoppingCartPropTypes
 
 
 /*
     Appointment table list for all user views
  */
-const PetShopAppointmentList = withStyles(styles)(props => {
-    // Just inline this I don't really care
-    const CustomTableCell = withStyles(theme => ({
-        head: {
-            backgroundColor: theme.palette.common.black,
-            color: theme.palette.common.white,
-        },
-        body: {
-            fontSize: 14,
-        },
-    }))(TableCell)
-
-    // Inject media information in appointment array
-    let appointmentsWithMedia = props.appointmentArray.map(item => {
-        // Find corresponding item in siteData
-        let itemInfo = props.animalArray.find(pet => pet.id === item.animalId)
-        // Reassign object in original array
-        if (typeof(itemInfo) !== "undefined") {
-            return Object.assign({}, item, {
-                media: itemInfo.media,
-                localMedia: itemInfo.localMedia
-            })
+class WrappedAppointmentList extends React.Component {
+    constructor(props) {
+        super(props)
+        this.state = {
+            errorText: "",
+            errorStatus: false,
+            doingRemoteRequest: false,
         }
-        return item
-    })
+    }
 
-    return (
-        <div>
-            <Paper className={props.classes.root}>
-                <Table className={props.classes.table}>
-                    <TableHead>
-                        <TableRow>
-                            <CustomTableCell>Serviço</CustomTableCell>
-                            <CustomTableCell numeric>Nome do pet</CustomTableCell>
-                            <CustomTableCell numeric>Data e hora marcados</CustomTableCell>
-                            <CustomTableCell numeric>Estado do pedido</CustomTableCell>
-                            <CustomTableCell numeric>Ação</CustomTableCell>
-                        </TableRow>
-                    </TableHead>
-                    <TableBody>
-                        {appointmentsWithMedia.map((item, index) => {
-                            return (
-                                <TableRow className={props.classes.row} key={index}>
-                                    <CustomTableCell component="th" scope="row">
-                                        {item.serviceName}
-                                    </CustomTableCell>
-                                    <CustomTableCell numeric>
-                                        {/* <div className={props.classes.chipRoot}> */}
-                                        <Chip
-                                            avatar={
-                                                <Avatar
-                                                    alt="Imagem do produto"
-                                                    src={item.localMedia ? require(`${item.media}`) : item.media}
-                                                    className={props.classes.bigAvatar}
-                                                />}
-                                            label={item.animalName}
-                                            className={props.classes.chip}
-                                        />
-                                        {/* </div> */}
-                                    </CustomTableCell>
-                                    <CustomTableCell numeric>
-                                        {item.date.format()}
-                                    </CustomTableCell>
-                                    <CustomTableCell numeric>
-                                        {(item.status === "approved") &&
+    componentDidMount() {
+        // Begin remote request
+        this.setState({
+            doingRemoteRequest: true,
+        })
+
+        // Appointments depend on pets, so query these first
+        Axios.get(Root + "/" + this.props.currentUserEmail + "/pets")
+            .then(response => {
+                if (response.data.ok) {
+                    this.props.onGetUserAnimals(response.data.animals)
+
+                    // Then, actually query the user appointments
+                    Axios.get(Root + "/" + this.props.currentUserEmail + "/appointments")
+                        .then(response => {
+                            if (response.data.ok) {
+                                this.setState({
+                                    errorText: "",
+                                    errorStatus: false,
+                                    doingRemoteRequest: false,
+                                })
+                                this.props.onGetUserAppointments(response.data.appointments)
+                            } else {
+                                this.setState({
+                                    errorStatus: true,
+                                    errorText: response.data.error,
+                                    doingRemoteRequest: false,
+                                })
+                            }
+                        })
+                        .catch(error => {
+                            this.setState({
+                                errorStatus: true,
+                                errorText: error.message,
+                                doingRemoteRequest: false,
+                            })
+                        })
+                } else {
+                    this.setState({
+                        errorStatus: true,
+                        errorText: response.data.error,
+                        doingRemoteRequest: false,
+                    })
+                }
+            })
+            .catch(error => {
+                this.setState({
+                    errorStatus: true,
+                    errorText: error.message,
+                    doingRemoteRequest: false,
+                })
+            })
+    }
+
+    render() {
+        const {
+            classes,
+            animalArray,
+            appointmentArray,
+            onChangeCurrentView,
+            onLaunchDialog,
+            onSetSelected,
+        } = this.props
+
+        // Just inline this I don't really care
+        const CustomTableCell = withStyles(theme => ({
+            head: {
+                backgroundColor: theme.palette.common.black,
+                color: theme.palette.common.white,
+            },
+            body: {
+                fontSize: 14,
+            },
+        }))(TableCell)
+
+        // Inject media information in appointment array
+        let appointmentsWithMedia = appointmentArray.map(item => {
+        // Find corresponding item in siteData
+            let itemInfo = animalArray.find(pet => pet.id === item.animalId)
+            // Reassign object in original array
+            if (typeof(itemInfo) !== "undefined") {
+                return Object.assign({}, item, {
+                    media: itemInfo.media,
+                    localMedia: itemInfo.localMedia
+                })
+            }
+            return item
+        })
+
+        return (this.state.doingRemoteRequest ?
+            <Grid container justify="center">
+                <CircularProgress style={{ margin: spacing.unit * 2 }} size={50} />
+            </Grid>
+            : (this.state.errorStatus ?
+                <Typography variant="title" align="center" color="primary">
+                    <br />
+                        Erro de servidor :(
+                    <br />
+                    {this.state.errorText}
+                </Typography>
+                :
+                <div>
+                    {/* The actual table */}
+                    <Paper className={classes.root}>
+                        <Table className={classes.table}>
+                            <TableHead>
+                                <TableRow>
+                                    <CustomTableCell>Serviço</CustomTableCell>
+                                    <CustomTableCell numeric>Nome do pet</CustomTableCell>
+                                    <CustomTableCell numeric>Data e hora marcados</CustomTableCell>
+                                    <CustomTableCell numeric>Estado do pedido</CustomTableCell>
+                                    <CustomTableCell numeric>Ação</CustomTableCell>
+                                </TableRow>
+                            </TableHead>
+                            <TableBody>
+                                {appointmentsWithMedia.map((item, index) => {
+                                    const dateOptions = {
+                                        hour: "numeric",
+                                        minute: "numeric",
+                                        weekday: "long",
+                                        month: "long",
+                                        day: "numeric"
+                                    }
+
+                                    return (
+                                        <TableRow className={classes.row} key={index}>
+                                            <CustomTableCell component="th" scope="row">
+                                                {item.serviceName}
+                                            </CustomTableCell>
+                                            <CustomTableCell numeric>
+                                                {/* <div className={classes.chipRoot}> */}
+                                                <Chip
+                                                    avatar={
+                                                        <Avatar
+                                                            alt="Imagem do produto"
+                                                            src={item.localMedia ? require(`${item.media}`) : item.media}
+                                                            className={classes.bigAvatar}
+                                                        />}
+                                                    label={item.animalName}
+                                                    className={classes.chip}
+                                                />
+                                                {/* </div> */}
+                                            </CustomTableCell>
+                                            <CustomTableCell numeric>
+                                                {moment(item.date).toDate().toLocaleDateString("pt-BR", dateOptions)}
+                                            </CustomTableCell>
+                                            <CustomTableCell numeric>
+                                                {(item.status === "approved") &&
                                                     <Typography color="primary">
                                                         Aprovada
                                                     </Typography>
-                                        }
-                                        {(item.status === "pending") &&
+                                                }
+                                                {(item.status === "pending") &&
                                                     <Typography color="default">
                                                         Pendente
                                                     </Typography>
-                                        }
-                                        {(item.status === "revoked") &&
+                                                }
+                                                {(item.status === "revoked") &&
                                                     <Typography color="secondary">
                                                         Indeferida
                                                     </Typography>
-                                        }
-                                    </CustomTableCell>
-                                    <CustomTableCell numeric>
-                                        <Button color="primary" className={props.classes.tButton}
-                                            onClick={() => { props.onSetSelected(item.id); props.onLaunchDialog(true, "inspect") }}>
+                                                }
+                                            </CustomTableCell>
+                                            <CustomTableCell numeric>
+                                                <Button color="primary" className={classes.tButton}
+                                                    onClick={() => { onSetSelected(item.id); onLaunchDialog(true, "inspect") }}>
                                                     Ver Mais
-                                        </Button>
-                                        <Button color="secondary" className={props.classes.tButton}
-                                            onClick={() => { props.onSetSelected(item.id); props.onLaunchDialog(true, "remove") }}>
+                                                </Button>
+                                                <Button color="secondary" className={classes.tButton}
+                                                    onClick={() => { onSetSelected(item.id); onLaunchDialog(true, "remove") }}>
                                                     Remover
-                                        </Button>
-                                    </CustomTableCell>
-                                </TableRow>
-                            )
-                        })}
-                    </TableBody>
-                </Table>
-            </Paper>
+                                                </Button>
+                                            </CustomTableCell>
+                                        </TableRow>
+                                    )
+                                })}
+                            </TableBody>
+                        </Table>
+                    </Paper>
 
-            {/* Floating return button */}
-            <Button variant="fab" color="primary"
-                onClick={() => props.onChangeCurrentView("services")}
-                className={props.classes.fab}
-            >
-                <Icon>arrow_back</Icon>
-            </Button>
-        </div>
-    )
-})
+                    {/* In case of empty list */}
+                    {(appointmentArray.length === 0) &&
+                        <Typography variant="title" align="center" color="primary">
+                            <br />
+                            Você não possui agendamentos no momento :(
+                        </Typography>
+                    }
 
-PetShopAppointmentList.propTypes = {
+                    {/* Floating return button */}
+                    <Button variant="fab" color="primary"
+                        onClick={() => onChangeCurrentView("services")}
+                        className={classes.fab}
+                    >
+                        <Icon>arrow_back</Icon>
+                    </Button>
+                </div>
+            )
+        )
+    }
+}
+const AppointmentListPropTypes = {
     // style
     classes: PropTypes.object,
 
@@ -342,19 +529,23 @@ PetShopAppointmentList.propTypes = {
             serviceName: PropTypes.string.isRequired,
             animalId: PropTypes.number.isRequired,
             animalName: PropTypes.string.isRequired,
-            date: PropTypes.instanceOf(moment),
+            date: PropTypes.string.isRequired,
             status: PropTypes.string.isRequired,
             message: PropTypes.string.isRequired
         })
     ).isRequired,
     currentUserEmail: PropTypes.string.isRequired,
-    currentUserRights: PropTypes.string.isRequired,
 
     // inherited actions (SUPPLY THESE)
+    onGetUserAppointments: PropTypes.func.isRequired,
+    onGetUserAnimals: PropTypes.func.isRequired,
     onChangeCurrentView: PropTypes.func.isRequired,
     onLaunchDialog: PropTypes.func.isRequired,
     onSetSelected: PropTypes.func.isRequired,
 }
+const PetShopAppointmentList = withStyles(styles)(WrappedAppointmentList)
+WrappedAppointmentList.propTypes = AppointmentListPropTypes
+PetShopAppointmentList.propTypes = AppointmentListPropTypes
 
 
 /*

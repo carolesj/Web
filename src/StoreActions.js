@@ -103,6 +103,13 @@ export function getUserShoppingCart(shoppingCart) {
     }
 }
 
+export function getSupervisorUserInfo(userInfo) {
+    return {
+        type: CommonActions.RETRIEVE_SUPERVISOR_USER_LIST,
+        payload: { userInfo }
+    }
+}
+
 /*
    UAC action creators
  */
@@ -180,10 +187,10 @@ export function removeFromCart(userEmail, itemData) {
     }
 }
 
-export function commitOnPurchase(userEmail, shoppingCart) {
+export function commitOnPurchase(userEmail) {
     return {
         type: CustomerActions.STORE_COMMIT_ON_PURCHASE,
-        payload: { userEmail, shoppingCart }
+        payload: { userEmail }
     }
 }
 

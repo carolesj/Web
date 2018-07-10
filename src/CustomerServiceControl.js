@@ -3,18 +3,20 @@ import Button from "@material-ui/core/Button"
 import DialogContentText from "@material-ui/core/DialogContentText"
 import Grid from "@material-ui/core/Grid"
 import MenuItem from "@material-ui/core/MenuItem"
+import { withStyles } from "@material-ui/core/styles"
 import TextField from "@material-ui/core/TextField"
 import Typography from "@material-ui/core/Typography"
-import { withStyles } from "@material-ui/core/styles"
+import Axios from "axios"
 import classNames from "classnames"
 import { DateTimePicker } from "material-ui-pickers"
-import MuiPickersUtilsProvider from "material-ui-pickers/utils/MuiPickersUtilsProvider"
 import MomentUtils from "material-ui-pickers/utils/moment-utils"
+import MuiPickersUtilsProvider from "material-ui-pickers/utils/MuiPickersUtilsProvider"
 import moment from "moment"
 import BRLocale from "moment/locale/pt-br"
 import { PropTypes } from "prop-types"
 import React from "react"
 import PetShopResponsiveDialog from "./PetShopResponsiveDialog"
+import Root from "./remote"
 
 moment.locale("pt-br")
 const styles = theme => ({
@@ -51,6 +53,8 @@ class CustomerServiceControl extends React.Component {
             dateTimePickerValue: moment(),
             servicePickerValue: "",
             petPickerValue: "",
+            // remote status
+            doingRemoteRequest: false,
         }
     }
 
@@ -79,6 +83,8 @@ class CustomerServiceControl extends React.Component {
             dateTimePickerValue: moment(),
             servicePickerValue: "",
             petPickerValue: "",
+            // remote
+            doingRemoteRequest: false,
         })
         this.props.onLaunchDialog(false)
     }
@@ -88,9 +94,22 @@ class CustomerServiceControl extends React.Component {
         REDUX STORE DISPATCH WRAPPERS
      */
     handleClickConfirmAddAppointment() {
-        // Fetch service data
-        let stageServiceId = this.state.servicePickerValue
-        let stageService = this.props.siteData.services.find(service => (service.id === stageServiceId))
+        // Stage data
+        const requestData = {
+            serviceId: this.state.servicePickerValue, serviceName: "",
+            animalId: this.state.petPickerValue, animalName: "",
+            date: this.state.dateTimePickerValue.format(),
+            status: "pending",
+            message: "",
+        }
+        const requestConfig = {
+            headers: {
+                "Content-Type": "application/json",
+            }
+        }
+
+        // Continue staging...
+        let stageService = this.props.siteData.services.find(service => (service.id === requestData.serviceId))
         if (typeof(stageService) === "undefined") {
             this.setState({
                 errorStatus: true,
@@ -98,12 +117,12 @@ class CustomerServiceControl extends React.Component {
             })
             return
         }
-        let stageServiceName = stageService.name
+        requestData.serviceName = stageService.name
 
-        // Fetch customer pet data
-        let stagePetId = this.state.petPickerValue
-        let stagePet = this.props.customerData.find(customer => (customer.email === this.props.currentUserEmail))
-            .animals.find(pet => (pet.id === stagePetId))
+        // Continue staging...
+        let stagePet = this.props.customerData
+            .find(customer => (customer.email === this.props.currentUserEmail)).animals
+            .find(pet => (pet.id === requestData.animalId))
         if (typeof(stagePet) === "undefined") {
             this.setState({
                 errorStatus: true,
@@ -111,34 +130,64 @@ class CustomerServiceControl extends React.Component {
             })
             return
         }
-        let stagePetName = stagePet.name
+        requestData.animalName = stagePet.name
 
-        // Prepare remaining data
-        let stageDate = this.state.dateTimePickerValue
-        let stageStatus = "pending"
-        let stageMessage = ""
-
-        // Dispatch add appointment action
-        this.props.onConfirmAddAppointment(this.props.currentUserEmail, {
-            serviceId: stageServiceId,
-            serviceName: stageServiceName,
-            animalId: stagePetId,
-            animalName: stagePetName,
-            date: stageDate,
-            status: stageStatus,
-            message: stageMessage,
+        // Perform request
+        this.setState({
+            doingRemoteRequest: true,
         })
-        // Close dialog on success
-        this.handleCloseDialog()
+        Axios.put(Root + "/" + this.props.currentUserEmail + "/appointments", requestData, requestConfig)
+            .then(response => {
+                if (response.data.ok) {
+                    // Request succeeded
+                    this.props.onConfirmAddAppointment(this.props.currentUserEmail, requestData)
+                    this.handleCloseDialog()
+                } else {
+                    this.setState({
+                        errorStatus: true,
+                        errorMessage: response.data.error,
+                        doingRemoteRequest: false,
+                    })
+                }
+            })
+            .catch(error => {
+                this.setState({
+                    errorStatus: true,
+                    errorMessage: error.message,
+                    doingRemoteRequest: false,
+                })
+            })
     }
 
     handleClickConfirmRemoveAppointment() {
-        // Just dispatch remove appointment action
-        this.props.onConfirmRemoveAppointment(this.props.currentUserEmail, {
-            id: this.props.selectedId,
+        // Stage data
+        const requestId = this.props.selectedId
+
+        // Perform request
+        this.setState({
+            doingRemoteRequest: true,
         })
-        // Close dialog on success
-        this.handleCloseDialog()
+        Axios.delete(Root + "/" + this.props.currentUserEmail + "/appointments/" + String(requestId))
+            .then(response => {
+                if (response.data.ok) {
+                    // Request succeeded
+                    this.props.onConfirmRemoveAppointment(this.props.currentUserEmail, { id: requestId, })
+                    this.handleCloseDialog()
+                } else {
+                    this.setState({
+                        errorStatus: true,
+                        errorMessage: response.data.error,
+                        doingRemoteRequest: false,
+                    })
+                }
+            })
+            .catch(error => {
+                this.setState({
+                    errorStatus: true,
+                    errorMessage: error.message,
+                    doingRemoteRequest: false,
+                })
+            })
     }
 
 
@@ -284,6 +333,15 @@ class CustomerServiceControl extends React.Component {
             const customerPet = this.props.customerData.find(customer => (customer.email === this.props.currentUserEmail))
                 .animals.find(pet => (pet.id === serviceData.animalId))
 
+            // Date display options
+            const dateOptions = {
+                hour: "numeric",
+                minute: "numeric",
+                weekday: "long",
+                month: "long",
+                day: "numeric"
+            }
+
 
             dialogTitle = "Informações do Agendamento"
 
@@ -319,7 +377,7 @@ class CustomerServiceControl extends React.Component {
                                 Data/Hora
                             </Typography>
                             <Typography align="center" color="secondary" variant="body2">
-                                {serviceData.date.format()}
+                                {moment(serviceData.date).toDate().toLocaleDateString("pt-BR", dateOptions)}
                             </Typography>
                             <br />
                             <Typography align="center" color="primary" variant="body2">
@@ -367,6 +425,7 @@ class CustomerServiceControl extends React.Component {
             <PetShopResponsiveDialog
                 isOpen={this.props.dialogOpen}
                 onClose={() => this.handleCloseDialog()}
+                isLoading={this.state.doingRemoteRequest}
                 ariaLabel="service-control-dialog"
                 dialogTitle={dialogTitle}
                 dialogContent={dialogContent}

@@ -174,11 +174,7 @@ class CustomerPetControl extends React.Component {
             .then(response => {
                 if (response.data.ok) {
                     // Request succeeded
-                    this.props.onConfirmAddPet(this.props.currentUserEmail, {
-                        name: requestData.name,
-                        race: requestData.race,
-                        media: requestData.media,
-                    })
+                    this.props.onConfirmAddPet(this.props.currentUserEmail, requestData)
                     this.handleCloseDialog()
                 } else {
                     this.setState({
@@ -235,12 +231,7 @@ class CustomerPetControl extends React.Component {
             .then(response => {
                 if (response.data.ok) {
                     // Request succeeded
-                    this.props.onConfirmEditPet(this.props.currentUserEmail, {
-                        id: requestData.id,
-                        name: requestData.name,
-                        race: requestData.race,
-                        media: requestData.media,
-                    })
+                    this.props.onConfirmEditPet(this.props.currentUserEmail, requestData)
                     this.handleCloseDialog()
                 } else {
                     this.setState({
@@ -271,9 +262,7 @@ class CustomerPetControl extends React.Component {
             .then(response => {
                 if (response.data.ok) {
                     // Request succeeded
-                    this.props.onConfirmRemovePet(this.props.currentUserEmail, {
-                        id: requestId,
-                    })
+                    this.props.onConfirmRemovePet(this.props.currentUserEmail, { id: requestId, })
                     this.handleCloseDialog()
                 } else {
                     this.setState({

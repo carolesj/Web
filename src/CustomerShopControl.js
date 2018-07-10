@@ -5,6 +5,8 @@ import TextField from "@material-ui/core/TextField"
 import { PropTypes } from "prop-types"
 import React from "react"
 import PetShopResponsiveDialog from "./PetShopResponsiveDialog"
+import Axios from "axios"
+import Root from "./remote"
 
 const styles = theme => ({
     container: {
@@ -27,6 +29,7 @@ class CustomerShopControl extends React.Component {
             errorMessage: "",
             itemAmountField: "0",
             itemAmountFieldParsed: 0,
+            doingRemoteRequest: false
         }
     }
 
@@ -54,6 +57,7 @@ class CustomerShopControl extends React.Component {
             errorMessage: "",
             itemAmountField: "0",
             itemAmountFIeldParsed: 0,
+            doingRemoteRequest: false
         })
         this.props.onLaunchDialog(false)
     }
@@ -70,43 +74,50 @@ class CustomerShopControl extends React.Component {
         // Find chosen item already in user cart
         let alreadyChosenData = userData.shoppingCart.find(item => (item.itemId === itemData.id))
 
-        // Has user already added this to cart?
-        if (typeof (alreadyChosenData) !== "undefined") {
-            if (this.state.itemAmountFieldParsed > itemData.amount) {
-                this.setState({
-                    errorStatus: true,
-                    errorMessage: "Quantidade (incluindo o carrinho) excede o disponível",
-                })
-            } else {
-                // Dispatch edit cart
-                this.props.onConfirmEditItem(this.props.currentUserEmail, {
-                    itemId: itemData.id,
-                    itemName: itemData.name,
-                    itemPrice: itemData.price,
-                    itemAmount: this.state.itemAmountFieldParsed,
-                })
-                // Close dialog on success
-                this.handleCloseDialog()
-            }
-
-        } else {
-            if (this.state.itemAmountFieldParsed > itemData.amount) {
-                this.setState({
-                    errorStatus: true,
-                    errorMessage: "Quantidade excede o disponível",
-                })
-            } else {
-                // Dispatch add to cart
-                this.props.onConfirmAddItem(this.props.currentUserEmail, {
-                    itemId: itemData.id,
-                    itemName: itemData.name,
-                    itemPrice: itemData.price,
-                    itemAmount: this.state.itemAmountFieldParsed,
-                })
-                // Close dialog on success
-                this.handleCloseDialog()
+        // Stage data
+        const requestData = {
+            itemId: itemData.id,
+            itemName: itemData.name,
+            itemPrice: itemData.price,
+            itemAmount: this.state.itemAmountFieldParsed,
+        }
+        const requestConfig = {
+            headers: {
+                "Content-Type": "application/json",
             }
         }
+
+        // Perform request
+        this.setState({
+            doingRemoteRequest: true,
+        })
+        Axios.post(Root + "/" + this.props.currentUserEmail + "/shoppingCart", requestData, requestConfig)
+            .then(response => {
+                if (response.data.ok) {
+                    // Request succeeded
+                    if (typeof (alreadyChosenData) !== "undefined") {
+                        // Dispatch edit cart
+                        this.props.onConfirmEditItem(this.props.currentUserEmail, requestData)
+                    } else {
+                        // Dispatch add to cart
+                        this.props.onConfirmAddItem(this.props.currentUserEmail, requestData)
+                    }
+                    this.handleCloseDialog()
+                } else {
+                    this.setState({
+                        errorStatus: true,
+                        errorMessage: response.data.error,
+                        doingRemoteRequest: false,
+                    })
+                }
+            })
+            .catch(error => {
+                this.setState({
+                    errorStatus: true,
+                    errorMessage: error.message,
+                    doingRemoteRequest: false,
+                })
+            })
     }
 
     handleClickConfirmRemoveItem() {
@@ -116,25 +127,62 @@ class CustomerShopControl extends React.Component {
         // Find chosen item in user cart
         let alreadyChosenData = userData.shoppingCart.find(item => (item.itemId === this.props.selectedId))
 
-        // Dispatch remove from cart
-        this.props.onConfirmRemoveItem(this.props.currentUserEmail, {
-            itemId: alreadyChosenData.itemId,
-            itemAmount: alreadyChosenData.itemAmount,
+        // Perform request
+        this.setState({
+            doingRemoteRequest: true,
         })
-
-        // Close dialog on success
-        this.handleCloseDialog()
+        Axios.delete(Root + "/" + this.props.currentUserEmail + "/shoppingCart/" + String(alreadyChosenData.itemId))
+            .then(response => {
+                if (response.data.ok) {
+                    // Request succeeded
+                    this.props.onConfirmRemoveItem(this.props.currentUserEmail, {
+                        itemId: alreadyChosenData.itemId,
+                        itemAmount: alreadyChosenData.itemAmount,
+                    })
+                    this.handleCloseDialog()
+                } else {
+                    this.setState({
+                        errorStatus: true,
+                        errorMessage: response.data.error,
+                        doingRemoteRequest: false,
+                    })
+                }
+            })
+            .catch(error => {
+                this.setState({
+                    errorStatus: true,
+                    errorMessage: error.message,
+                    doingRemoteRequest: false,
+                })
+            })
     }
 
     handleClickConfirmCommitPurchase() {
-        // Fetch data from redux store 
-        let userData = this.props.customerData.find(customer => (customer.email === this.props.currentUserEmail))
-
-        // Dispatch commit purchase
-        this.props.onConfirmCommitPurchase(this.props.currentUserEmail, userData.shoppingCart)
-
-        // Close dialog on success
-        this.handleCloseDialog()
+        // Perform request
+        this.setState({
+            doingRemoteRequest: true,
+        })
+        Axios.post(Root + "/" + this.props.currentUserEmail + "/confirmPurchase")
+            .then(response => {
+                if (response.data.ok) {
+                    // Request succeeded
+                    this.props.onConfirmCommitPurchase(this.props.currentUserEmail)
+                    this.handleCloseDialog()
+                } else {
+                    this.setState({
+                        errorStatus: true,
+                        errorMessage: response.data.error,
+                        doingRemoteRequest: false,
+                    })
+                }
+            })
+            .catch(error => {
+                this.setState({
+                    errorStatus: true,
+                    errorMessage: error.message,
+                    doingRemoteRequest: false,
+                })
+            })
     }
 
 
@@ -234,6 +282,7 @@ class CustomerShopControl extends React.Component {
             <PetShopResponsiveDialog
                 isOpen={this.props.dialogOpen}
                 onClose={() => this.handleCloseDialog()}
+                isLoading={this.state.doingRemoteRequest}
                 ariaLabel="customer-shop-control-dialog"
                 dialogTitle={dialogTitle}
                 dialogContent={dialogContent}

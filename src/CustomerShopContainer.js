@@ -3,7 +3,7 @@ import React from "react"
 import { connect } from "react-redux"
 import CustomerShopControl from "./CustomerShopControl"
 import CustomerShopView from "./CustomerShopView"
-import { addToCart, changeCurrentView, commitOnPurchase, editCartItem, removeFromCart } from "./StoreActions"
+import { addToCart, changeCurrentView, commitOnPurchase, editCartItem, removeFromCart, getProducts, getUserShoppingCart } from "./StoreActions"
 
 class CustomerShopContainer extends React.Component {
     constructor(props) {
@@ -38,6 +38,8 @@ class CustomerShopContainer extends React.Component {
             handleConfirmEditItem,
             handleConfirmRemoveItem,
             handleConfirmCommitPurchase,
+            handleGetUserShoppingCart,
+            handleGetProductList,
             handleChangeCurrentView
         } = this.props
 
@@ -51,6 +53,8 @@ class CustomerShopContainer extends React.Component {
                     onSetSelected={(id) => this.handleSetSelected(id)}
                     onLaunchDialog={(open, mode) => this.handleLaunchDialog(open, mode)}
                     onChangeCurrentView={(nextView) => handleChangeCurrentView(nextView)}
+                    onGetUserShoppingCart={handleGetUserShoppingCart}
+                    onGetProductList={handleGetProductList}
                 />
                 <CustomerShopControl
                     siteData={siteData}
@@ -93,6 +97,8 @@ CustomerShopContainer.propTypes = {
 
     // store common actions
     handleChangeCurrentView: PropTypes.func.isRequired,
+    handleGetUserShoppingCart: PropTypes.func.isRequired,
+    handleGetProductList: PropTypes.func.isRequired,
 }
 
 
@@ -119,12 +125,18 @@ function mapDispatchToProps(dispatch) {
         handleConfirmRemoveItem: (userEmail, itemData) => {
             dispatch(removeFromCart(userEmail, itemData))
         },
-        handleConfirmCommitPurchase: (userEmail, shoppingCart) => {
-            dispatch(commitOnPurchase(userEmail, shoppingCart))
+        handleConfirmCommitPurchase: (userEmail) => {
+            dispatch(commitOnPurchase(userEmail))
         },
         // General controls
         handleChangeCurrentView: nextView => {
             dispatch(changeCurrentView(nextView))
+        },
+        handleGetUserShoppingCart: shoppingCart => {
+            dispatch(getUserShoppingCart(shoppingCart))
+        },
+        handleGetProductList: products => {
+            dispatch(getProducts(products))
         }
     }
 }

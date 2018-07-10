@@ -3,7 +3,7 @@ import React from "react"
 import { connect } from "react-redux"
 import CustomerServiceControl from "./CustomerServiceControl"
 import CustomerServiceView from "./CustomerServiceView"
-import { addAppointment, changeCurrentView, removeAppointment } from "./StoreActions"
+import { addAppointment, changeCurrentView, removeAppointment, getUserAppointments, getUserAnimals } from "./StoreActions"
 
 class CustomerServiceContainer extends React.Component {
     constructor(props) {
@@ -35,6 +35,8 @@ class CustomerServiceContainer extends React.Component {
             currentUserView,
             currentUserEmail,
             handleChangeCurrentView,
+            handleGetUserAppointments,
+            handleGetUserAnimals,
             handleConfirmAddAppointment,
             handleConfirmRemoveAppointment,
         } = this.props
@@ -47,6 +49,8 @@ class CustomerServiceContainer extends React.Component {
                     customerData={customerData}
                     currentUserView={currentUserView}
                     currentUserEmail={currentUserEmail}
+                    onGetUserAppointments={(appointments) => handleGetUserAppointments(appointments)}
+                    onGetUserAnimals={(animals) => handleGetUserAnimals(animals)}
                     onChangeCurrentView={(nextView) => handleChangeCurrentView(nextView)}
                     onLaunchDialog={(open, mode) => this.handleLaunchDialog(open, mode)}
                     onSetSelected={(id) => this.handleSetSelected(id)}
@@ -85,6 +89,8 @@ CustomerServiceContainer.propTypes = {
 
     // store actions
     handleChangeCurrentView: PropTypes.func.isRequired,
+    handleGetUserAppointments: PropTypes.func.isRequired,
+    handleGetUserAnimals: PropTypes.func.isRequired,
     handleConfirmAddAppointment: PropTypes.func.isRequired,
     handleConfirmRemoveAppointment: PropTypes.func.isRequired,
 
@@ -104,6 +110,12 @@ function mapDispatchToProps(dispatch) {
         // CommonActions
         handleChangeCurrentView: nextView => {
             dispatch(changeCurrentView(nextView))
+        },
+        handleGetUserAppointments: appointments => {
+            dispatch(getUserAppointments(appointments))
+        },
+        handleGetUserAnimals: animals => {
+            dispatch(getUserAnimals(animals))
         },
         // Customer actions
         handleConfirmAddAppointment: (userEmail, appointData) => {
